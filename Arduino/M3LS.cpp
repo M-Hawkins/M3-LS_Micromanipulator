@@ -1,4 +1,8 @@
 /*
+M3LS.cpp - An Arduino library for translating high level commands to M3-LS API
+           calls over SPI
+Created by Matthew Hawkins
+Copyright info?
 */
 
 #include "Arduino.h"
@@ -22,44 +26,22 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
     digitalWrite(_zSS, HIGH);
 }
 
-// // Gets and stores the current X, Y, and Z position of the stages
-// void getCurrentPosition(){
-//     xPos = getAxisPosition(_xSS);
-//     yPos = getAxisPosition(_ySS);
-//     zPos = getAxisPosition(_zSS);
-// }
+// Gets and stores the current X, Y, and Z position of the stages
+void M3LS::getCurrentPosition(){
+    currentPosition[0] = getAxisPosition(_xSS);
+    currentPosition[1] = getAxisPosition(_ySS);
+    currentPosition[2] = getAxisPosition(_zSS);
+}
 
-// // Get the current position of a single stage
-// int getAxisPosition(int pin){
-//     digitalWrite(pin, LOW);
-//     sendSPICommand(10);
-//     waitForResponse();
-//     // TODO
-//     // Read response into var to return
-//     // 8 bytes at a time
-//     digitalWrite(pin, HIGH);
-//     return 0;
-// }
+// Get the current position of a single stage
+int M3LS::getAxisPosition(int pin){
+    //String response = sendSPICommand("<10>", pin);
+    // TODO 
+    // Extract relevant info from response...
+    return 0;
+}
 
-// void moveToTargetPosition(){
-//   r eturn;
-// }
-
-// // Helper function which waits for a response over SPI
-// void waitForResponse(){
-//     // TODO
-//     // Check until a 1 is not returned
-//     // May have to return this value
-//     return;
-// }
-
-// // Helper function used to send SPI commands specific to the M3-LS
-// void sendSPICommand(int commandNumber, String args = ""){
-//     // Build command as a string
-//     String commandString = "<" + String(commandNumber) + ">\r";
-
-//     // Transmit the string over SPI, one char at a time
-//     for (unsigned int i = 0; i < commandString.length(); i++){
-//         SPI.transfer(commandString[i]);
-//     }
-// }
+void M3LS::moveToTargetPosition(){
+    // TODO
+    return;
+}
