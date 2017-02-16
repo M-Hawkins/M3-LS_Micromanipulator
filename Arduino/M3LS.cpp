@@ -58,9 +58,10 @@ void M3LS::getCurrentPosition(){
 
 // Get the current position of a single stage
 int M3LS::getAxisPosition(int pin){
-    //String response = sendSPICommand("<10>", pin);
+    String response = spi.sendSPICommand("<10>", pin);
     // TODO 
     // Extract relevant info from response...
+    Serial.println(response);
     return 0;
 }
 

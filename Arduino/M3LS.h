@@ -9,18 +9,25 @@ Copyright info?
 #define M3LS_h
 
 #include "Arduino.h"
+#include "SPIMock.h"
 
 class M3LS{
     public:
+        // Constructors
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
         M3LS(int X_SS, int Y_SS, int Z_SS);
+        // Variables
         int* currentPosition;
+        // Functions
         void getCurrentPosition();
         void moveToTargetPosition();
     private:
+        // Variables
         int numAxes;
         int* pins;
+        SPIMock spi = SPIMock();
+        // Functions
         int getAxisPosition(int pin);
 };
 
