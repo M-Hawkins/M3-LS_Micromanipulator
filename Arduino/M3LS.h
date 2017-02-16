@@ -8,7 +8,6 @@ Copyright info?
 #ifndef M3LS_h
 #define M3LS_h
 
-#include "Arduino.h"
 #include "SPIMock.h"
 
 class M3LS{

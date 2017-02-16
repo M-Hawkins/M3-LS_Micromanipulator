@@ -12,6 +12,6 @@ String SPIMock::sendSPICommand(String message, int pin){
     if (command == 10){
         return "<10 123456 12345678 87654321>";
     } else {
-        return "Unrecognized command: " + message;
+        return "Unrecognized command: " + message + ", " + String(pin);
     }
 }
