@@ -5,32 +5,55 @@ Created by Matthew Hawkins
 Copyright info?
 */
 
-#include "Arduino.h"
 #include "M3LS.h"
+
+// Class constructor for a one axis M3LS micromanipulator setup
+M3LS::M3LS(int X_SS){
+    // Initialize variables
+    numAxes = 1;
+    pins = new int[numAxes]{X_SS};
+    currentPosition = new int[numAxes];
+
+    // Initialize all pins as unselected outputs
+    for (int pin = 0; pin < numAxes; pin++){
+        pinMode(pins[pin], OUTPUT);
+        digitalWrite(pins[pin], HIGH);
+    }
+}
+
+// Class constructor for a two axis M3LS micromanipulator setup
+M3LS::M3LS(int X_SS, int Y_SS){
+    // Initialize variables
+    numAxes = 2;
+    pins = new int[numAxes]{X_SS, Y_SS};
+    currentPosition = new int[numAxes];
+
+    // Initialize all pins as unselected outputs
+    for (int pin = 0; pin < numAxes; pin++){
+        pinMode(pins[pin], OUTPUT);
+        digitalWrite(pins[pin], HIGH);
+    }
+}
 
 // Class constructor for a three axis M3LS micromanipulator setup
 M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
-    // Store pin assignments
-    _xSS = X_SS;
-    _ySS = Y_SS;
-    _zSS = Z_SS;
+    // Initialize variables
+    numAxes = 3;
+    pins = new int[numAxes]{X_SS, Y_SS, Z_SS};
+    currentPosition = new int[numAxes];
 
-    // Configure slave select pins as outputs
-    pinMode(_xSS, OUTPUT);
-    pinMode(_ySS, OUTPUT);
-    pinMode(Z_SS, OUTPUT);
-
-    // Disable all stages
-    digitalWrite(_xSS, HIGH);
-    digitalWrite(_ySS, HIGH);
-    digitalWrite(_zSS, HIGH);
+    // Initialize all pins as unselected outputs
+    for (int pin = 0; pin < numAxes; pin++){
+        pinMode(pins[pin], OUTPUT);
+        digitalWrite(pins[pin], HIGH);
+    }
 }
 
-// Gets and stores the current X, Y, and Z position of the stages
+// Gets and stores the current position of each stage
 void M3LS::getCurrentPosition(){
-    currentPosition[0] = getAxisPosition(_xSS);
-    currentPosition[1] = getAxisPosition(_ySS);
-    currentPosition[2] = getAxisPosition(_zSS);
+    for (int axis = 0; axis < numAxes; axis++){
+        currentPosition[axis] = getAxisPosition(pins[axis]);
+    }
 }
 
 // Get the current position of a single stage

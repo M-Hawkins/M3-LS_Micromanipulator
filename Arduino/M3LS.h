@@ -12,14 +12,15 @@ Copyright info?
 
 class M3LS{
     public:
+        M3LS(int X_SS);
+        M3LS(int X_SS, int Y_SS);
         M3LS(int X_SS, int Y_SS, int Z_SS);
-        int currentPosition[3];
+        int* currentPosition;
         void getCurrentPosition();
         void moveToTargetPosition();
     private:
-        int _xSS;
-        int _ySS;
-        int _zSS;
+        int numAxes;
+        int* pins;
         int getAxisPosition(int pin);
 };
 

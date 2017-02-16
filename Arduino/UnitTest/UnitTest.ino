@@ -21,6 +21,13 @@ test(bad){
   assertNotEqual(x,y);
 }
 
+test(Initialize Pins){
+  M3LS m3(3, (const int[]){1, 2, 3});
+  int numAxes = 3;
+  int actual = m3.currentPosition;
+  assertEqual(numAxes, )
+}
+
 void setup(){
     Serial.begin(9600);
 }
