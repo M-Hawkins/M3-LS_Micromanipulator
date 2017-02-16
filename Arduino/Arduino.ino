@@ -11,5 +11,8 @@ void setup() {
 
 void loop() {
     m3.getCurrentPosition();
-    delay(5000);
+    Serial.println(String(m3.currentPosition[0]) + ", " + 
+                   String(m3.currentPosition[1]) + ", " + 
+                   String(m3.currentPosition[2]));
+    delay(3000);
 }

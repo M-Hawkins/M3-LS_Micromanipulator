@@ -12,7 +12,7 @@ M3LS::M3LS(int X_SS){
     // Initialize variables
     numAxes = 1;
     pins = new int[numAxes]{X_SS};
-    currentPosition = new int[numAxes];
+    currentPosition = new long[numAxes];
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
@@ -26,7 +26,7 @@ M3LS::M3LS(int X_SS, int Y_SS){
     // Initialize variables
     numAxes = 2;
     pins = new int[numAxes]{X_SS, Y_SS};
-    currentPosition = new int[numAxes];
+    currentPosition = new long[numAxes];
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
@@ -40,7 +40,7 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
     // Initialize variables
     numAxes = 3;
     pins = new int[numAxes]{X_SS, Y_SS, Z_SS};
-    currentPosition = new int[numAxes];
+    currentPosition = new long[numAxes];
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
@@ -57,12 +57,9 @@ void M3LS::getCurrentPosition(){
 }
 
 // Get the current position of a single stage
-int M3LS::getAxisPosition(int pin){
+long M3LS::getAxisPosition(int pin){
     String response = spi.sendSPICommand("<10>", pin);
-    // TODO 
-    // Extract relevant info from response...
-    Serial.println(response);
-    return 0;
+    return response.substring(11, 19).toInt();
 }
 
 void M3LS::moveToTargetPosition(){

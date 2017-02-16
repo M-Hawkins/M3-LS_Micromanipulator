@@ -18,7 +18,7 @@ class M3LS{
         M3LS(int X_SS, int Y_SS);
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Variables
-        int* currentPosition;
+        long* currentPosition;
         // Functions
         void getCurrentPosition();
         void moveToTargetPosition();
@@ -28,7 +28,7 @@ class M3LS{
         int* pins;
         SPIMock spi = SPIMock();
         // Functions
-        int getAxisPosition(int pin);
+        long getAxisPosition(int pin);
 };
 
 #endif
