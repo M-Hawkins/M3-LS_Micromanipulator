@@ -8,7 +8,7 @@ Copyright info?
 #ifndef SPIMock_h
 #define SPIMock_h
 
-#include <Arduino.h>
+#include "Arduino.h"
 
 class SPIMock{
     public:
