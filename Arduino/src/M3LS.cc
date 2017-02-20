@@ -8,9 +8,16 @@ Copyright info?
 #include "M3LS.h"
 
 // Class constructor for a one axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS)
-: spi(SPIMock()), numAxes(1), pins(new int[1]{X_SS}), 
-currentPosition(new long[1]), {initPins()}
+M3LS::M3LS(int X_SS){
+    numAxes = 1;
+    pins = new int[numAxes];
+    pins[0] = X_SS;
+    currentPosition = new long[numAxes];
+    for (int pin = 0; pin < numAxes; pin++){
+        pinMode(pins[pin], OUTPUT);
+        digitalWrite(pins[pin], HIGH);
+    }
+}
 
 // Class constructor for a two axis M3LS micromanipulator setup
 // M3LS::M3LS(int X_SS, int Y_SS){
@@ -40,14 +47,6 @@ currentPosition(new long[1]), {initPins()}
 //     }
 // }
 
-// Initialize all pins as unselected outputs
-void M3LS::initPins(){
-    for (int pin = 0; pin < numAxes; pin++){
-        pinMode(pins[pin], OUTPUT);
-        digitalWrite(pins[pin], HIGH);
-    }
-}
-
 // Gets and stores the current position of each stage
 void M3LS::getCurrentPosition(){
     for (int axis = 0; axis < numAxes; axis++){
@@ -57,11 +56,17 @@ void M3LS::getCurrentPosition(){
 
 // Get the current position of a single stage
 long M3LS::getAxisPosition(int pin){
-    String response = spi.sendSPICommand("<10>", pin);
-    return response.substring(11, 19).toInt();
+    char message[] = "<10>\r";
+    char* response = sendSPICommand(message, pin);
+    // return response.substring(11, 19).toInt();
+    return atoi(response);
 }
 
 void M3LS::moveToTargetPosition(){
     // TODO
     return;
+}
+
+char* M3LS::sendSPICommand(char* message, int pin){
+    return message;
 }

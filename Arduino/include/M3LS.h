@@ -8,7 +8,7 @@ Copyright info?
 #ifndef M3LS_h
 #define M3LS_h
 
-#include "arduino-mock/Arduino.h"
+#include "Arduino.h"
 
 class M3LS{
     public:
@@ -25,10 +25,9 @@ class M3LS{
         // Variables
         int numAxes;
         int* pins;
-        SPIMock spi;
         // Functions
-        void initPins();
         long getAxisPosition(int pin);
+        char* sendSPICommand(char* message, int pin);
 };
 
 #endif
