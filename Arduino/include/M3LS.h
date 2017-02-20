@@ -14,17 +14,17 @@ class M3LS{
     public:
         // Constructors
         M3LS(int X_SS);
-        // M3LS(int X_SS, int Y_SS);
-        // M3LS(int X_SS, int Y_SS, int Z_SS);
+        M3LS(int X_SS, int Y_SS);
+        M3LS(int X_SS, int Y_SS, int Z_SS);
         // Variables
-        long* currentPosition;
+        long currentPosition[3];
         // Functions
         void getCurrentPosition();
         void moveToTargetPosition();
     private:
         // Variables
         int numAxes;
-        int* pins;
+        int pins[3];
         // Functions
         long getAxisPosition(int pin);
         char* sendSPICommand(char* message, int pin);
