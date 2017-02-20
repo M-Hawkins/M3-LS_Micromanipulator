@@ -1,5 +1,3 @@
-// Copyright 2015 http://switchdevice.com
-
 #include "Arduino.cc"
 #include "EEPROM.cc"
 #include "Serial.cc"
@@ -10,3 +8,5 @@
 #include "SPI.cc"
 
 #include "IRremote.cc"
+
+// #include "M3LS.cpp"

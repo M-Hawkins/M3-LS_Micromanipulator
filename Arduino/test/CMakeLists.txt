@@ -1,4 +1,4 @@
-message ("building tests for Arduino Mock")
+message ("Building tests...")
 # include_directories(${GTEST_INCLUDE_DIRS})
 file(GLOB SRCS *.cc)
 
