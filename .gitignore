@@ -1,7 +1,4 @@
 /tmp/*
 /.build/*
 /.vscode/*
-/Arduino/UnitTests/*
-!/Arduino/UnitTests/CMakeLists.txt
-!/Arduino/UnitTests/tests.cpp
-!/Arduino/UnitTests/UnitTest.ino
+/Arduino/build

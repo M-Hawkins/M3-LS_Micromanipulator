@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include "M3LS.h"
+#include "M3LS/M3LS.h"
 
 M3LS m3(1, 2, 3);
 

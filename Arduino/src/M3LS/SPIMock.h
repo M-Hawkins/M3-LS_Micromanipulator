@@ -8,14 +8,16 @@ Copyright info?
 #ifndef SPIMock_h
 #define SPIMock_h
 
+#ifndef TESTING
 #include "Arduino.h"
+#endif
 
 class SPIMock{
     public:
         // Constructor
-        SPIMock() = default;
+        SPIMock();
         // Function
-        String sendSPICommand(String message, int pin);
+        char* sendSPICommand(char* message, int pin);
 };
 
 #endif

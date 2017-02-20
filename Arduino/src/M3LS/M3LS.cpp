@@ -8,11 +8,13 @@ Copyright info?
 #include "M3LS.h"
 
 // Class constructor for a one axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS){
+M3LS::M3LS(int X_SS)
+: spi(SPIMock()), numAxes(1), pins(new int[numAxes]{X_SS}), currentPosition(new long[numAxes])
+{
     // Initialize variables
-    numAxes = 1;
-    pins = new int[numAxes]{X_SS};
-    currentPosition = new long[numAxes];
+    // numAxes = 1;
+    // pins = new int[numAxes]{X_SS};
+    // currentPosition = new long[numAxes];
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){

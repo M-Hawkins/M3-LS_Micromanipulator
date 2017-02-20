@@ -25,7 +25,7 @@ class M3LS{
         // Variables
         int numAxes;
         int* pins;
-        SPIMock spi = SPIMock();
+        SPIMock spi;
         // Functions
         long getAxisPosition(int pin);
 };
