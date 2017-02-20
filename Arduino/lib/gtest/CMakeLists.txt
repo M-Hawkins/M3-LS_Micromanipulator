@@ -1,4 +1,4 @@
-message("in gtest")
+#message("in gtest")
 project(gtest_builder C CXX)
 include(ExternalProject)
 

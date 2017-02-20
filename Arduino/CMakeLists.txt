@@ -5,9 +5,9 @@ find_package(Threads REQUIRED)
 add_subdirectory(lib/gtest)
 add_subdirectory(lib/gmock)
 
-message ("building arduino_mock")
-message("Gtest include: ${GTEST_INCLUDE_DIRS}")
-message("Gmock include: ${GMOCK_INCLUDE_DIRS}")
+#message ("Building arduino_mock")
+#message("Gtest include: ${GTEST_INCLUDE_DIRS}")
+#message("Gmock include: ${GMOCK_INCLUDE_DIRS}")
 include_directories(${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS} include)
 file(GLOB SRC
     "src/ArduinoMockAll.cc"
