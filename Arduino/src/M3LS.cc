@@ -89,7 +89,7 @@ void M3LS::moveToTargetXPosition(long target){
 
     // Build command and send it to SPI
     memcpy(sendChars, "<08 ", 4);
-    // memcpy(sendChars + 4, "", 8);
+    sprintf(sendChars + 4, "%08ld", target);
     memcpy(sendChars + 12, ">\r", 2);
     sendSPICommand(pins[0]);
 }
@@ -106,17 +106,23 @@ void M3LS::sendSPICommand(int pin){
         if (pin == pins[0]){
             // Extract target value and set the current position to it
             // TODO
-            currentPosition[0] = 12345678L;
+            // currentPosition[0] = 34567890L;
         }
     }
     // Get Status and Position command
     if (commNum = 10){
         if (pin == pins[0]){
-            memcpy(recvChars, "<10 123456 11111234 87654321>\r", 30);
+            memcpy(recvChars, "<10 123456 ", 11);
+            sprintf(recvChars + 11, "%08ld", currentPosition[0]);
+            memcpy(recvChars + 19, " 87654321>\r", 11);
         } else if (pin == pins[1]){
-            memcpy(recvChars, "<10 123456 22221234 87654321>\r", 30);
+            memcpy(recvChars, "<10 123456 ", 11);
+            sprintf(recvChars + 11, "%08ld", currentPosition[1]);
+            memcpy(recvChars + 19, " 87654321>\r", 11);
         } else if (pin == pins[2]){
-            memcpy(recvChars, "<10 123456 33331234 87654321>\r", 30);
+            memcpy(recvChars, "<10 123456 ", 11);
+            sprintf(recvChars + 11, "%08ld", currentPosition[2]);
+            memcpy(recvChars + 19, " 87654321>\r", 11);
         } else {
             memcpy(recvChars, "<10 123456 00000000 87654321>\r", 30);
         }
