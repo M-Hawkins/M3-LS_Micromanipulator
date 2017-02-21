@@ -20,7 +20,7 @@ class M3LS{
         long currentPosition[3];
         // Functions
         long* getCurrentPosition();
-        void moveToTargetPosition();
+        void moveToTargetXPosition(long target);
     private:
         // Variables
         int numAxes;

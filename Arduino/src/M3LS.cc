@@ -68,8 +68,7 @@ long M3LS::getAxisPosition(int pin){
     */
 
     // Build command and send it to SPI
-    static char sendMessage[] = "<10>\r";
-    memcpy(sendChars, sendMessage, 5);
+    memcpy(sendChars, "<10>\r", 5);
     sendSPICommand(pin);
 
     // Allocate space for and generate position value
@@ -78,21 +77,49 @@ long M3LS::getAxisPosition(int pin){
     return atoi(position);
 }
 
-void M3LS::moveToTargetPosition(){
-    // TODO
-    return;
+// Move the X axis stage to a given position
+void M3LS::moveToTargetXPosition(long target){
+    /*
+    Send to controller:
+        <08>\r
+    Receive from controller:
+        <10 SSSSSS PPPPPPPP EEEEEEEE>\r
+        length: 30 bytes
+    */
+
+    // Build command and send it to SPI
+    memcpy(sendChars, "<08 ", 4);
+    // memcpy(sendChars + 4, "", 8);
+    memcpy(sendChars + 12, ">\r", 2);
+    sendSPICommand(pins[0]);
 }
 
 // Temporary, for testing only
 void M3LS::sendSPICommand(int pin){
-    if (pin == pins[0]){
-        memcpy(recvChars, "<10 123456 11111234 87654321>\r", 30);
-    } else if (pin == pins[1]){
-        memcpy(recvChars, "<10 123456 22221234 87654321>\r", 30);
-    } else if (pin == pins[2]){
-        memcpy(recvChars, "<10 123456 33331234 87654321>\r", 30);
-    } else {
-        memcpy(recvChars, "<10 123456 00000000 87654321>\r", 30);
+    // Get command
+    char comm[2];
+    memcpy(comm, recvChars, 2);
+    int commNum = atoi(comm);
+
+    // Move to Target command
+    if (commNum = 8){
+        if (pin == pins[0]){
+            // Extract target value and set the current position to it
+            // TODO
+            currentPosition[0] = 12345678L;
+        }
+    }
+    // Get Status and Position command
+    if (commNum = 10){
+        if (pin == pins[0]){
+            memcpy(recvChars, "<10 123456 11111234 87654321>\r", 30);
+        } else if (pin == pins[1]){
+            memcpy(recvChars, "<10 123456 22221234 87654321>\r", 30);
+        } else if (pin == pins[2]){
+            memcpy(recvChars, "<10 123456 33331234 87654321>\r", 30);
+        } else {
+            memcpy(recvChars, "<10 123456 00000000 87654321>\r", 30);
+        }
     }
     //Return an error flag?
 }

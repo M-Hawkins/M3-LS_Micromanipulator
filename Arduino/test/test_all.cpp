@@ -67,8 +67,7 @@ TEST(GetCurrentPosition, X){
 
     // Initialize M3LS and execute functions to be tested
     M3LS m3 = M3LS(pins[0]);
-    m3.getCurrentPosition();
-    long* currPos = m3.currentPosition;
+    long* currPos = m3.getCurrentPosition();
 
     // Check return values against expected
     ASSERT_EQ(11111234, currPos[0]);
@@ -89,8 +88,7 @@ TEST(GetCurrentPosition, XY){
 
     // Initialize M3LS and execute functions to be tested
     M3LS m3 = M3LS(pins[0], pins[1]);
-    m3.getCurrentPosition();
-    long* currPos = m3.currentPosition;
+    long* currPos = m3.getCurrentPosition();
 
     // Check return values against expected
     ASSERT_EQ(11111234, currPos[0]);
