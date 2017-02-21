@@ -19,7 +19,7 @@ class M3LS{
         // Variables
         long currentPosition[3];
         // Functions
-        void getCurrentPosition();
+        long* getCurrentPosition();
         void moveToTargetPosition();
     private:
         // Variables

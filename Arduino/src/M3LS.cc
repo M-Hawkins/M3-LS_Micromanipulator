@@ -48,12 +48,13 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
         digitalWrite(pins[pin], HIGH);
     }
 }
-// 
+
 // Gets and stores the current position of each stage
-void M3LS::getCurrentPosition(){
+long* M3LS::getCurrentPosition(){
     for (int axis = 0; axis < numAxes; axis++){
         currentPosition[axis] = getAxisPosition(pins[axis]);
     }
+    return currentPosition;
 }
 
 // Get the current position of a single stage
@@ -65,12 +66,13 @@ long M3LS::getAxisPosition(int pin){
         <10 SSSSSS PPPPPPPP EEEEEEEE>\r
         length: 30 bytes
     */
+
     // Build command and send it to SPI
     static char sendMessage[] = "<10>\r";
     memcpy(sendChars, sendMessage, 5);
     sendSPICommand(pin);
 
-    // Allocate space for return message
+    // Allocate space for and generate position value
     char position[8];
     memcpy(position, recvChars + 11, 8);
     return atoi(position);
@@ -92,4 +94,5 @@ void M3LS::sendSPICommand(int pin){
     } else {
         memcpy(recvChars, "<10 123456 00000000 87654321>\r", 30);
     }
+    //Return an error flag?
 }
