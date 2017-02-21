@@ -25,9 +25,11 @@ class M3LS{
         // Variables
         int numAxes;
         int pins[3];
+        char sendChars[50];
+        char recvChars[50];
         // Functions
         long getAxisPosition(int pin);
-        char* sendSPICommand(char* message, int pin);
+        void sendSPICommand(int pin);
 };
 
 #endif

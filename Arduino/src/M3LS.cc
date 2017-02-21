@@ -9,6 +9,7 @@ Copyright info?
 
 // Class constructor for a one axis M3LS micromanipulator setup
 M3LS::M3LS(int X_SS){
+    // Initialize variables
     numAxes = 1;
     pins[0] = X_SS;
 
@@ -57,10 +58,22 @@ void M3LS::getCurrentPosition(){
 
 // Get the current position of a single stage
 long M3LS::getAxisPosition(int pin){
-    char message[] = "<10>\r";
-    char* response = sendSPICommand(message, pin);
-    // return response.substring(11, 19).toInt();
-    return atoi(response);
+    /*
+    Send to controller:
+        <10>\r
+    Receive from controller:
+        <10 SSSSSS PPPPPPPP EEEEEEEE>\r
+        length: 30 bytes
+    */
+    // Build command and send it to SPI
+    static char sendMessage[] = "<10>\r";
+    memcpy(sendChars, sendMessage, 5);
+    sendSPICommand(pin);
+
+    // Allocate space for return message
+    char position[8];
+    memcpy(position, recvChars + 11, 8);
+    return atoi(position);
 }
 
 void M3LS::moveToTargetPosition(){
@@ -68,6 +81,15 @@ void M3LS::moveToTargetPosition(){
     return;
 }
 
-char* M3LS::sendSPICommand(char* message, int pin){
-    return message;
+// Temporary, for testing only
+void M3LS::sendSPICommand(int pin){
+    if (pin == pins[0]){
+        memcpy(recvChars, "<10 123456 11111234 87654321>\r", 30);
+    } else if (pin == pins[1]){
+        memcpy(recvChars, "<10 123456 22221234 87654321>\r", 30);
+    } else if (pin == pins[2]){
+        memcpy(recvChars, "<10 123456 33331234 87654321>\r", 30);
+    } else {
+        memcpy(recvChars, "<10 123456 00000000 87654321>\r", 30);
+    }
 }
