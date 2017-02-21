@@ -98,19 +98,20 @@ void M3LS::moveToTargetXPosition(long target){
 void M3LS::sendSPICommand(int pin){
     // Get command
     char comm[2];
-    memcpy(comm, recvChars, 2);
+    memcpy(comm, sendChars + 1, 2);
     int commNum = atoi(comm);
 
     // Move to Target command
-    if (commNum = 8){
+    if (commNum == 8){
         if (pin == pins[0]){
             // Extract target value and set the current position to it
             // TODO
-            // currentPosition[0] = 34567890L;
+            currentPosition[0] = 34567890L;
         }
     }
+
     // Get Status and Position command
-    if (commNum = 10){
+    else if (commNum == 10){
         if (pin == pins[0]){
             memcpy(recvChars, "<10 123456 ", 11);
             sprintf(recvChars + 11, "%08ld", currentPosition[0]);
