@@ -77,8 +77,75 @@ long M3LS::getAxisPosition(int pin){
     return atoi(position);
 }
 
+// Default three axis move command
+void M3LS::moveToTargetPosition(long target){
+    moveToTargetPositionX(target);
+}
+
 // Move the X axis stage to a given position
-void M3LS::moveToTargetXPosition(long target){
+void M3LS::moveToTargetPositionX(long target){
+    setTargetPosition(target);
+    sendSPICommand(pins[0]);
+}
+
+// Move the Y axis stage to a given position
+void M3LS::moveToTargetPositionY(long target){
+    setTargetPosition(target);
+    sendSPICommand(pins[1]);
+}
+
+// Move the Z axis stage to a given position
+void M3LS::moveToTargetPositionZ(long target){
+    setTargetPosition(target);
+    sendSPICommand(pins[2]);
+}
+
+// Default two axes move command
+void M3LS::moveToTargetPosition(long targetX, long targetY){
+    moveToTargetPositionXY(targetX, targetY);
+}
+
+// Move the X and Y stages to a given position
+void M3LS::moveToTargetPositionXY(long targetX, long targetY){
+    setTargetPosition(targetX);
+    sendSPICommand(pins[0]);
+    setTargetPosition(targetY);
+    sendSPICommand(pins[1]);
+}
+
+// Move the X and Z stages to a given position
+void M3LS::moveToTargetPositionXZ(long targetX, long targetZ){
+    setTargetPosition(targetX);
+    sendSPICommand(pins[0]);
+    setTargetPosition(targetZ);
+    sendSPICommand(pins[2]);
+}
+
+// Move the Y and Z stages to a given position
+void M3LS::moveToTargetPositionYZ(long targetY, long targetZ){
+    setTargetPosition(targetY);
+    sendSPICommand(pins[1]);
+    setTargetPosition(targetZ);
+    sendSPICommand(pins[2]);
+}
+
+// Default three axes move command
+void M3LS::moveToTargetPosition(long targetX, long targetY, long targetZ){
+    moveToTargetPositionXYZ(targetX, targetY, targetZ);
+}
+
+// Move the X, Y, and Z stages to a given position
+void M3LS::moveToTargetPositionXYZ(long targetX, long targetY, long targetZ){
+    setTargetPosition(targetX);
+    sendSPICommand(pins[0]);
+    setTargetPosition(targetY);
+    sendSPICommand(pins[1]);
+    setTargetPosition(targetZ);
+    sendSPICommand(pins[2]);
+}
+
+// Set the target position to move to
+void M3LS::setTargetPosition(long target){
     /*
     Send to controller:
         <08>\r
@@ -91,7 +158,6 @@ void M3LS::moveToTargetXPosition(long target){
     memcpy(sendChars, "<08 ", 4);
     sprintf(sendChars + 4, "%08ld", target);
     memcpy(sendChars + 12, ">\r", 2);
-    sendSPICommand(pins[0]);
 }
 
 // Temporary, for testing only
@@ -103,10 +169,18 @@ void M3LS::sendSPICommand(int pin){
 
     // Move to Target command
     if (commNum == 8){
+        // Extract the target position
+        char target[8];
+        memcpy(target, sendChars + 4, 8);
+        long targetNum = atoi(target);
+
+        // Set appropriate axis position to the target value
         if (pin == pins[0]){
-            // Extract target value and set the current position to it
-            // TODO
-            currentPosition[0] = 34567890L;
+            currentPosition[0] = targetNum;
+        } else if (pin == pins[1]){
+            currentPosition[1] = targetNum;
+        } else if (pin == pins[2]){
+            currentPosition[2] = targetNum;
         }
     }
 
@@ -125,7 +199,7 @@ void M3LS::sendSPICommand(int pin){
             sprintf(recvChars + 11, "%08ld", currentPosition[2]);
             memcpy(recvChars + 19, " 87654321>\r", 11);
         } else {
-            memcpy(recvChars, "<10 123456 00000000 87654321>\r", 30);
+            memcpy(recvChars, "<10 123456 88888888 87654321>\r", 30);
         }
     }
     //Return an error flag?

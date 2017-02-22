@@ -20,7 +20,16 @@ class M3LS{
         long currentPosition[3];
         // Functions
         long* getCurrentPosition();
-        void moveToTargetXPosition(long target);
+        void moveToTargetPosition(long target);
+        void moveToTargetPositionX(long target);
+        void moveToTargetPositionY(long target);
+        void moveToTargetPositionZ(long target);
+        void moveToTargetPosition(long targetX, long targetY);
+        void moveToTargetPositionXY(long targetX, long targetY);
+        void moveToTargetPositionXZ(long targetX, long targetZ);
+        void moveToTargetPositionYZ(long targetY, long targetZ);
+        void moveToTargetPosition(long targetX, long targetY, long targetZ);
+        void moveToTargetPositionXYZ(long targetX, long targetY, long targetZ);
     private:
         // Variables
         int numAxes;
@@ -30,6 +39,7 @@ class M3LS{
         // Functions
         long getAxisPosition(int pin);
         void sendSPICommand(int pin);
+        void setTargetPosition(long target);
 };
 
 #endif
