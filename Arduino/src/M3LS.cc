@@ -12,6 +12,7 @@ M3LS::M3LS(int X_SS){
     // Initialize variables
     numAxes = 1;
     pins[0] = X_SS;
+    currentControlMode = position;
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
@@ -26,6 +27,7 @@ M3LS::M3LS(int X_SS, int Y_SS){
     numAxes = 2;
     pins[0] = X_SS;
     pins[1] = Y_SS;
+    currentControlMode = position;
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
@@ -41,6 +43,7 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
     pins[0] = X_SS;
     pins[1] = Y_SS;
     pins[2] = Z_SS;
+    currentControlMode = position;
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
@@ -158,6 +161,12 @@ void M3LS::setTargetPosition(long target){
     memcpy(sendChars, "<08 ", 4);
     sprintf(sendChars + 4, "%08ld", target);
     memcpy(sendChars + 12, ">\r", 2);
+}
+
+// Store the current position as the home position
+void M3LS::setHome(){
+    getCurrentPosition();
+    memcpy(homePosition, currentPosition, numAxes);
 }
 
 // Temporary, for testing only
