@@ -80,71 +80,68 @@ long M3LS::getAxisPosition(int pin){
     return atoi(position);
 }
 
+// Default single axis move command
+void M3LS::moveToTargetPosition(long target0){
+    moveToTargetPosition(target0, X);
+}
+
+// Move the specified axis to the target position
+void M3LS::moveToTargetPosition(long target0, Axes axis){
+    setTargetPosition(target0);
+    sendSPICommand(pins[axis]);
+}
+
+// Default two axis move command
+void M3LS::moveToTargetPosition(long target0, long target1){
+    moveToTargetPosition(target0, target1, XY);
+}
+
+// Move the specified axes to the target positions
+void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
+    moveToTargetPosition(target0, target1, 0L, axis);
+}
+
 // Default three axis move command
-void M3LS::moveToTargetPosition(long target){
-    moveToTargetPositionX(target);
+void M3LS::moveToTargetPosition(long target0, long target1, long target2){
+    moveToTargetPosition(target0, target1, target2, XYZ);   
 }
 
-// Move the X axis stage to a given position
-void M3LS::moveToTargetPositionX(long target){
-    setTargetPosition(target);
-    sendSPICommand(pins[0]);
-}
-
-// Move the Y axis stage to a given position
-void M3LS::moveToTargetPositionY(long target){
-    setTargetPosition(target);
-    sendSPICommand(pins[1]);
-}
-
-// Move the Z axis stage to a given position
-void M3LS::moveToTargetPositionZ(long target){
-    setTargetPosition(target);
-    sendSPICommand(pins[2]);
-}
-
-// Default two axes move command
-void M3LS::moveToTargetPosition(long targetX, long targetY){
-    moveToTargetPositionXY(targetX, targetY);
-}
-
-// Move the X and Y stages to a given position
-void M3LS::moveToTargetPositionXY(long targetX, long targetY){
-    setTargetPosition(targetX);
-    sendSPICommand(pins[0]);
-    setTargetPosition(targetY);
-    sendSPICommand(pins[1]);
-}
-
-// Move the X and Z stages to a given position
-void M3LS::moveToTargetPositionXZ(long targetX, long targetZ){
-    setTargetPosition(targetX);
-    sendSPICommand(pins[0]);
-    setTargetPosition(targetZ);
-    sendSPICommand(pins[2]);
-}
-
-// Move the Y and Z stages to a given position
-void M3LS::moveToTargetPositionYZ(long targetY, long targetZ){
-    setTargetPosition(targetY);
-    sendSPICommand(pins[1]);
-    setTargetPosition(targetZ);
-    sendSPICommand(pins[2]);
-}
-
-// Default three axes move command
-void M3LS::moveToTargetPosition(long targetX, long targetY, long targetZ){
-    moveToTargetPositionXYZ(targetX, targetY, targetZ);
-}
-
-// Move the X, Y, and Z stages to a given position
-void M3LS::moveToTargetPositionXYZ(long targetX, long targetY, long targetZ){
-    setTargetPosition(targetX);
-    sendSPICommand(pins[0]);
-    setTargetPosition(targetY);
-    sendSPICommand(pins[1]);
-    setTargetPosition(targetZ);
-    sendSPICommand(pins[2]);
+// Move the specified axes to the target positions
+void M3LS::moveToTargetPosition(long target0, long target1, long target2, Axes axis){
+    switch(axis)
+    {
+        case X   :  setTargetPosition(target0);
+                    sendSPICommand(pins[0]);
+                    break;
+        case Y   :  setTargetPosition(target1);
+                    sendSPICommand(pins[1]);
+                    break;
+        case Z   :  setTargetPosition(target2);
+                    sendSPICommand(pins[2]);
+                    break;
+        case XY  :  setTargetPosition(target0);
+                    sendSPICommand(pins[0]);
+                    setTargetPosition(target1);
+                    sendSPICommand(pins[1]);
+                    break;
+        case XZ  :  setTargetPosition(target0);
+                    sendSPICommand(pins[0]);
+                    setTargetPosition(target2);
+                    sendSPICommand(pins[2]);
+                    break;
+        case YZ  :  setTargetPosition(target1);
+                    sendSPICommand(pins[1]);
+                    setTargetPosition(target2);
+                    sendSPICommand(pins[2]);
+                    break;
+        case XYZ :  setTargetPosition(target0);
+                    sendSPICommand(pins[0]);
+                    setTargetPosition(target1);
+                    sendSPICommand(pins[1]);
+                    setTargetPosition(target2);
+                    sendSPICommand(pins[2]);
+                    break;
+    }
 }
 
 // Set the target position to move to

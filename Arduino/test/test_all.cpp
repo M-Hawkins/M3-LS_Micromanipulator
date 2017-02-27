@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "M3LS.h"
-#include <sys/time.h>
 using ::testing::Return;
 
 namespace testing
@@ -160,5 +159,42 @@ TEST(GetCurrentPosition, XYZ){
     for (int pin = 0; pin < numAxes; pin++){
         ASSERT_EQ(startingPositions[pin], currPos[pin]);
     }
+    releaseArduinoMock();
+}
+
+TEST(MoveToTargetPosition, X){
+    // Initialize test parameters and call test function
+    int pins[3] = {1, 2, 3};
+    int numAxes = 3;
+    long startingPositions[3] = {11111234L, 22221234L, 33331234L};
+    long targetPositionX = 12344444L;
+    
+    // Initialize mock Arduino instance and expected calls
+    ArduinoMock* arduinoMock = arduinoMockInstance();
+    for (int pin = 0; pin < numAxes; pin++){
+        EXPECT_CALL(*arduinoMock, pinMode(pins[pin], OUTPUT));
+        EXPECT_CALL(*arduinoMock, digitalWrite(pins[pin], HIGH));
+    }
+
+    // Initialize M3LS with starting positions
+    M3LS m3 = M3LS(pins[0], pins[1], pins[2]);
+    for (int pin = 0; pin < numAxes; pin++){
+        m3.currentPosition[pin] = startingPositions[pin];
+    }
+
+    // Execute function and check return values against expected
+    m3.moveToTargetPosition(targetPositionX, M3LS::X);
+    long* currPos = m3.getCurrentPosition();
+    ASSERT_EQ(targetPositionX, currPos[0]);
+    ASSERT_EQ(startingPositions[1], currPos[1]);
+    ASSERT_EQ(startingPositions[2], currPos[2]);
+
+    // Execute default function and check return values against expected
+    m3.moveToTargetPosition(startingPositions[0]);
+    currPos = m3.getCurrentPosition();
+    ASSERT_EQ(startingPositions[0], currPos[0]);
+    ASSERT_EQ(startingPositions[1], currPos[1]);
+    ASSERT_EQ(startingPositions[2], currPos[2]);
+
     releaseArduinoMock();
 }

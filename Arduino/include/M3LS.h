@@ -12,6 +12,9 @@ Copyright info?
 
 class M3LS{
     public:
+        // Enums
+        enum ControlMode {position, velocity};
+        enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         // Constructors
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
@@ -26,19 +29,13 @@ class M3LS{
         // setBounds();
         // Functions OLD
         long* getCurrentPosition();
-        void moveToTargetPosition(long target);
-        void moveToTargetPositionX(long target);
-        void moveToTargetPositionY(long target);
-        void moveToTargetPositionZ(long target);
-        void moveToTargetPosition(long targetX, long targetY);
-        void moveToTargetPositionXY(long targetX, long targetY);
-        void moveToTargetPositionXZ(long targetX, long targetZ);
-        void moveToTargetPositionYZ(long targetY, long targetZ);
-        void moveToTargetPosition(long targetX, long targetY, long targetZ);
-        void moveToTargetPositionXYZ(long targetX, long targetY, long targetZ);
+        void moveToTargetPosition(long target0);
+        void moveToTargetPosition(long target0, Axes a);
+        void moveToTargetPosition(long target0, long target1);
+        void moveToTargetPosition(long target0, long target1, Axes a);
+        void moveToTargetPosition(long target0, long target1, long target2);
+        void moveToTargetPosition(long target0, long target1, long target2, Axes a);
     private:
-        // Enums
-        enum ControlMode {position, velocity};
         // Variables
         int numAxes;
         int pins[3];
