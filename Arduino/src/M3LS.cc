@@ -7,6 +7,8 @@ Copyright info?
 
 #include "M3LS.h"
 
+
+// Constructors
 // Class constructor for a one axis M3LS micromanipulator setup
 M3LS::M3LS(int X_SS){
     // Initialize variables
@@ -52,12 +54,30 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
     }
 }
 
+// Public functions
+//
+void M3LS::setControlMode(ControlMode newMode){
+
+}
+
+// update position
+
+// set sensitivity
+
+// Store the current position as the home position
+void M3LS::setHome(){
+    getCurrentPosition();
+    memcpy(homePosition, currentPosition, numAxes);
+}
+
+// return home
+
+// Private Functions
 // Gets and stores the current position of each stage
-long* M3LS::getCurrentPosition(){
+void M3LS::getCurrentPosition(){
     for (int axis = 0; axis < numAxes; axis++){
         currentPosition[axis] = getAxisPosition(pins[axis]);
     }
-    return currentPosition;
 }
 
 // Get the current position of a single stage
@@ -175,12 +195,6 @@ void M3LS::setTargetPosition(long target){
     memcpy(sendChars, "<08 ", 4);
     sprintf(sendChars + 4, "%08ld", target);
     memcpy(sendChars + 12, ">\r", 2);
-}
-
-// Store the current position as the home position
-void M3LS::setHome(){
-    getCurrentPosition();
-    memcpy(homePosition, currentPosition, numAxes);
 }
 
 // Temporary, for testing only

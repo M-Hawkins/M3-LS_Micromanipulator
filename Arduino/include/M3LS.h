@@ -19,34 +19,32 @@ class M3LS{
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
         M3LS(int X_SS, int Y_SS, int Z_SS);
-        // Variables
-        long currentPosition[3];
         // Functions
-        void setControlMode();
+        void setControlMode(ControlMode newMode);
+        // updatePosition();
+        // setSensitivity();
         void setHome();
         // returnHome();
-        // setSensitivity();
-        // setBounds();
-        // Functions OLD
-        long* getCurrentPosition();
-        void moveToTargetPosition(long target0);
-        void moveToTargetPosition(long target0, Axes a);
-        void moveToTargetPosition(long target0, long target1);
-        void moveToTargetPosition(long target0, long target1, Axes a);
-        void moveToTargetPosition(long target0, long target1, long target2);
-        void moveToTargetPosition(long target0, long target1, long target2, Axes a);
     private:
         // Variables
         int numAxes;
         int pins[3];
         char sendChars[50];
         char recvChars[50];
+        long currentPosition[3];
         long homePosition[3];
         ControlMode currentControlMode;
         // Functions
+        void getCurrentPosition();
         long getAxisPosition(int pin);
-        void sendSPICommand(int pin);
+        void moveToTargetPosition(long target0);
+        void moveToTargetPosition(long target0, Axes a);
+        void moveToTargetPosition(long target0, long target1);
+        void moveToTargetPosition(long target0, long target1, Axes a);
+        void moveToTargetPosition(long target0, long target1, long target2);
+        void moveToTargetPosition(long target0, long target1, long target2, Axes a);
         void setTargetPosition(long target);
+        void sendSPICommand(int pin);
 };
 
 #endif
