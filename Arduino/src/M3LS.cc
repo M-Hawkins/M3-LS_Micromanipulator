@@ -60,11 +60,16 @@ void M3LS::setControlMode(ControlMode newMode){
     currentControlMode = newMode;
 }
 
-// Update the needle's position based upon current mode and joystick inputs
+// Default method for updating the needle's position
 void M3LS::updatePosition(long xPos, long yPos, long zPos){
+    updatePosition(xPos, yPos, zPos, XYZ);
+}
+
+// Update the needle's position based upon current mode and joystick inputs
+void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis){
     switch(currentControlMode)
     {
-        case position : moveToTargetPosition(xPos, yPos, zPos, XYZ);
+        case position : moveToTargetPosition(xPos, yPos, zPos, axis);
                         break;
         case velocity : break;
     } 

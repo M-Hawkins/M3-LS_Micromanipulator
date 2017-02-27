@@ -17,6 +17,7 @@ class M3LS{
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         // Variables
         ControlMode currentControlMode;
+        long currentPosition[3];
         // Constructors
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
@@ -24,6 +25,7 @@ class M3LS{
         // Functions
         void setControlMode(ControlMode newMode);
         void updatePosition(long xPos, long yPos, long zPos);
+        void updatePosition(long xPos, long yPos, long zPos, Axes axis);
         void setSensitivity(int speed);
         void setHome();
         void returnHome();
@@ -33,7 +35,6 @@ class M3LS{
         int pins[3];
         char sendChars[50];
         char recvChars[50];
-        long currentPosition[3];
         long homePosition[3];
         // Functions
         void getCurrentPosition();
