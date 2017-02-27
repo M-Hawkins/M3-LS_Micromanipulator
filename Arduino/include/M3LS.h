@@ -21,10 +21,10 @@ class M3LS{
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Functions
         void setControlMode(ControlMode newMode);
-        // updatePosition();
-        // setSensitivity();
+        void updatePosition(long xPos, long yPos, long zPos);
+        void setSensitivity(int speed);
         void setHome();
-        // returnHome();
+        void returnHome();
     private:
         // Variables
         int numAxes;
@@ -44,7 +44,7 @@ class M3LS{
         void moveToTargetPosition(long target0, long target1, long target2);
         void moveToTargetPosition(long target0, long target1, long target2, Axes a);
         void setTargetPosition(long target);
-        void sendSPICommand(int pin);
+        int sendSPICommand(int pin);
 };
 
 #endif

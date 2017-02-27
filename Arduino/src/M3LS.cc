@@ -55,14 +55,35 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
 }
 
 // Public functions
-//
+// Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
-
+    currentControlMode = newMode;
 }
 
-// update position
+// Update the needle's position based upon current mode and joystick inputs
+void M3LS::updatePosition(long xPos, long yPos, long zPos){
+    switch(currentControlMode)
+    {
+        case position : moveToTargetPosition(xPos, yPos, zPos, XYZ);
+                        break;
+        case velocity : break;
+    } 
+}
 
-// set sensitivity
+// Set the controller's sensitivity to a new value
+void M3LS::setSensitivity(int speed){
+    /*
+    Send to controller:
+        <40 SSSSSS CCCCCC AAAAAA IIII>
+    Receive from controller:
+        <40>
+    */
+
+    // Build command ~and send it to SPI
+    memcpy(sendChars, "<40 ", 4);
+    sprintf(sendChars + 4, "%06x", speed);
+    memcpy(sendChars + 10, "000033 0000CD 0001>\r", 20);
+}
 
 // Store the current position as the home position
 void M3LS::setHome(){
@@ -70,7 +91,17 @@ void M3LS::setHome(){
     memcpy(homePosition, currentPosition, numAxes);
 }
 
-// return home
+// Return to the stored home position
+void M3LS::returnHome(){
+    // Store current mode
+    // ControlMode previousMode = currentControlMode;
+    // Switch to closed loop mode
+    // Raise Z axis
+    // Move X and Y to target
+    moveToTargetPosition(homePosition[0], homePosition[1], XY);
+    // Restored previous mode
+    // setControlMode(previousMode);
+}
 
 // Private Functions
 // Gets and stores the current position of each stage
@@ -198,7 +229,7 @@ void M3LS::setTargetPosition(long target){
 }
 
 // Temporary, for testing only
-void M3LS::sendSPICommand(int pin){
+int M3LS::sendSPICommand(int pin){
     // Get command
     char comm[2];
     memcpy(comm, sendChars + 1, 2);
@@ -239,5 +270,5 @@ void M3LS::sendSPICommand(int pin){
             memcpy(recvChars, "<10 123456 88888888 87654321>\r", 30);
         }
     }
-    //Return an error flag?
+    return 0;
 }
