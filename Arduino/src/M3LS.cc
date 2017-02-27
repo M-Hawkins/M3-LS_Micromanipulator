@@ -98,7 +98,24 @@ void M3LS::moveToTargetPosition(long target0, long target1){
 
 // Move the specified axes to the target positions
 void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
-    moveToTargetPosition(target0, target1, 0L, axis);
+    switch(axis)
+    {
+        case XY  :  setTargetPosition(target0);
+                    sendSPICommand(pins[0]);
+                    setTargetPosition(target1);
+                    sendSPICommand(pins[1]);
+                    break;
+        case XZ  :  setTargetPosition(target0);
+                    sendSPICommand(pins[0]);
+                    setTargetPosition(target1);
+                    sendSPICommand(pins[2]);
+                    break;
+        case YZ  :  setTargetPosition(target0);
+                    sendSPICommand(pins[1]);
+                    setTargetPosition(target1);
+                    sendSPICommand(pins[2]);
+                    break;
+    }
 }
 
 // Default three axis move command
