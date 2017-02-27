@@ -93,7 +93,7 @@ void M3LS::setSensitivity(int speed){
 // Store the current position as the home position
 void M3LS::setHome(){
     getCurrentPosition();
-    memcpy(homePosition, currentPosition, numAxes);
+    memcpy(homePosition, currentPosition, numAxes * sizeof(long));
 }
 
 // Return to the stored home position

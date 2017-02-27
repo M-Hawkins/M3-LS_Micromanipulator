@@ -329,3 +329,73 @@ TEST(UpdatePosition, XYZ){
 
     releaseArduinoMock();
 }
+
+TEST(Home, Set){
+    // Initialize test parameters
+    int pins[] = {1, 2, 3};
+    int numAxes = 3;
+    long startingPositions[3] = {11111234L, 22221234L, 33331234L};
+    long targetPositionX = 12344444L;
+    long targetPositionY = 12345555L;
+    long targetPositionZ = 12346666L;
+
+    // Initialize mock Arduino instance and expected calls
+    ArduinoMock* arduinoMock = arduinoMockInstance();
+    for (int pin = 0; pin < numAxes; pin++){
+        EXPECT_CALL(*arduinoMock, pinMode(pins[pin], OUTPUT));
+        EXPECT_CALL(*arduinoMock, digitalWrite(pins[pin], HIGH));
+    }
+
+    // Initialize M3LS with starting positions
+    M3LS m3 = M3LS(pins[0], pins[1], pins[2]);
+    for (int pin = 0; pin < numAxes; pin++){
+        m3.currentPosition[pin] = startingPositions[pin];
+    }
+
+    // Execute function and check return values against expected
+    m3.updatePosition(targetPositionX, targetPositionY, targetPositionZ, M3LS::XYZ);
+    m3.setHome();
+    ASSERT_EQ(targetPositionX, m3.homePosition[0]);
+    ASSERT_EQ(targetPositionY, m3.homePosition[1]);
+    m3.updatePosition(startingPositions[0], startingPositions[1], startingPositions[2], M3LS::XYZ);
+    ASSERT_EQ(targetPositionX, m3.homePosition[0]);
+    ASSERT_EQ(targetPositionY, m3.homePosition[1]);
+
+    releaseArduinoMock();
+}
+
+TEST(Home, Return){
+    // Initialize test parameters
+    int pins[] = {1, 2, 3};
+    int numAxes = 3;
+    long startingPositions[3] = {11111234L, 22221234L, 33331234L};
+    long targetPositionX = 12344444L;
+    long targetPositionY = 12345555L;
+    long targetPositionZ = 12346666L;
+
+    // Initialize mock Arduino instance and expected calls
+    ArduinoMock* arduinoMock = arduinoMockInstance();
+    for (int pin = 0; pin < numAxes; pin++){
+        EXPECT_CALL(*arduinoMock, pinMode(pins[pin], OUTPUT));
+        EXPECT_CALL(*arduinoMock, digitalWrite(pins[pin], HIGH));
+    }
+
+    // Initialize M3LS with starting positions
+    M3LS m3 = M3LS(pins[0], pins[1], pins[2]);
+    for (int pin = 0; pin < numAxes; pin++){
+        m3.currentPosition[pin] = startingPositions[pin];
+    }
+
+    // Execute function and check return values against expected
+    m3.updatePosition(targetPositionX, targetPositionY, targetPositionZ, M3LS::XYZ);
+    m3.setHome();
+    m3.updatePosition(startingPositions[0], startingPositions[1], startingPositions[2], M3LS::XYZ);
+    ASSERT_EQ(targetPositionX, m3.homePosition[0]);
+    ASSERT_EQ(targetPositionY, m3.homePosition[1]);
+    m3.returnHome();
+    ASSERT_EQ(targetPositionX, m3.currentPosition[0]);
+    ASSERT_EQ(targetPositionY, m3.currentPosition[1]);
+
+
+    releaseArduinoMock();
+}
