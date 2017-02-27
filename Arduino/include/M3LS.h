@@ -15,6 +15,8 @@ class M3LS{
         // Enums
         enum ControlMode {position, velocity};
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
+        // Variables
+        ControlMode currentControlMode;
         // Constructors
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
@@ -33,7 +35,6 @@ class M3LS{
         char recvChars[50];
         long currentPosition[3];
         long homePosition[3];
-        ControlMode currentControlMode;
         // Functions
         void getCurrentPosition();
         long getAxisPosition(int pin);

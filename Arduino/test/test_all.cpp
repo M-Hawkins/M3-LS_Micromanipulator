@@ -80,3 +80,31 @@ TEST(Constructor, TripleAxis){
     M3LS m3 = M3LS(pins[0], pins[1], pins[2]);
     releaseArduinoMock();
 }
+
+TEST(ControlMode, Set){
+    // Initialize test parameters
+    int pins[] = {1, 2, 3};
+    int numAxes = 3;
+
+    // Initialize mock Arduino instance and expected calls
+    ArduinoMock* arduinoMock = arduinoMockInstance();
+    for (int pin = 0; pin < numAxes; pin++){
+        EXPECT_CALL(*arduinoMock, pinMode(pins[pin], OUTPUT));
+        EXPECT_CALL(*arduinoMock, digitalWrite(pins[pin], HIGH));
+    }
+
+    // Initialize M3LS and execute functions to be tested
+    M3LS m3 = M3LS(pins[0], pins[1], pins[2]);
+    m3.setControlMode(M3LS::position);
+    ASSERT_EQ(M3LS::position, m3.currentControlMode);
+    m3.setControlMode(M3LS::position);
+    ASSERT_EQ(M3LS::position, m3.currentControlMode);
+    m3.setControlMode(M3LS::velocity);
+    ASSERT_EQ(M3LS::velocity, m3.currentControlMode);
+    m3.setControlMode(M3LS::velocity);
+    ASSERT_EQ(M3LS::velocity, m3.currentControlMode);
+    m3.setControlMode(M3LS::position);
+    ASSERT_EQ(M3LS::position, m3.currentControlMode);
+
+    releaseArduinoMock();
+}
