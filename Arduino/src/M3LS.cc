@@ -256,7 +256,6 @@ int M3LS::sendSPICommand(int pin){
             currentPosition[2] = targetNum;
         }
     }
-
     // Get Status and Position command
     else if (commNum == 10){
         if (pin == pins[0]){
