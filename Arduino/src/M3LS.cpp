@@ -83,7 +83,7 @@ void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis){
         case position : moveToTargetPosition(xPos, yPos, zPos, axis);
                         break;
         case velocity : break;
-    } 
+    }
 }
 
 // Set the controller's sensitivity to a new value
@@ -187,7 +187,7 @@ void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
 
 // Default three axis move command
 void M3LS::moveToTargetPosition(long target0, long target1, long target2){
-    moveToTargetPosition(target0, target1, target2, XYZ);   
+    moveToTargetPosition(target0, target1, target2, XYZ);
 }
 
 // Move the specified axes to the target positions
@@ -245,7 +245,7 @@ void M3LS::setTargetPosition(long target){
 }
 
 int M3LS::sendSPICommand(int pin, int length){
-    memset(recvchars, 0, 100);
+    memset(recvChars, 0, 100);
     digitalWrite(pin, LOW);
     for(int i=0; i<length; i++){
         SPI.transfer(sendChars[i]);
@@ -254,15 +254,15 @@ int M3LS::sendSPICommand(int pin, int length){
     }
 
     int j = 0;
-    while('<' != (recvchars[j] = SPI.transfer(IN_PROGRESS))){
+    while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
     }
-    while(DONE != (recvchars[++j] = SPI.transfer(IN_PROGRESS))){
+    while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
         if(j >= 99) return -1;
     }
     DPRINT("Received from M3-LS:");
-    DPRINTLN(recvchars);
+    DPRINTLN(recvChars);
     DPRINT("Took ");
     DPRINT(j-1);
     DPRINTLN(" iterations.\n");
