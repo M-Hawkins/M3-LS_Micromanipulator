@@ -18,6 +18,7 @@ M3LS::M3LS(int X_SS){
         pinMode(pins[pin], OUTPUT);
         digitalWrite(pins[pin], HIGH);
     }
+    setupSPI();
 }
 
 // Class constructor for a two axis M3LS micromanipulator setup
@@ -32,6 +33,7 @@ M3LS::M3LS(int X_SS, int Y_SS){
         pinMode(pins[pin], OUTPUT);
         digitalWrite(pins[pin], HIGH);
     }
+    setupSPI();
 }
 
 // Class constructor for a three axis M3LS micromanipulator setup
@@ -47,6 +49,7 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
         pinMode(pins[pin], OUTPUT);
         digitalWrite(pins[pin], HIGH);
     }
+    setupSPI();
 }
 
 // Gets and stores the current position of each stage
