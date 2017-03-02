@@ -12,6 +12,7 @@ Copyright info?
 #define IN_PROGRESS 0x01
 
 #include "Arduino.h"
+#include <SPI.h>
 
 class M3LS{
     public:
