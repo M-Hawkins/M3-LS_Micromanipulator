@@ -8,6 +8,9 @@ Copyright info?
 #ifndef M3LS_h
 #define M3LS_h
 
+#define DONE '\r'
+#define IN_PROGRESS 0x01
+
 #include "Arduino.h"
 
 class M3LS{
@@ -35,7 +38,7 @@ class M3LS{
         int numAxes;
         int pins[3];
         char sendChars[50];
-        char recvChars[50];
+        char recvChars[100];
         // Functions
         void getCurrentPosition();
         long getAxisPosition(int pin);
@@ -46,7 +49,9 @@ class M3LS{
         void moveToTargetPosition(long target0, long target1, long target2);
         void moveToTargetPosition(long target0, long target1, long target2, Axes a);
         void setTargetPosition(long target);
-        int sendSPICommand(int pin);
+        int sendSPICommand(int pin, char *command, int length);
+        void setTargetPosition(long target);
+        void setupSPI();
 };
 
 #endif

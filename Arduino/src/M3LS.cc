@@ -7,6 +7,14 @@ Copyright info?
 
 #include "M3LS.h"
 
+#define DEBUG   //If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
+#ifdef DEBUG    //Macros are usually in all capital letters.
+  #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
+  #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
+#else
+  #define DPRINT(...)     //now defines a blank line
+  #define DPRINTLN(...)   //now defines a blank line
+#endif
 
 // Constructors
 // Class constructor for a one axis M3LS micromanipulator setup
@@ -21,6 +29,7 @@ M3LS::M3LS(int X_SS){
         pinMode(pins[pin], OUTPUT);
         digitalWrite(pins[pin], HIGH);
     }
+    setupSPI();
 }
 
 // Class constructor for a two axis M3LS micromanipulator setup
@@ -36,6 +45,7 @@ M3LS::M3LS(int X_SS, int Y_SS){
         pinMode(pins[pin], OUTPUT);
         digitalWrite(pins[pin], HIGH);
     }
+    setupSPI();
 }
 
 // Class constructor for a three axis M3LS micromanipulator setup
@@ -52,6 +62,7 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
         pinMode(pins[pin], OUTPUT);
         digitalWrite(pins[pin], HIGH);
     }
+    setupSPI();
 }
 
 // Public functions
@@ -233,46 +244,37 @@ void M3LS::setTargetPosition(long target){
     memcpy(sendChars + 12, ">\r", 2);
 }
 
-// Temporary, for testing only
-int M3LS::sendSPICommand(int pin){
-    // Get command
-    char comm[2];
-    memcpy(comm, sendChars + 1, 2);
-    int commNum = atoi(comm);
-
-    // Move to Target command
-    if (commNum == 8){
-        // Extract the target position
-        char target[8];
-        memcpy(target, sendChars + 4, 8);
-        long targetNum = atoi(target);
-
-        // Set appropriate axis position to the target value
-        if (pin == pins[0]){
-            currentPosition[0] = targetNum;
-        } else if (pin == pins[1]){
-            currentPosition[1] = targetNum;
-        } else if (pin == pins[2]){
-            currentPosition[2] = targetNum;
-        }
+int M3LS::sendSPICommand(int pin, int length){
+    memset(recvchars, 0, 100);
+    digitalWrite(pin, LOW);
+    for(int i=0; i<length; i++){
+        SPI.transfer(sendChars[i]);
+        // Minimum delay time: 60 microseconds between SPI transfers.
+        delayMicroseconds(60);
     }
-    // Get Status and Position command
-    else if (commNum == 10){
-        if (pin == pins[0]){
-            memcpy(recvChars, "<10 123456 ", 11);
-            sprintf(recvChars + 11, "%08ld", currentPosition[0]);
-            memcpy(recvChars + 19, " 87654321>\r", 11);
-        } else if (pin == pins[1]){
-            memcpy(recvChars, "<10 123456 ", 11);
-            sprintf(recvChars + 11, "%08ld", currentPosition[1]);
-            memcpy(recvChars + 19, " 87654321>\r", 11);
-        } else if (pin == pins[2]){
-            memcpy(recvChars, "<10 123456 ", 11);
-            sprintf(recvChars + 11, "%08ld", currentPosition[2]);
-            memcpy(recvChars + 19, " 87654321>\r", 11);
-        } else {
-            memcpy(recvChars, "<10 123456 88888888 87654321>\r", 30);
-        }
+
+    int j = 0;
+    while('<' != (recvchars[j] = SPI.transfer(IN_PROGRESS))){
+        delayMicroseconds(60);
     }
+    while(DONE != (recvchars[++j] = SPI.transfer(IN_PROGRESS))){
+        delayMicroseconds(60);
+        if(j >= 99) return -1;
+    }
+    DPRINT("Received from M3-LS:");
+    DPRINTLN(recvchars);
+    DPRINT("Took ");
+    DPRINT(j-1);
+    DPRINTLN(" iterations.\n");
+    digitalWrite(pin, HIGH);
+    SPI.endTransaction();
     return 0;
+}
+
+void M3LS::setupSPI(){
+    #ifdef DEBUG
+        Serial.begin(9600);
+    #endif
+    SPI.begin();
+    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 }
