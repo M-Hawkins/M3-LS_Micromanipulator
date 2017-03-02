@@ -1,7 +1,7 @@
 #include "M3LS.h"
 
 int xpin = 4;
-int joystickPin = 6;
+int joystickPin = A6;
 
 M3LS *myM3LS;
 
@@ -14,10 +14,12 @@ void setup(){
 }
 
 void loop(){
-    int nextPos = map(analogRead(joystickPin), 0, 1023, 500, 11500);
+    int nextPos = map(analogRead(joystickPin)/4, 0, 255, 500, 11500);
     Serial.print("Current Pos: ");
+    myM3LS->getCurrentPosition();
     Serial.println(myM3LS->currentPosition[0]);
     Serial.print("Moving to ");
     Serial.println(nextPos);
-    delay(1000);
+    myM3LS->updatePosition(nextPos);
+    delay(5);
 }
