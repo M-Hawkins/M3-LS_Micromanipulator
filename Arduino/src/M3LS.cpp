@@ -146,9 +146,10 @@ long M3LS::getAxisPosition(int pin){
     sendSPICommand(pin, 5);
 
     // Allocate space for and generate position value
-    char position[8];
-    memcpy(position, recvChars + 11, 8);
-    return atoi(position);
+    char position[11] = "0x";
+    memcpy(position+2, recvChars + 11, 8);
+    position[10] = 0;
+    return strtol(position, NULL, 0);
 }
 
 // Default single axis move command
@@ -258,8 +259,10 @@ int M3LS::sendSPICommand(int pin, int length){
     }
 
     int j = 0;
+    int counter = 0;
     while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
+        if (counter++ == 100) break;
     }
     delayMicroseconds(60);
     while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){

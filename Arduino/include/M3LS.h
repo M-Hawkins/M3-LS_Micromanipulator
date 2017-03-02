@@ -35,6 +35,7 @@ class M3LS{
         void setSensitivity(int speed);
         void setHome();
         void returnHome();
+        void getCurrentPosition();
     private:
         // Variables
         int numAxes;
@@ -42,7 +43,6 @@ class M3LS{
         char sendChars[50];
         char recvChars[100];
         // Functions
-        void getCurrentPosition();
         long getAxisPosition(int pin);
         void moveToTargetPosition(long target0);
         void moveToTargetPosition(long target0, Axes a);

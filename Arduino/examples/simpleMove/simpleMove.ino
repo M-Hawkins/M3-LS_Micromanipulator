@@ -17,8 +17,10 @@ void setup(){
 void loop(){
     Serial.println("Starting movement test.");
     delay(100);
-    for(int i=0; i<7; i++){
-        myM3LS->updatePosition(500+i*500);
+    for(int i=0; i<12; i++){
+        myM3LS->updatePosition(500+i*1000);
         delay(2000);
+        myM3LS->getCurrentPosition();
+        Serial.println(myM3LS->currentPosition[0]);
     }
 }
