@@ -7,6 +7,16 @@ Copyright info?
 
 #include "M3LS.h"
 
+#define DEBUG   //If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
+#ifdef DEBUG    //Macros are usually in all capital letters.
+  #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
+  #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
+#else
+  #define DPRINT(...)     //now defines a blank line
+  #define DPRINTLN(...)   //now defines a blank line
+#endif
+
+
 // Class constructor for a one axis M3LS micromanipulator setup
 M3LS::M3LS(int X_SS){
     // Initialize variables
@@ -173,19 +183,27 @@ int M3LS::sendSPICommand(int pin, char *command, int length){
     }
 
     int j = 0;
-    while('<' != (buf[j] = SPI.transfer(IN_PROGRESS))){
+    while('<' != (recvchars[j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
     }
-    while(DONE != (buf[++j] = SPI.transfer(IN_PROGRESS))){
+    while(DONE != (recvchars[++j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
-        if(j > 99) return -1;
+        if(j >= 99) return -1;
     }
+    DPRINT("Received from M3-LS:");
+    DPRINTLN(recvchars);
+    DPRINT("Took ");
+    DPRINT(j-1);
+    DPRINTLN(" iterations.\n");
     digitalWrite(pin, HIGH);
     SPI.endTransaction();
     return 0;
 }
 
 void M3LS::setupSPI(){
+    #ifdef DEBUG
+        Serial.begin(9600);
+    #endif
     SPI.begin();
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 }
