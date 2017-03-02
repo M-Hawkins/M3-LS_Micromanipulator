@@ -244,7 +244,7 @@ void M3LS::setTargetPosition(long target){
 
     // Build command and send it to SPI
     memcpy(sendChars, "<08 ", 4);
-    sprintf(sendChars + 4, "%08ld", target);
+    sprintf(sendChars + 4, "%08x", target);
     memcpy(sendChars + 12, ">\r", 2);
 }
 
@@ -261,6 +261,7 @@ int M3LS::sendSPICommand(int pin, int length){
     while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
     }
+    delayMicroseconds(60);
     while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
         if(j >= 99) return -1;
