@@ -160,47 +160,29 @@ void M3LS::setTargetPosition(long target){
     memcpy(sendChars + 12, ">\r", 2);
 }
 
-// Temporary, for testing only
-void M3LS::sendSPICommand(int pin){
-    // Get command
-    char comm[2];
-    memcpy(comm, sendChars + 1, 2);
-    int commNum = atoi(comm);
-
-    // Move to Target command
-    if (commNum == 8){
-        // Extract the target position
-        char target[8];
-        memcpy(target, sendChars + 4, 8);
-        long targetNum = atoi(target);
-
-        // Set appropriate axis position to the target value
-        if (pin == pins[0]){
-            currentPosition[0] = targetNum;
-        } else if (pin == pins[1]){
-            currentPosition[1] = targetNum;
-        } else if (pin == pins[2]){
-            currentPosition[2] = targetNum;
-        }
+int M3LS::sendSPICommand(int pin, char *command, int length){
+    memset(recvchars, 0, 100);
+    digitalWrite(pin, LOW);
+    for(int i=0; i<length; i++){
+        SPI.transfer(command[i]);
+        // Minimum delay time: 60 microseconds between SPI transfers.
+        delayMicroseconds(60);
     }
 
-    // Get Status and Position command
-    else if (commNum == 10){
-        if (pin == pins[0]){
-            memcpy(recvChars, "<10 123456 ", 11);
-            sprintf(recvChars + 11, "%08ld", currentPosition[0]);
-            memcpy(recvChars + 19, " 87654321>\r", 11);
-        } else if (pin == pins[1]){
-            memcpy(recvChars, "<10 123456 ", 11);
-            sprintf(recvChars + 11, "%08ld", currentPosition[1]);
-            memcpy(recvChars + 19, " 87654321>\r", 11);
-        } else if (pin == pins[2]){
-            memcpy(recvChars, "<10 123456 ", 11);
-            sprintf(recvChars + 11, "%08ld", currentPosition[2]);
-            memcpy(recvChars + 19, " 87654321>\r", 11);
-        } else {
-            memcpy(recvChars, "<10 123456 88888888 87654321>\r", 30);
-        }
+    int j = 0;
+    while('<' != (buf[j] = SPI.transfer(IN_PROGRESS))){
+        delayMicroseconds(60);
     }
-    //Return an error flag?
+    while(DONE != (buf[++j] = SPI.transfer(IN_PROGRESS))){
+        delayMicroseconds(60);
+        if(j > 99) return -1;
+    }
+    digitalWrite(pin, HIGH);
+    SPI.endTransaction();
+    return 0;
+}
+
+void M3LS::setupSPI(){
+    SPI.begin();
+    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 }
