@@ -276,9 +276,9 @@ int M3LS::sendSPICommand(int pin, int length){
 }
 
 void M3LS::setupSPI(){
-    #ifdef DEBUG
-        Serial.begin(9600);
-    #endif
+    // #ifdef DEBUG
+    //     Serial.begin(9600);
+    // #endif
     SPI.begin();
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 }
