@@ -139,7 +139,7 @@ long M3LS::getAxisPosition(int pin){
 
     // Build command and send it to SPI
     memcpy(sendChars, "<10>\r", 5);
-    sendSPICommand(pin);
+    sendSPICommand(pin, 5);
 
     // Allocate space for and generate position value
     char position[8];
@@ -155,7 +155,7 @@ void M3LS::moveToTargetPosition(long target0){
 // Move the specified axis to the target position
 void M3LS::moveToTargetPosition(long target0, Axes axis){
     setTargetPosition(target0);
-    sendSPICommand(pins[axis]);
+    sendSPICommand(pins[axis], 14);
 }
 
 // Default two axis move command
@@ -168,19 +168,19 @@ void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
     switch(axis)
     {
         case XY  :  setTargetPosition(target0);
-                    sendSPICommand(pins[0]);
+                    sendSPICommand(pins[0], 14);
                     setTargetPosition(target1);
-                    sendSPICommand(pins[1]);
+                    sendSPICommand(pins[1], 14);
                     break;
         case XZ  :  setTargetPosition(target0);
-                    sendSPICommand(pins[0]);
+                    sendSPICommand(pins[0], 14);
                     setTargetPosition(target1);
-                    sendSPICommand(pins[2]);
+                    sendSPICommand(pins[2], 14);
                     break;
         case YZ  :  setTargetPosition(target0);
-                    sendSPICommand(pins[1]);
+                    sendSPICommand(pins[1], 14);
                     setTargetPosition(target1);
-                    sendSPICommand(pins[2]);
+                    sendSPICommand(pins[2], 14);
                     break;
     }
 }
@@ -195,35 +195,35 @@ void M3LS::moveToTargetPosition(long target0, long target1, long target2, Axes a
     switch(axis)
     {
         case X   :  setTargetPosition(target0);
-                    sendSPICommand(pins[0]);
+                    sendSPICommand(pins[0], 14);
                     break;
         case Y   :  setTargetPosition(target1);
-                    sendSPICommand(pins[1]);
+                    sendSPICommand(pins[1], 14);
                     break;
         case Z   :  setTargetPosition(target2);
-                    sendSPICommand(pins[2]);
+                    sendSPICommand(pins[2], 14);
                     break;
         case XY  :  setTargetPosition(target0);
-                    sendSPICommand(pins[0]);
+                    sendSPICommand(pins[0], 14);
                     setTargetPosition(target1);
-                    sendSPICommand(pins[1]);
+                    sendSPICommand(pins[1], 14);
                     break;
         case XZ  :  setTargetPosition(target0);
-                    sendSPICommand(pins[0]);
+                    sendSPICommand(pins[0], 14);
                     setTargetPosition(target2);
-                    sendSPICommand(pins[2]);
+                    sendSPICommand(pins[2], 14);
                     break;
         case YZ  :  setTargetPosition(target1);
-                    sendSPICommand(pins[1]);
+                    sendSPICommand(pins[1], 14);
                     setTargetPosition(target2);
-                    sendSPICommand(pins[2]);
+                    sendSPICommand(pins[2], 14);
                     break;
         case XYZ :  setTargetPosition(target0);
-                    sendSPICommand(pins[0]);
+                    sendSPICommand(pins[0], 14);
                     setTargetPosition(target1);
-                    sendSPICommand(pins[1]);
+                    sendSPICommand(pins[1], 14);
                     setTargetPosition(target2);
-                    sendSPICommand(pins[2]);
+                    sendSPICommand(pins[2], 14);
                     break;
     }
 }

@@ -49,7 +49,7 @@ class M3LS{
         void moveToTargetPosition(long target0, long target1, long target2);
         void moveToTargetPosition(long target0, long target1, long target2, Axes a);
         void setTargetPosition(long target);
-        int sendSPICommand(int pin, char *command, int length);
+        int sendSPICommand(int pin, int length);
         void setTargetPosition(long target);
         void setupSPI();
 };
