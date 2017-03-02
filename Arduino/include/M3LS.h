@@ -31,6 +31,7 @@ class M3LS{
         void setControlMode(ControlMode newMode);
         void updatePosition(long xPos, long yPos, long zPos);
         void updatePosition(long xPos, long yPos, long zPos, Axes axis);
+        void updatePosition(long xPos);
         void setSensitivity(int speed);
         void setHome();
         void returnHome();
