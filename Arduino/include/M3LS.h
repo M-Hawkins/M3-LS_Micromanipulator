@@ -28,6 +28,7 @@ class M3LS{
         M3LS(int X_SS, int Y_SS);
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Functions
+        void calibrate();
         void setControlMode(ControlMode newMode);
         void updatePosition(long xPos, long yPos, long zPos);
         void updatePosition(long xPos, long yPos, long zPos, Axes axis);

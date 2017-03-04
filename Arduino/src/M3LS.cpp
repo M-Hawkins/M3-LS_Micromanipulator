@@ -66,6 +66,15 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
 }
 
 // Public functions
+// Calibrate the stages
+void M3LS::calibrate(){
+    for (int axis = 0; axis < numAxes; axis++){
+            // Build command and send it to SPI
+            memcpy(sendChars, "<87 4>\r", 7);
+            sendSPICommand(axis, 7);
+    }
+}
+
 // Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
     currentControlMode = newMode;
