@@ -187,17 +187,19 @@ void M3LS::getCurrentPosition(){
 
 // amount is in encoder counts
 void M3LS::setBounds(int amount){
-    if((xbounds[0] + amount) < (xbounds[1] - amount)){
-        xbounds[0] += amount;
-        xbounds[1] -= amount;
-    }
-    if((ybounds[0] + amount) < (ybounds[1] - amount)){
-        ybounds[0] += amount;
-        ybounds[1] -= amount;
-    }
-    if((zbounds[0] + amount) < (zbounds[1] - amount)){
-        zbounds[0] += amount;
-        zbounds[1] -= amount;
+    if((xbounds[0] > 0) && (xbounds[1] < 12000) && (ybounds[0] > 0) && (ybounds[1] < 12000) && (zbounds[0] > 0 && zbounds[1] < 12000)){
+        if((xbounds[0] + amount) < (xbounds[1] - amount)){
+            xbounds[0] += amount;
+            xbounds[1] -= amount;
+        }
+        if((ybounds[0] + amount) < (ybounds[1] - amount)){
+            ybounds[0] += amount;
+            ybounds[1] -= amount;
+        }
+        if((zbounds[0] + amount) < (zbounds[1] - amount)){
+            zbounds[0] += amount;
+            zbounds[1] -= amount;
+        }
     }
 }
 
