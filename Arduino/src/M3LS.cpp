@@ -107,6 +107,8 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
     }
 }
 
+
+
 // Set the controller's sensitivity to a new value
 void M3LS::setSensitivity(int speed){
     /*
@@ -160,9 +162,9 @@ void M3LS::initialize(){
         digitalWrite(pins[pin], HIGH);
     }
 
-    int xbounds[0] = 500; int xbounds[1] = 11500;
-    int ybounds[0] = 500; int ybounds[1] = 11500;
-    int zbounds[0] = 500; int zbounds[1] = 11500;
+    xbounds[0] = 500; xbounds[1] = 11500;
+    ybounds[0] = 500; ybounds[1] = 11500;
+    zbounds[0] = 500; zbounds[1] = 11500;
 
     // Initialize SPI
     SPI.begin();
@@ -174,6 +176,32 @@ void M3LS::getCurrentPosition(){
     for (int axis = 0; axis < numAxes; axis++){
         currentPosition[axis] = getAxisPosition(pins[axis]);
     }
+}
+
+// amount is in encoder counts
+void M3LS::setBounds(int amount){
+    if((xbounds[0] + amount) < (xbounds[1] - amount)){
+        xbounds[0] += amount;
+        xbounds[1] -= amount;
+    }
+    if((ybounds[0] + amount) < (ybounds[1] - amount)){
+        ybounds[0] += amount;
+        ybounds[1] -= amount;
+    }
+    if((zbounds[0] + amount) < (zbounds[1] - amount)){
+        zbounds[0] += amount;
+        zbounds[1] -= amount;
+    }
+}
+
+// decrease the bounds
+void M3LS::boundsSmaller(){
+    setBounds(-500);
+}
+
+// increase the bounds
+void M3LS::boundsLarger(){
+    setBounds(500);
 }
 
 // Get the current position of a single stage
@@ -242,6 +270,12 @@ void M3LS::moveToTargetPosition(int target0, int target1, int target2){
 
 // Move the specified axes to the target positions
 void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis){
+
+    // bit shift by 3 - this can be changed
+    target0 = map(target0/8, 0, 127, xbounds[0], xbounds[1]);
+    target1 = map(target1/8, 0, 127, ybounds[0], ybounds[1]);
+    target2 = map(target2/8, 0, 127, zbounds[0], zbounds[1]);
+
     switch(axis)
     {
         case X   :  setTargetPosition(target0);

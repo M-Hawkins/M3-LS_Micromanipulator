@@ -60,7 +60,7 @@ class M3LS{
         void moveToTargetPosition(int target0, int target1, int target2);
         void moveToTargetPosition(int target0, int target1, int target2, Axes a);
         void setTargetPosition(int target);
-        void setRange()
+        void setBounds(int amount);
         int sendSPICommand(int pin, int length);
 };
 
