@@ -93,17 +93,24 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                             moveToTargetPosition(inp0, inp1, inp2, axis);
                         }
                         break;
+
         case open     : break;
-        case position : moveToTargetPosition(inp0, inp1, inp2, axis);
-                        break;
+
+        case position : // bit shift by 3 - this can be changed
+                    inp0 = map(inp0/8, 0, 127, xbounds[0], xbounds[1]);
+                    inp1 = map(inp1/8, 0, 127, ybounds[0], ybounds[1]);
+                    inp2 = map(inp2/8, 0, 127, zbounds[0], zbounds[1]);
+                    moveToTargetPosition(inp0, inp1, inp2, axis);
+                    break;
+
         case velocity : // WIP: Start / stop scheme may be better,
-                        // IF we can change sensitivity while the motor is running
-                        setSensitivity(abs(inp0 - 512));
-                        memcpy(sendChars, "<06 ", 4);
-                        sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
-                        memcpy(sendChars + 5, " 00000001\r", 10);
-                        sendSPICommand(pins[0], 15);
-                        break;
+                    // IF we can change sensitivity while the motor is running
+                    setSensitivity(abs(inp0 - 512));
+                    memcpy(sendChars, "<06 ", 4);
+                    sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
+                    memcpy(sendChars + 5, " 00000001\r", 10);
+                    sendSPICommand(pins[0], 15);
+                    break;
     }
 }
 
@@ -271,10 +278,6 @@ void M3LS::moveToTargetPosition(int target0, int target1, int target2){
 // Move the specified axes to the target positions
 void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis){
 
-    // bit shift by 3 - this can be changed
-    target0 = map(target0/8, 0, 127, xbounds[0], xbounds[1]);
-    target1 = map(target1/8, 0, 127, ybounds[0], ybounds[1]);
-    target2 = map(target2/8, 0, 127, zbounds[0], zbounds[1]);
 
     switch(axis)
     {
