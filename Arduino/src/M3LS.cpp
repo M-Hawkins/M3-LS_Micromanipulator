@@ -22,14 +22,7 @@ M3LS::M3LS(int X_SS){
     // Initialize variables
     numAxes = 1;
     pins[0] = X_SS;
-    currentControlMode = position;
-
-    // Initialize all pins as unselected outputs
-    for (int pin = 0; pin < numAxes; pin++){
-        pinMode(pins[pin], OUTPUT);
-        digitalWrite(pins[pin], HIGH);
-    }
-    setupSPI();
+    initialize();
 }
 
 // Class constructor for a two axis M3LS micromanipulator setup
@@ -38,14 +31,7 @@ M3LS::M3LS(int X_SS, int Y_SS){
     numAxes = 2;
     pins[0] = X_SS;
     pins[1] = Y_SS;
-    currentControlMode = position;
-
-    // Initialize all pins as unselected outputs
-    for (int pin = 0; pin < numAxes; pin++){
-        pinMode(pins[pin], OUTPUT);
-        digitalWrite(pins[pin], HIGH);
-    }
-    setupSPI();
+    initialize();
 }
 
 // Class constructor for a three axis M3LS micromanipulator setup
@@ -55,38 +41,69 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
     pins[0] = X_SS;
     pins[1] = Y_SS;
     pins[2] = Z_SS;
-    currentControlMode = position;
-
-    // Initialize all pins as unselected outputs
-    for (int pin = 0; pin < numAxes; pin++){
-        pinMode(pins[pin], OUTPUT);
-        digitalWrite(pins[pin], HIGH);
-    }
-    setupSPI();
+    initialize();
 }
 
 // Public functions
+// Calibrate the stages
+void M3LS::calibrate(){
+    for (int axis = 0; axis < numAxes; axis++){
+            // Build command and send it to SPI
+            memcpy(sendChars, "<87 4>\r", 7);
+            sendSPICommand(axis, 7);
+    }
+}
+
 // Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
+    if (newMode == open && currentControlMode != open){
+        memcpy(sendChars, "<20 0>\r", 7);
+        for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+        }
+    } else if(newMode != open && currentControlMode == open){
+        memcpy(sendChars, "<20 1>\r", 7);
+        for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+        }
+    }
     currentControlMode = newMode;
 }
 
 // Default method for updating the needle's position
-void M3LS::updatePosition(long xPos, long yPos, long zPos){
-    updatePosition(xPos, yPos, zPos, XYZ);
+void M3LS::updatePosition(int inp0, int inp1, int inp2){
+    updatePosition(inp0, inp1, inp2, XYZ, false);
 }
 
-void M3LS::updatePosition(long xPos){
-    moveToTargetPosition(xPos, X);
+// Default method for updating the needle's position with a trigger arg
+void M3LS::updatePosition(int inp0, int inp1, int inp2, bool isActive){
+    updatePosition(inp0, inp1, inp2, XYZ, isActive);
+}
+
+// Default method for updating the needle's position with an axis arg
+void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis){
+    updatePosition(inp0, inp1, inp2, axis, false);
 }
 
 // Update the needle's position based upon current mode and joystick inputs
-void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis){
+void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive){
     switch(currentControlMode)
     {
-        case position : moveToTargetPosition(xPos, yPos, zPos, axis);
+        case hold     : if (isActive){
+                            moveToTargetPosition(inp0, inp1, inp2, axis);
+                        }
                         break;
-        case velocity : break;
+        case open     : break;
+        case position : moveToTargetPosition(inp0, inp1, inp2, axis);
+                        break;
+        case velocity : // WIP: Start / stop scheme may be better, 
+                        // IF we can change sensitivity while the motor is running
+                        setSensitivity(abs(inp0 - 512));
+                        memcpy(sendChars, "<06 ", 4);
+                        sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
+                        memcpy(sendChars + 5, " 00000001\r", 10);
+                        sendSPICommand(pins[0], 15);
+                        break;
     }
 }
 
@@ -108,22 +125,46 @@ void M3LS::setSensitivity(int speed){
 // Store the current position as the home position
 void M3LS::setHome(){
     getCurrentPosition();
-    memcpy(homePosition, currentPosition, numAxes * sizeof(long));
+    memcpy(homePosition, currentPosition, numAxes * sizeof(int));
 }
 
 // Return to the stored home position
 void M3LS::returnHome(){
-    // Store current mode
-    // ControlMode previousMode = currentControlMode;
-    // Switch to closed loop mode
+    // Store current mode and switch to position mode
+    ControlMode previousMode = currentControlMode;
+    setControlMode(position);
+
     // Raise Z axis
-    // Move X and Y to target
+    if (numAxes > 2){
+        getCurrentPosition();
+        // TODO: Figure out appropriate offset
+        moveToTargetPosition(currentPosition[2] + 10, Z);
+    }
+
+    // Move X and Y to home position
     moveToTargetPosition(homePosition[0], homePosition[1], XY);
+
     // Restored previous mode
-    // setControlMode(previousMode);
+    setControlMode(previousMode);
 }
 
 // Private Functions
+// Initialize starting parameters and SPI settings
+void M3LS::initialize(){
+    // Set the default control mode
+    currentControlMode = position;
+
+    // Initialize all pins as unselected outputs
+    for (int pin = 0; pin < numAxes; pin++){
+        pinMode(pins[pin], OUTPUT);
+        digitalWrite(pins[pin], HIGH);
+    }
+
+    // Initialize SPI
+    SPI.begin();
+    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
+}
+
 // Gets and stores the current position of each stage
 void M3LS::getCurrentPosition(){
     for (int axis = 0; axis < numAxes; axis++){
@@ -132,7 +173,7 @@ void M3LS::getCurrentPosition(){
 }
 
 // Get the current position of a single stage
-long M3LS::getAxisPosition(int pin){
+int M3LS::getAxisPosition(int pin){
     /*
     Send to controller:
         <10>\r
@@ -153,23 +194,23 @@ long M3LS::getAxisPosition(int pin){
 }
 
 // Default single axis move command
-void M3LS::moveToTargetPosition(long target0){
+void M3LS::moveToTargetPosition(int target0){
     moveToTargetPosition(target0, X);
 }
 
 // Move the specified axis to the target position
-void M3LS::moveToTargetPosition(long target0, Axes axis){
+void M3LS::moveToTargetPosition(int target0, Axes axis){
     setTargetPosition(target0);
     sendSPICommand(pins[axis], 14);
 }
 
 // Default two axis move command
-void M3LS::moveToTargetPosition(long target0, long target1){
+void M3LS::moveToTargetPosition(int target0, int target1){
     moveToTargetPosition(target0, target1, XY);
 }
 
 // Move the specified axes to the target positions
-void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
+void M3LS::moveToTargetPosition(int target0, int target1, Axes axis){
     switch(axis)
     {
         case XY  :  setTargetPosition(target0);
@@ -191,12 +232,12 @@ void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
 }
 
 // Default three axis move command
-void M3LS::moveToTargetPosition(long target0, long target1, long target2){
+void M3LS::moveToTargetPosition(int target0, int target1, int target2){
     moveToTargetPosition(target0, target1, target2, XYZ);
 }
 
 // Move the specified axes to the target positions
-void M3LS::moveToTargetPosition(long target0, long target1, long target2, Axes axis){
+void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis){
     switch(axis)
     {
         case X   :  setTargetPosition(target0);
@@ -234,7 +275,7 @@ void M3LS::moveToTargetPosition(long target0, long target1, long target2, Axes a
 }
 
 // Set the target position to move to
-void M3LS::setTargetPosition(long target){
+void M3LS::setTargetPosition(int target){
     /*
     Send to controller:
         <08>\r
@@ -249,6 +290,7 @@ void M3LS::setTargetPosition(long target){
     memcpy(sendChars + 12, ">\r", 2);
 }
 
+// Sends a command over the SPI bus and writes the response to the buffer
 int M3LS::sendSPICommand(int pin, int length){
     memset(recvChars, 0, 100);
     digitalWrite(pin, LOW);
@@ -277,12 +319,4 @@ int M3LS::sendSPICommand(int pin, int length){
     digitalWrite(pin, HIGH);
     SPI.endTransaction();
     return 0;
-}
-
-void M3LS::setupSPI(){
-    // #ifdef DEBUG
-    //     Serial.begin(9600);
-    // #endif
-    SPI.begin();
-    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 }
