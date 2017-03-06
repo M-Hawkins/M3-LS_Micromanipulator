@@ -56,26 +56,37 @@ void M3LS::calibrate(){
 
 // Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
+    if (newMode == open && currentControlMode != open){
+        memcpy(sendChars, "<20 0>\r", 7);
+        for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+        }
+    } else if(newMode != open && currentControlMode == open){
+        memcpy(sendChars, "<20 1>\r", 7);
+        for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+        }
+    }
     currentControlMode = newMode;
 }
 
 // Default method for updating the needle's position
-void M3LS::updatePosition(long inp0, long inp1, long inp2){
+void M3LS::updatePosition(int inp0, int inp1, int inp2){
     updatePosition(inp0, inp1, inp2, XYZ, false);
 }
 
 // Default method for updating the needle's position with a trigger arg
-void M3LS::updatePosition(long inp0, long inp1, long inp2, bool isActive){
+void M3LS::updatePosition(int inp0, int inp1, int inp2, bool isActive){
     updatePosition(inp0, inp1, inp2, XYZ, isActive);
 }
 
 // Default method for updating the needle's position with an axis arg
-void M3LS::updatePosition(long inp0, long inp1, long inp2, Axes axis){
+void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis){
     updatePosition(inp0, inp1, inp2, axis, false);
 }
 
 // Update the needle's position based upon current mode and joystick inputs
-void M3LS::updatePosition(long inp0, long inp1, long inp2, Axes axis, bool isActive){
+void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive){
     switch(currentControlMode)
     {
         case hold     : if (isActive){
@@ -85,12 +96,13 @@ void M3LS::updatePosition(long inp0, long inp1, long inp2, Axes axis, bool isAct
         case open     : break;
         case position : moveToTargetPosition(inp0, inp1, inp2, axis);
                         break;
-        case velocity : setSensitivity(abs(inp0 - 512));
+        case velocity : // WIP: Start / stop scheme may be better, 
+                        // IF we can change sensitivity while the motor is running
+                        setSensitivity(abs(inp0 - 512));
                         memcpy(sendChars, "<06 ", 4);
                         sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
                         memcpy(sendChars + 5, " 00000001\r", 10);
                         sendSPICommand(pins[0], 15);
-
                         break;
     }
 }
@@ -113,7 +125,7 @@ void M3LS::setSensitivity(int speed){
 // Store the current position as the home position
 void M3LS::setHome(){
     getCurrentPosition();
-    memcpy(homePosition, currentPosition, numAxes * sizeof(long));
+    memcpy(homePosition, currentPosition, numAxes * sizeof(int));
 }
 
 // Return to the stored home position
@@ -161,7 +173,7 @@ void M3LS::getCurrentPosition(){
 }
 
 // Get the current position of a single stage
-long M3LS::getAxisPosition(int pin){
+int M3LS::getAxisPosition(int pin){
     /*
     Send to controller:
         <10>\r
@@ -182,23 +194,23 @@ long M3LS::getAxisPosition(int pin){
 }
 
 // Default single axis move command
-void M3LS::moveToTargetPosition(long target0){
+void M3LS::moveToTargetPosition(int target0){
     moveToTargetPosition(target0, X);
 }
 
 // Move the specified axis to the target position
-void M3LS::moveToTargetPosition(long target0, Axes axis){
+void M3LS::moveToTargetPosition(int target0, Axes axis){
     setTargetPosition(target0);
     sendSPICommand(pins[axis], 14);
 }
 
 // Default two axis move command
-void M3LS::moveToTargetPosition(long target0, long target1){
+void M3LS::moveToTargetPosition(int target0, int target1){
     moveToTargetPosition(target0, target1, XY);
 }
 
 // Move the specified axes to the target positions
-void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
+void M3LS::moveToTargetPosition(int target0, int target1, Axes axis){
     switch(axis)
     {
         case XY  :  setTargetPosition(target0);
@@ -220,12 +232,12 @@ void M3LS::moveToTargetPosition(long target0, long target1, Axes axis){
 }
 
 // Default three axis move command
-void M3LS::moveToTargetPosition(long target0, long target1, long target2){
+void M3LS::moveToTargetPosition(int target0, int target1, int target2){
     moveToTargetPosition(target0, target1, target2, XYZ);
 }
 
 // Move the specified axes to the target positions
-void M3LS::moveToTargetPosition(long target0, long target1, long target2, Axes axis){
+void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis){
     switch(axis)
     {
         case X   :  setTargetPosition(target0);
@@ -263,7 +275,7 @@ void M3LS::moveToTargetPosition(long target0, long target1, long target2, Axes a
 }
 
 // Set the target position to move to
-void M3LS::setTargetPosition(long target){
+void M3LS::setTargetPosition(int target){
     /*
     Send to controller:
         <08>\r
