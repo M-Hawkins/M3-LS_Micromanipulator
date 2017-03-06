@@ -96,7 +96,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
         case open     : break;
         case position : moveToTargetPosition(inp0, inp1, inp2, axis);
                         break;
-        case velocity : // WIP: Start / stop scheme may be better, 
+        case velocity : // WIP: Start / stop scheme may be better,
                         // IF we can change sensitivity while the motor is running
                         setSensitivity(abs(inp0 - 512));
                         memcpy(sendChars, "<06 ", 4);
@@ -159,6 +159,10 @@ void M3LS::initialize(){
         pinMode(pins[pin], OUTPUT);
         digitalWrite(pins[pin], HIGH);
     }
+
+    int xbounds[0] = 500; int xbounds[1] = 11500;
+    int ybounds[0] = 500; int ybounds[1] = 11500;
+    int zbounds[0] = 500; int zbounds[1] = 11500;
 
     // Initialize SPI
     SPI.begin();
