@@ -114,14 +114,21 @@ void M3LS::setHome(){
 
 // Return to the stored home position
 void M3LS::returnHome(){
-    // Store current mode
-    // ControlMode previousMode = currentControlMode;
-    // Switch to closed loop mode
+    // Store current mode and switch to position mode
+    ControlMode previousMode = currentControlMode;
+    setControlMode(position);
+
     // Raise Z axis
-    // Move X and Y to target
+    if (numAxes > 2){
+        getCurrentPosition();
+        moveToTargetPosition(currentPosition[2], Z);
+    }
+
+    // Move X and Y to home position
     moveToTargetPosition(homePosition[0], homePosition[1], XY);
+
     // Restored previous mode
-    // setControlMode(previousMode);
+    setControlMode(previousMode);
 }
 
 // Private Functions
