@@ -20,9 +20,9 @@ void setup(){
 }
 
 void loop(){
-    int nextPosx = map(analogRead(xjoystickPin)/8, 0, 127, 500, 11500);
-    int nextPosy = map(analogRead(yjoystickPin)/8, 0, 127, 500, 11500);
-    int nextPosz = map(analogRead(zjoystickPin)/8, 0, 127, 500, 11500);
+    int nextPosx = map(analogRead(xjoystickPin)/8, 0, 127, 500, 11500/10);
+    int nextPosy = map(analogRead(yjoystickPin)/8, 0, 127, 500, 11500/10);
+    int nextPosz = map(analogRead(zjoystickPin)/8, 0, 127, 500, 11500/10);
     Serial.print("Current Pos: ");
     myM3LS->getCurrentPosition();
     Serial.println(myM3LS->currentPosition[0]);

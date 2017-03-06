@@ -1,6 +1,6 @@
 #include "M3LS.h"
 
-int xpin = 4;
+int xpin = 3;
 
 M3LS *myM3LS;
 
