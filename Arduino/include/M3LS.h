@@ -45,6 +45,7 @@ class M3LS{
         char sendChars[50];
         char recvChars[100];
         // Functions
+        void initialize();
         long getAxisPosition(int pin);
         void moveToTargetPosition(long target0);
         void moveToTargetPosition(long target0, Axes a);
@@ -54,7 +55,6 @@ class M3LS{
         void moveToTargetPosition(long target0, long target1, long target2, Axes a);
         void setTargetPosition(long target);
         int sendSPICommand(int pin, int length);
-        void setupSPI();
 };
 
 #endif
