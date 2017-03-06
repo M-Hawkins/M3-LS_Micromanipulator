@@ -17,8 +17,8 @@ Copyright info?
 class M3LS{
     public:
         // Enums
-        enum ControlMode {position, velocity};
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
+        enum ControlMode {hold, open, position, velocity};
         // Variables
         ControlMode currentControlMode;
         long currentPosition[3];
@@ -31,8 +31,9 @@ class M3LS{
         void calibrate();
         void setControlMode(ControlMode newMode);
         void updatePosition(long xPos, long yPos, long zPos);
+        void updatePosition(long xPos, long yPos, long zPos, bool isActive);
         void updatePosition(long xPos, long yPos, long zPos, Axes axis);
-        void updatePosition(long xPos);
+        void updatePosition(long xPos, long yPos, long zPos, Axes axis, bool isActive);
         void setSensitivity(int speed);
         void setHome();
         void returnHome();

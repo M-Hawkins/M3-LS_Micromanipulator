@@ -82,20 +82,33 @@ void M3LS::setControlMode(ControlMode newMode){
 
 // Default method for updating the needle's position
 void M3LS::updatePosition(long xPos, long yPos, long zPos){
-    updatePosition(xPos, yPos, zPos, XYZ);
+    updatePosition(xPos, yPos, zPos, XYZ, false);
 }
 
-void M3LS::updatePosition(long xPos){
-    moveToTargetPosition(xPos, X);
+// Default method for updating the needle's position with a trigger arg
+void M3LS::updatePosition(long xPos, long yPos, long zPos, bool isActive){
+    updatePosition(xPos, yPos, zPos, XYZ, isActive);
+}
+
+// Default method for updating the needle's position with an axis arg
+void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis){
+    updatePosition(xPos, yPos, zPos, axis, false);
 }
 
 // Update the needle's position based upon current mode and joystick inputs
-void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis){
+void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis, bool isActive){
     switch(currentControlMode)
     {
+        case hold     : if (isActive){
+                            moveToTargetPosition(xPos, yPos, zPos, axis);
+                        }
+                        break;
+        case open     : break;
         case position : moveToTargetPosition(xPos, yPos, zPos, axis);
                         break;
-        case velocity : break;
+        case velocity : //set speed based on value
+                        //run motor
+                        break;
     }
 }
 
