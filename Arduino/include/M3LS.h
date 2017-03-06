@@ -21,8 +21,8 @@ class M3LS{
         enum ControlMode {hold, open, position, velocity};
         // Variables
         ControlMode currentControlMode;
-        long currentPosition[3];
-        long homePosition[3];
+        int currentPosition[3];
+        int homePosition[3];
         // Constructors
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
@@ -30,10 +30,10 @@ class M3LS{
         // Functions
         void calibrate();
         void setControlMode(ControlMode newMode);
-        void updatePosition(long xPos, long yPos, long zPos);
-        void updatePosition(long xPos, long yPos, long zPos, bool isActive);
-        void updatePosition(long xPos, long yPos, long zPos, Axes axis);
-        void updatePosition(long xPos, long yPos, long zPos, Axes axis, bool isActive);
+        void updatePosition(int inp0, int inp1, int inp2);
+        void updatePosition(int inp0, int inp1, int inp2, bool isActive);
+        void updatePosition(int inp0, int inp1, int inp2, Axes axis);
+        void updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive);
         void setSensitivity(int speed);
         void setHome();
         void returnHome();
@@ -46,14 +46,14 @@ class M3LS{
         char recvChars[100];
         // Functions
         void initialize();
-        long getAxisPosition(int pin);
-        void moveToTargetPosition(long target0);
-        void moveToTargetPosition(long target0, Axes a);
-        void moveToTargetPosition(long target0, long target1);
-        void moveToTargetPosition(long target0, long target1, Axes a);
-        void moveToTargetPosition(long target0, long target1, long target2);
-        void moveToTargetPosition(long target0, long target1, long target2, Axes a);
-        void setTargetPosition(long target);
+        int getAxisPosition(int pin);
+        void moveToTargetPosition(int target0);
+        void moveToTargetPosition(int target0, Axes a);
+        void moveToTargetPosition(int target0, int target1);
+        void moveToTargetPosition(int target0, int target1, Axes a);
+        void moveToTargetPosition(int target0, int target1, int target2);
+        void moveToTargetPosition(int target0, int target1, int target2, Axes a);
+        void setTargetPosition(int target);
         int sendSPICommand(int pin, int length);
 };
 

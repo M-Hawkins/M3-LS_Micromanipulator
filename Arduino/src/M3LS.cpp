@@ -60,33 +60,37 @@ void M3LS::setControlMode(ControlMode newMode){
 }
 
 // Default method for updating the needle's position
-void M3LS::updatePosition(long xPos, long yPos, long zPos){
-    updatePosition(xPos, yPos, zPos, XYZ, false);
+void M3LS::updatePosition(long inp0, long inp1, long inp2){
+    updatePosition(inp0, inp1, inp2, XYZ, false);
 }
 
 // Default method for updating the needle's position with a trigger arg
-void M3LS::updatePosition(long xPos, long yPos, long zPos, bool isActive){
-    updatePosition(xPos, yPos, zPos, XYZ, isActive);
+void M3LS::updatePosition(long inp0, long inp1, long inp2, bool isActive){
+    updatePosition(inp0, inp1, inp2, XYZ, isActive);
 }
 
 // Default method for updating the needle's position with an axis arg
-void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis){
-    updatePosition(xPos, yPos, zPos, axis, false);
+void M3LS::updatePosition(long inp0, long inp1, long inp2, Axes axis){
+    updatePosition(inp0, inp1, inp2, axis, false);
 }
 
 // Update the needle's position based upon current mode and joystick inputs
-void M3LS::updatePosition(long xPos, long yPos, long zPos, Axes axis, bool isActive){
+void M3LS::updatePosition(long inp0, long inp1, long inp2, Axes axis, bool isActive){
     switch(currentControlMode)
     {
         case hold     : if (isActive){
-                            moveToTargetPosition(xPos, yPos, zPos, axis);
+                            moveToTargetPosition(inp0, inp1, inp2, axis);
                         }
                         break;
         case open     : break;
-        case position : moveToTargetPosition(xPos, yPos, zPos, axis);
+        case position : moveToTargetPosition(inp0, inp1, inp2, axis);
                         break;
-        case velocity : //set speed based on value
-                        //run motor
+        case velocity : setSensitivity(abs(inp0 - 512));
+                        memcpy(sendChars, "<06 ", 4);
+                        sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
+                        memcpy(sendChars + 5, " 00000001\r", 10);
+                        sendSPICommand(pins[0], 15);
+
                         break;
     }
 }
@@ -121,7 +125,8 @@ void M3LS::returnHome(){
     // Raise Z axis
     if (numAxes > 2){
         getCurrentPosition();
-        moveToTargetPosition(currentPosition[2], Z);
+        // TODO: Figure out appropriate offset
+        moveToTargetPosition(currentPosition[2] + 10, Z);
     }
 
     // Move X and Y to home position
