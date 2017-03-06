@@ -1,6 +1,6 @@
 #include "M3LS.h"
 
-int xpin = 4;
+int xpin = 3;
 
 M3LS *myM3LS;
 
@@ -17,7 +17,7 @@ void loop(){
     Serial.println("Starting movement test.");
     delay(100);
     for(int i=0; i<12; i++){
-        myM3LS->updatePosition(500+i*1000);
+        myM3LS->updatePosition(500+i*1000, 0, 0);
         delay(2000);
         myM3LS->getCurrentPosition();
         Serial.println(myM3LS->currentPosition[0]);
