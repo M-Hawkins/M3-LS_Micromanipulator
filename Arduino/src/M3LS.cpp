@@ -66,6 +66,23 @@ void M3LS::setControlMode(ControlMode newMode){
         for (int axis = 0; axis < numAxes; axis++){
             sendSPICommand(pins[axis], 7);
         }
+    } else if(newMode == position && currentControlMode != position){
+        // This is where re-centering has to occur.
+        // get current position, re-center bounds around that.
+        getCurrentPosition();
+        int curXsize = xbounds[1] - xbounds[0];
+        int curYsize = ybounds[1] - ybounds[0];
+        int curZsize = zbounds[1] - zbounds[0];
+
+        xbounds[0] = max(0, currentPosition[0] - curXsize/2);
+        xbounds[1] = min(12000, currentPosition[0] + curXsize/2);
+        
+        ybounds[0] = max(0, currentPosition[1] - curYsize/2);
+        ybounds[1] = min(12000, currentPosition[1] + curYsize/2);
+
+        zbounds[0] = max(0, currentPosition[2] - curZsize/2);
+        zbounds[1] = min(12000, currentPosition[2] + curZsize/2);
+
     }
     currentControlMode = newMode;
 }
