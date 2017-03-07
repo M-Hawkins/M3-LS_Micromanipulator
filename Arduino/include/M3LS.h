@@ -18,7 +18,7 @@ class M3LS{
     public:
         // Enums
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
-        enum ControlMode {hold, position, velocity};
+        enum ControlMode {hold, open, position, velocity};
         // Variables
         ControlMode currentControlMode;
         int currentPosition[3];

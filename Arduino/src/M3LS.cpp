@@ -125,10 +125,10 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         // displacement, divided between 7 zones
                         // This should result in zone 0 being a "dead zone."
                         inp0 = ((inp0 / 128) - 3) * 100;
-                        inp1 = ((inp0 / 128) - 3) * 100;
-                        inp2 = ((inp0 / 128) - 3) * 100;
+                        inp1 = ((inp1 / 128) - 3) * 100;
+                        inp2 = ((inp2 / 128) - 3) * 100;
                         setMotorSpeed(inp0, inp1, inp2);
-                        advanceMotor(inp0, inp1, inp2);
+                        advanceMotor(abs(inp0), abs(inp1), abs(inp2));
                         break;
     }
 }
@@ -145,30 +145,40 @@ void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
     // Build commands and send them to SPI
     memcpy(sendChars, "<40 ", 4);
     sprintf(sendChars + 4, "%06x", inp0);
-    memcpy(sendChars + 10, "000033 0000CD 0001>\r", 20);
+    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[0], 30);
 
+    memcpy(sendChars, "<40 ", 4);
     sprintf(sendChars + 4, "%06x", inp1);
-    sendSPICommand(pins[0], 30);
+    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
+    sendSPICommand(pins[1], 30);
 
+    memcpy(sendChars, "<40 ", 4);
     sprintf(sendChars + 4, "%06x", inp2);
-    sendSPICommand(pins[0], 30);
+    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
+    sendSPICommand(pins[2], 30);
 }
 
 void M3LS::advanceMotor(int inp0, int inp1, int inp2){
     memcpy(sendChars, "<06 ", 4);
-    sprintf(sendChars + 4, "%01f", inp0 > 0);
+    sprintf(sendChars + 4, "%01d", inp0 < 0);
     memcpy(sendChars + 5, " ", 1);
     sprintf(sendChars + 6, "%08x", inp0);
     memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[0], 16);
 
-    sprintf(sendChars + 4, "%01f", inp1 > 0);
+    memcpy(sendChars, "<06 ", 4);
+    sprintf(sendChars + 4, "%01d", inp1 < 0);
+    memcpy(sendChars + 5, " ", 1);
     sprintf(sendChars + 6, "%08x", inp1);
+    memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[1], 16);
 
-    sprintf(sendChars + 4, "%01f", inp2 > 0);
+    memcpy(sendChars, "<06 ", 4);
+    sprintf(sendChars + 4, "%01d", inp2 < 0);
+    memcpy(sendChars + 5, " ", 1);
     sprintf(sendChars + 6, "%08x", inp2);
+    memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[2], 16);
 }
 

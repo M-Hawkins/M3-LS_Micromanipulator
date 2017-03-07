@@ -1,7 +1,7 @@
 #include "M3LS.h"
 
-int xpin = 3;
-int ypin = 2;
+int xpin = 2;
+int ypin = 3;
 int zpin = 4;
 int xjoystickPin = A5;
 int yjoystickPin = A6;
@@ -39,6 +39,7 @@ void setup(){
 
   myM3LS->setControlMode(M3LS::open);
   myM3LS->setControlMode(M3LS::position);
+  myM3LS->calibrate();
 }
 
 void loop(){
@@ -64,23 +65,15 @@ void loop(){
   }
 
   if (digitalRead(boundsUpPin)){
-    if (!wasPressed[2]){
-      myM3LS->boundsLarger();
-      wasPressed[2] = true;
-      Serial.println("Sens Up");
-    }
-  } else {
-    wasPressed[2] = false;
+    myM3LS->boundsLarger();
+    wasPressed[2] = true;
+    Serial.println("Sens Up");
   }
 
   if (digitalRead(boundsDownPin)){
-    if (!wasPressed[3]){
-      myM3LS->boundsSmaller();
-      wasPressed[3] = true;
-      Serial.println("Sens Down");
-    }
-  } else {
-    wasPressed[3] = false;
+    myM3LS->boundsSmaller();
+    wasPressed[3] = true;
+    Serial.println("Sens Down");
   }
 
   if (digitalRead(holdPin)){
