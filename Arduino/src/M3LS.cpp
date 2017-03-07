@@ -98,11 +98,11 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         break;
         case velocity : // WIP: Start / stop scheme may be better, 
                         // IF we can change sensitivity while the motor is running
-                        setSensitivity(abs(inp0 - 512));
+                        // setSensitivity(abs(inp0 - 512));
                         memcpy(sendChars, "<06 ", 4);
                         sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
-                        memcpy(sendChars + 5, " 00000001\r", 10);
-                        sendSPICommand(pins[0], 15);
+                        memcpy(sendChars + 5, " 00000100>\r", 11);
+                        sendSPICommand(pins[1], 16);
                         break;
     }
 }
