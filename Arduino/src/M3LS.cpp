@@ -70,21 +70,24 @@ void M3LS::setControlMode(ControlMode newMode){
         // This is where re-centering has to occur.
         // get current position, re-center bounds around that.
         getCurrentPosition(); // BLOCKING
-        int curXsize = xbounds[1] - xbounds[0];
-        int curYsize = ybounds[1] - ybounds[0];
-        int curZsize = zbounds[1] - zbounds[0];
-
-        xbounds[0] = max(0, currentPosition[0] - curXsize/2);
-        xbounds[1] = min(12000, currentPosition[0] + curXsize/2);
-
-        ybounds[0] = max(0, currentPosition[1] - curYsize/2);
-        ybounds[1] = min(12000, currentPosition[1] + curYsize/2);
-
-        zbounds[0] = max(0, currentPosition[2] - curZsize/2);
-        zbounds[1] = min(12000, currentPosition[2] + curZsize/2);
-
+        recenter(currentPosition[0], currentPosition[1], currentPosition[2]);
     }
     currentControlMode = newMode;
+}
+
+void M3LS::recenter(int newx, int newy, int newz){
+    int curXsize = xbounds[1] - xbounds[0];
+    int curYsize = ybounds[1] - ybounds[0];
+    int curZsize = zbounds[1] - zbounds[0];
+
+    xbounds[0] = max(0, newx - curXsize/2);
+    xbounds[1] = min(12000, newx + curXsize/2);
+
+    ybounds[0] = max(0, newy - curYsize/2);
+    ybounds[1] = min(12000, newy + curYsize/2);
+
+    zbounds[0] = max(0, newz - curZsize/2);
+    zbounds[1] = min(12000, newz + curZsize/2);
 }
 
 // Default method for updating the needle's position
@@ -151,6 +154,10 @@ void M3LS::setSensitivity(int speed){
 void M3LS::setHome(){
     getCurrentPosition();
     memcpy(homePosition, currentPosition, numAxes * sizeof(int));
+    DPRINT("Setting home to ");
+    DPRINT(homePosition[0]); DPRINT(" ");
+    DPRINT(homePosition[1]); DPRINT(" ");
+    DPRINTLN(homePosition[2]);
 }
 
 // Return to the stored home position
@@ -158,6 +165,9 @@ void M3LS::returnHome(){
     // Store current mode and switch to position mode
     ControlMode previousMode = currentControlMode;
     setControlMode(position);
+    DPRINTLN("Returning home");
+    DPRINT(homePosition[0]); DPRINT(" ");
+    DPRINTLN(homePosition[1]);
 
     // Raise Z axis
     if (numAxes > 2){
@@ -168,6 +178,7 @@ void M3LS::returnHome(){
 
     // Move X and Y to home position
     moveToTargetPosition(homePosition[0], homePosition[1], XY);
+    recenter(homePosition[0], homePosition[1], homePosition[2]);
 
     // Restored previous mode
     setControlMode(previousMode);

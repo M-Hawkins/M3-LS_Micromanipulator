@@ -62,6 +62,7 @@ class M3LS{
         void setTargetPosition(int target);
         void setBounds(int amount);
         int sendSPICommand(int pin, int length);
+        void recenter(int newx, int newy, int newz);
 };
 
 #endif
