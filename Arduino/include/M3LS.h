@@ -35,6 +35,7 @@ class M3LS{
         void updatePosition(int inp0, int inp1, int inp2, Axes axis);
         void updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive);
         void setMotorSpeed(int inp0, int inp1, int inp2);
+        void advanceMotor(int inp0, int inp1, int inp2);
         void setHome();
         void returnHome();
         void getCurrentPosition();

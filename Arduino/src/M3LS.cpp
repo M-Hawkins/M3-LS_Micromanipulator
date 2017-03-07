@@ -122,13 +122,13 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         break;
 
         case velocity : // Set the speed and target positions based on
-                        // displacement, divided between 8 zones
+                        // displacement, divided between 7 zones
                         // This should result in zone 0 being a "dead zone."
-                        inp0 = (inp0 / 128) * 100;
-                        inp1 = (inp1 / 128) * 100;
-                        inp2 = (inp2 / 128) * 100;
+                        inp0 = ((inp0 / 128) - 3) * 100;
+                        inp1 = ((inp0 / 128) - 3) * 100;
+                        inp2 = ((inp0 / 128) - 3) * 100;
                         setMotorSpeed(inp0, inp1, inp2);
-                        moveToTargetPosition(inp0, inp1, inp2, axis);
+                        advanceMotor(inp0, inp1, inp2);
                         break;
     }
 }
@@ -142,15 +142,34 @@ void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
         <40>
     */
 
-    // Build command ~and send it to SPI
+    // Build commands and send them to SPI
     memcpy(sendChars, "<40 ", 4);
     sprintf(sendChars + 4, "%06x", inp0);
     memcpy(sendChars + 10, "000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[0], 30);
+
     sprintf(sendChars + 4, "%06x", inp1);
     sendSPICommand(pins[0], 30);
+
     sprintf(sendChars + 4, "%06x", inp2);
     sendSPICommand(pins[0], 30);
+}
+
+void M3LS::advanceMotor(int inp0, int inp1, int inp2){
+    memcpy(sendChars, "<06 ", 4);
+    sprintf(sendChars + 4, "%01f", inp0 > 0);
+    memcpy(sendChars + 5, " ", 1);
+    sprintf(sendChars + 6, "%08x", inp0);
+    memcpy(sendChars + 14, ">\r", 2);
+    sendSPICommand(pins[0], 16);
+
+    sprintf(sendChars + 4, "%01f", inp1 > 0);
+    sprintf(sendChars + 6, "%08x", inp1);
+    sendSPICommand(pins[1], 16);
+
+    sprintf(sendChars + 4, "%01f", inp2 > 0);
+    sprintf(sendChars + 6, "%08x", inp2);
+    sendSPICommand(pins[2], 16);
 }
 
 // Store the current position as the home position
