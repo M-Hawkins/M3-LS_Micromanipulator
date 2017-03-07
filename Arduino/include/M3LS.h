@@ -38,12 +38,18 @@ class M3LS{
         void setHome();
         void returnHome();
         void getCurrentPosition();
+        void boundsSmaller();
+        void boundsLarger();
     private:
         // Variables
         int numAxes;
         int pins[3];
         char sendChars[50];
         char recvChars[100];
+        // first int is lower bound, second upper
+        int xbounds[2];
+        int ybounds[2];
+        int zbounds[2];
         // Functions
         void initialize();
         int getAxisPosition(int pin);
@@ -54,6 +60,7 @@ class M3LS{
         void moveToTargetPosition(int target0, int target1, int target2);
         void moveToTargetPosition(int target0, int target1, int target2, Axes a);
         void setTargetPosition(int target);
+        void setBounds(int amount);
         int sendSPICommand(int pin, int length);
 };
 

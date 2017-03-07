@@ -20,6 +20,6 @@ void loop(){
     Serial.println(myM3LS->currentPosition[0]);
     Serial.print("Moving to ");
     Serial.println(nextPos);
-    myM3LS->updatePosition(nextPos);
+    myM3LS->updatePosition(nextPos, 0, 0);
     delay(5);
 }

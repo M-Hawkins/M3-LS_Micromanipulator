@@ -7,7 +7,7 @@ Copyright info?
 
 #include "M3LS.h"
 
-//#define DEBUG   //If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
+#define DEBUG   //If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
 #ifdef DEBUG    //Macros are usually in all capital letters.
   #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
   #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
@@ -66,6 +66,23 @@ void M3LS::setControlMode(ControlMode newMode){
         for (int axis = 0; axis < numAxes; axis++){
             sendSPICommand(pins[axis], 7);
         }
+    } else if(newMode == position && currentControlMode != position){
+        // This is where re-centering has to occur.
+        // get current position, re-center bounds around that.
+        getCurrentPosition(); // BLOCKING
+        int curXsize = xbounds[1] - xbounds[0];
+        int curYsize = ybounds[1] - ybounds[0];
+        int curZsize = zbounds[1] - zbounds[0];
+
+        xbounds[0] = max(0, currentPosition[0] - curXsize/2);
+        xbounds[1] = min(12000, currentPosition[0] + curXsize/2);
+
+        ybounds[0] = max(0, currentPosition[1] - curYsize/2);
+        ybounds[1] = min(12000, currentPosition[1] + curYsize/2);
+
+        zbounds[0] = max(0, currentPosition[2] - curZsize/2);
+        zbounds[1] = min(12000, currentPosition[2] + curZsize/2);
+
     }
     currentControlMode = newMode;
 }
@@ -93,19 +110,27 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                             moveToTargetPosition(inp0, inp1, inp2, axis);
                         }
                         break;
+
         case open     : break;
-        case position : moveToTargetPosition(inp0, inp1, inp2, axis);
-                        break;
-        case velocity : // WIP: Start / stop scheme may be better, 
-                        // IF we can change sensitivity while the motor is running
-                        // setSensitivity(abs(inp0 - 512));
-                        memcpy(sendChars, "<06 ", 4);
-                        sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
-                        memcpy(sendChars + 5, " 00000100>\r", 11);
-                        sendSPICommand(pins[1], 16);
-                        break;
+        case position : // bit shift by 3 - this can be changed
+                    inp0 = map(inp0/8, 0, 127, xbounds[0], xbounds[1]);
+                    inp1 = map(inp1/8, 0, 127, ybounds[0], ybounds[1]);
+                    inp2 = map(inp2/8, 0, 127, zbounds[0], zbounds[1]);
+                    moveToTargetPosition(inp0, inp1, inp2, axis);
+                    break;
+
+        case velocity : // WIP: Start / stop scheme may be better,
+                    // IF we can change sensitivity while the motor is running
+                    setSensitivity(abs(inp0 - 512));
+                    memcpy(sendChars, "<06 ", 4);
+                    sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
+                    memcpy(sendChars + 5, " 00000001\r", 10);
+                    sendSPICommand(pins[0], 15);
+                    break;
     }
 }
+
+
 
 // Set the controller's sensitivity to a new value
 void M3LS::setSensitivity(int speed){
@@ -160,6 +185,10 @@ void M3LS::initialize(){
         digitalWrite(pins[pin], HIGH);
     }
 
+    xbounds[0] = 500; xbounds[1] = 11500;
+    ybounds[0] = 500; ybounds[1] = 11500;
+    zbounds[0] = 500; zbounds[1] = 11500;
+
     // Initialize SPI
     SPI.begin();
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
@@ -170,6 +199,40 @@ void M3LS::getCurrentPosition(){
     for (int axis = 0; axis < numAxes; axis++){
         currentPosition[axis] = getAxisPosition(pins[axis]);
     }
+}
+
+// amount is in encoder counts
+void M3LS::setBounds(int amount){
+    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000) && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000) && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
+        if((xbounds[0] + amount) < (xbounds[1] - amount)){
+            DPRINT("Changing bounds to x=");
+            DPRINTLN(xbounds[0] + amount);
+            xbounds[0] += amount;
+            xbounds[1] -= amount;
+        }
+        if((ybounds[0] + amount) < (ybounds[1] - amount)){
+            DPRINT("Changing bounds to y=");
+            DPRINTLN(ybounds[0] + amount);
+            ybounds[0] += amount;
+            ybounds[1] -= amount;
+        }
+        if((zbounds[0] + amount) < (zbounds[1] - amount)){
+            DPRINT("Changing bounds to z=");
+            DPRINTLN(zbounds[0] + amount);
+            zbounds[0] += amount;
+            zbounds[1] -= amount;
+        }
+    }
+}
+
+// decrease the bounds
+void M3LS::boundsSmaller(){
+    setBounds(-50);
+}
+
+// increase the bounds
+void M3LS::boundsLarger(){
+    setBounds(50);
 }
 
 // Get the current position of a single stage
@@ -238,6 +301,8 @@ void M3LS::moveToTargetPosition(int target0, int target1, int target2){
 
 // Move the specified axes to the target positions
 void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis){
+
+
     switch(axis)
     {
         case X   :  setTargetPosition(target0);
@@ -311,11 +376,11 @@ int M3LS::sendSPICommand(int pin, int length){
         delayMicroseconds(60);
         if(j >= 99) return -1;
     }
-    DPRINT("Received from M3-LS:");
-    DPRINTLN(recvChars);
-    DPRINT("Took ");
-    DPRINT(j-1);
-    DPRINTLN(" iterations.\n");
+    // DPRINT("Received from M3-LS:");
+    // DPRINTLN(recvChars);
+    // DPRINT("Took ");
+    // DPRINT(j-1);
+    // DPRINTLN(" iterations.\n");
     digitalWrite(pin, HIGH);
     SPI.endTransaction();
     return 0;
