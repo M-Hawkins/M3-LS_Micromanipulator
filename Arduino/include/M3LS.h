@@ -18,7 +18,7 @@ class M3LS{
     public:
         // Enums
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
-        enum ControlMode {hold, open, position, velocity};
+        enum ControlMode {hold, position, velocity};
         // Variables
         ControlMode currentControlMode;
         int currentPosition[3];
@@ -34,7 +34,7 @@ class M3LS{
         void updatePosition(int inp0, int inp1, int inp2, bool isActive);
         void updatePosition(int inp0, int inp1, int inp2, Axes axis);
         void updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive);
-        void setSensitivity(int speed);
+        void setMotorSpeed(int inp0, int inp1, int inp2);
         void setHome();
         void returnHome();
         void getCurrentPosition();

@@ -107,36 +107,34 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis){
 
 // Update the needle's position based upon current mode and joystick inputs
 void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive){
+    // Handle inputs based on the current control mode
     switch(currentControlMode)
     {
         case hold     : if (isActive){
                             moveToTargetPosition(inp0, inp1, inp2, axis);
                         }
                         break;
+        case position : // Map the inputs based on the current bounds
+                        inp0 = map(inp0/8, 0, 127, xbounds[0], xbounds[1]);
+                        inp1 = map(inp1/8, 0, 127, ybounds[0], ybounds[1]);
+                        inp2 = map(inp2/8, 0, 127, zbounds[0], zbounds[1]);
+                        moveToTargetPosition(inp0, inp1, inp2, axis);
+                        break;
 
-        case open     : break;
-        case position : // bit shift by 3 - this can be changed
-                    inp0 = map(inp0/8, 0, 127, xbounds[0], xbounds[1]);
-                    inp1 = map(inp1/8, 0, 127, ybounds[0], ybounds[1]);
-                    inp2 = map(inp2/8, 0, 127, zbounds[0], zbounds[1]);
-                    moveToTargetPosition(inp0, inp1, inp2, axis);
-                    break;
-
-        case velocity : // WIP: Start / stop scheme may be better,
-                    // IF we can change sensitivity while the motor is running
-                    setSensitivity(abs(inp0 - 512));
-                    memcpy(sendChars, "<06 ", 4);
-                    sprintf(sendChars + 4, "%01x", ((inp0 - 512) > 0));
-                    memcpy(sendChars + 5, " 00000001\r", 10);
-                    sendSPICommand(pins[0], 15);
-                    break;
+        case velocity : // Set the speed and target positions based on
+                        // displacement, divided between 8 zones
+                        // This should result in zone 0 being a "dead zone."
+                        inp0 = (inp0 / 128) * 100;
+                        inp1 = (inp1 / 128) * 100;
+                        inp2 = (inp2 / 128) * 100;
+                        setMotorSpeed(inp0, inp1, inp2);
+                        moveToTargetPosition(inp0, inp1, inp2, axis);
+                        break;
     }
 }
 
-
-
 // Set the controller's sensitivity to a new value
-void M3LS::setSensitivity(int speed){
+void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
     /*
     Send to controller:
         <40 SSSSSS CCCCCC AAAAAA IIII>
@@ -146,8 +144,13 @@ void M3LS::setSensitivity(int speed){
 
     // Build command ~and send it to SPI
     memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", speed);
+    sprintf(sendChars + 4, "%06x", inp0);
     memcpy(sendChars + 10, "000033 0000CD 0001>\r", 20);
+    sendSPICommand(pins[0], 30);
+    sprintf(sendChars + 4, "%06x", inp1);
+    sendSPICommand(pins[0], 30);
+    sprintf(sendChars + 4, "%06x", inp2);
+    sendSPICommand(pins[0], 30);
 }
 
 // Store the current position as the home position
