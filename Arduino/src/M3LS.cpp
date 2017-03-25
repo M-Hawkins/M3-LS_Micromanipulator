@@ -75,6 +75,7 @@ void M3LS::setControlMode(ControlMode newMode){
     currentControlMode = newMode;
 }
 
+// Set the needle's current position as the new center by generating new bounds
 void M3LS::recenter(int newx, int newy, int newz){
     int curXsize = xbounds[1] - xbounds[0];
     int curYsize = ybounds[1] - ybounds[0];
@@ -159,6 +160,7 @@ void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
     sendSPICommand(pins[2], 30);
 }
 
+// Move the needle a short distance based on each axis's current zone
 void M3LS::advanceMotor(int inp0, int inp1, int inp2){
     memcpy(sendChars, "<06 ", 4);
     sprintf(sendChars + 4, "%01d", inp0 < 0);
@@ -244,7 +246,7 @@ void M3LS::getCurrentPosition(){
     }
 }
 
-// amount is in encoder counts
+// Adjust the internal bounds based on a given number of encoder counts
 void M3LS::setBounds(int amount){
     if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000) 
         && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000) 
@@ -270,12 +272,12 @@ void M3LS::setBounds(int amount){
     }
 }
 
-// decrease the bounds
+// Decrease the internal bounds
 void M3LS::boundsSmaller(){
     setBounds(-50);
 }
 
-// increase the bounds
+// Increase the internal bounds
 void M3LS::boundsLarger(){
     setBounds(50);
 }
