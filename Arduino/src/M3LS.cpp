@@ -218,6 +218,16 @@ void M3LS::returnHome(){
     setControlMode(previousMode);
 }
 
+// Decrease the internal bounds
+void M3LS::boundsSmaller(){
+    setBounds(-50);
+}
+
+// Increase the internal bounds
+void M3LS::boundsLarger(){
+    setBounds(50);
+}
+
 // Private Functions
 // Initialize starting parameters and SPI settings
 void M3LS::initialize(){
@@ -230,6 +240,7 @@ void M3LS::initialize(){
         digitalWrite(pins[pin], HIGH);
     }
 
+    // Set the default internal bounds
     xbounds[0] = 500; xbounds[1] = 11500;
     ybounds[0] = 500; ybounds[1] = 11500;
     zbounds[0] = 500; zbounds[1] = 11500;
@@ -237,6 +248,9 @@ void M3LS::initialize(){
     // Initialize SPI
     SPI.begin();
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
+
+    // Calibrate the stages
+    calibrate();
 }
 
 // Gets and stores the current position of each stage
@@ -270,16 +284,6 @@ void M3LS::setBounds(int amount){
             zbounds[1] -= amount;
         }
     }
-}
-
-// Decrease the internal bounds
-void M3LS::boundsSmaller(){
-    setBounds(-50);
-}
-
-// Increase the internal bounds
-void M3LS::boundsLarger(){
-    setBounds(50);
 }
 
 // Get the current position of a single stage
