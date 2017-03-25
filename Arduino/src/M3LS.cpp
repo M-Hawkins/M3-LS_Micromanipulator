@@ -127,8 +127,8 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         inp0 = ((inp0 / 128) - 3) * 100;
                         inp1 = ((inp1 / 128) - 3) * 100;
                         inp2 = ((inp2 / 128) - 3) * 100;
-                        setMotorSpeed(inp0, inp1, inp2);
-                        advanceMotor(abs(inp0), abs(inp1), abs(inp2));
+                        // setMotorSpeed(abs(inp0), abs(inp1), abs(inp2));
+                        advanceMotor(inp0, inp1, inp2);
                         break;
     }
 }
@@ -246,7 +246,9 @@ void M3LS::getCurrentPosition(){
 
 // amount is in encoder counts
 void M3LS::setBounds(int amount){
-    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000) && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000) && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
+    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000) 
+        && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000) 
+        && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
         if((xbounds[0] + amount) < (xbounds[1] - amount)){
             DPRINT("Changing bounds to x=");
             DPRINTLN(xbounds[0] + amount);
