@@ -75,22 +75,6 @@ void M3LS::setControlMode(ControlMode newMode){
     currentControlMode = newMode;
 }
 
-// Set the needle's current position as the new center by generating new bounds
-void M3LS::recenter(int newx, int newy, int newz){
-    int curXsize = xbounds[1] - xbounds[0];
-    int curYsize = ybounds[1] - ybounds[0];
-    int curZsize = zbounds[1] - zbounds[0];
-
-    xbounds[0] = max(0, newx - curXsize/2);
-    xbounds[1] = min(12000, newx + curXsize/2);
-
-    ybounds[0] = max(0, newy - curYsize/2);
-    ybounds[1] = min(12000, newy + curYsize/2);
-
-    zbounds[0] = max(0, newz - curZsize/2);
-    zbounds[1] = min(12000, newz + curZsize/2);
-}
-
 // Default method for updating the needle's position
 void M3LS::updatePosition(int inp0, int inp1, int inp2){
     updatePosition(inp0, inp1, inp2, XYZ, false);
@@ -134,56 +118,6 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
     }
 }
 
-// Set the controller's sensitivity to a new value
-void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
-    /*
-    Send to controller:
-        <40 SSSSSS CCCCCC AAAAAA IIII>
-    Receive from controller:
-        <40>
-    */
-
-    // Build commands and send them to SPI
-    memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp0);
-    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
-    sendSPICommand(pins[0], 30);
-
-    memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp1);
-    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
-    sendSPICommand(pins[1], 30);
-
-    memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp2);
-    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
-    sendSPICommand(pins[2], 30);
-}
-
-// Move the needle a short distance based on each axis's current zone
-void M3LS::advanceMotor(int inp0, int inp1, int inp2){
-    memcpy(sendChars, "<06 ", 4);
-    sprintf(sendChars + 4, "%01d", inp0 < 0);
-    memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp0);
-    memcpy(sendChars + 14, ">\r", 2);
-    sendSPICommand(pins[0], 16);
-
-    memcpy(sendChars, "<06 ", 4);
-    sprintf(sendChars + 4, "%01d", inp1 < 0);
-    memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp1);
-    memcpy(sendChars + 14, ">\r", 2);
-    sendSPICommand(pins[1], 16);
-
-    memcpy(sendChars, "<06 ", 4);
-    sprintf(sendChars + 4, "%01d", inp2 < 0);
-    memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp2);
-    memcpy(sendChars + 14, ">\r", 2);
-    sendSPICommand(pins[2], 16);
-}
-
 // Store the current position as the home position
 void M3LS::setHome(){
     getCurrentPosition();
@@ -223,7 +157,7 @@ void M3LS::boundsSmaller(){
     setBounds(-50);
 }
 
-// Increase the internal bounds
+// Increase the internal boundsr    
 void M3LS::boundsLarger(){
     setBounds(50);
 }
@@ -257,32 +191,6 @@ void M3LS::initialize(){
 void M3LS::getCurrentPosition(){
     for (int axis = 0; axis < numAxes; axis++){
         currentPosition[axis] = getAxisPosition(pins[axis]);
-    }
-}
-
-// Adjust the internal bounds based on a given number of encoder counts
-void M3LS::setBounds(int amount){
-    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000) 
-        && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000) 
-        && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
-        if((xbounds[0] + amount) < (xbounds[1] - amount)){
-            DPRINT("Changing bounds to x=");
-            DPRINTLN(xbounds[0] + amount);
-            xbounds[0] += amount;
-            xbounds[1] -= amount;
-        }
-        if((ybounds[0] + amount) < (ybounds[1] - amount)){
-            DPRINT("Changing bounds to y=");
-            DPRINTLN(ybounds[0] + amount);
-            ybounds[0] += amount;
-            ybounds[1] -= amount;
-        }
-        if((zbounds[0] + amount) < (zbounds[1] - amount)){
-            DPRINT("Changing bounds to z=");
-            DPRINTLN(zbounds[0] + amount);
-            zbounds[0] += amount;
-            zbounds[1] -= amount;
-        }
     }
 }
 
@@ -404,6 +312,98 @@ void M3LS::setTargetPosition(int target){
     memcpy(sendChars, "<08 ", 4);
     sprintf(sendChars + 4, "%08x", target);
     memcpy(sendChars + 12, ">\r", 2);
+}
+
+// Set the controller's sensitivity to a new value
+void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
+    /*
+    Send to controller:
+        <40 SSSSSS CCCCCC AAAAAA IIII>
+    Receive from controller:
+        <40>
+    */
+
+    // Build commands and send them to SPI
+    memcpy(sendChars, "<40 ", 4);
+    sprintf(sendChars + 4, "%06x", inp0);
+    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
+    sendSPICommand(pins[0], 30);
+
+    memcpy(sendChars, "<40 ", 4);
+    sprintf(sendChars + 4, "%06x", inp1);
+    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
+    sendSPICommand(pins[1], 30);
+
+    memcpy(sendChars, "<40 ", 4);
+    sprintf(sendChars + 4, "%06x", inp2);
+    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
+    sendSPICommand(pins[2], 30);
+}
+
+// Move the needle a short distance based on each axis's current zone
+void M3LS::advanceMotor(int inp0, int inp1, int inp2){
+    memcpy(sendChars, "<06 ", 4);
+    sprintf(sendChars + 4, "%01d", inp0 < 0);
+    memcpy(sendChars + 5, " ", 1);
+    sprintf(sendChars + 6, "%08x", inp0);
+    memcpy(sendChars + 14, ">\r", 2);
+    sendSPICommand(pins[0], 16);
+
+    memcpy(sendChars, "<06 ", 4);
+    sprintf(sendChars + 4, "%01d", inp1 < 0);
+    memcpy(sendChars + 5, " ", 1);
+    sprintf(sendChars + 6, "%08x", inp1);
+    memcpy(sendChars + 14, ">\r", 2);
+    sendSPICommand(pins[1], 16);
+
+    memcpy(sendChars, "<06 ", 4);
+    sprintf(sendChars + 4, "%01d", inp2 < 0);
+    memcpy(sendChars + 5, " ", 1);
+    sprintf(sendChars + 6, "%08x", inp2);
+    memcpy(sendChars + 14, ">\r", 2);
+    sendSPICommand(pins[2], 16);
+}
+
+// Adjust the internal bounds based on a given number of encoder counts
+void M3LS::setBounds(int amount){
+    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000) 
+        && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000) 
+        && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
+        if((xbounds[0] + amount) < (xbounds[1] - amount)){
+            DPRINT("Changing bounds to x=");
+            DPRINTLN(xbounds[0] + amount);
+            xbounds[0] += amount;
+            xbounds[1] -= amount;
+        }
+        if((ybounds[0] + amount) < (ybounds[1] - amount)){
+            DPRINT("Changing bounds to y=");
+            DPRINTLN(ybounds[0] + amount);
+            ybounds[0] += amount;
+            ybounds[1] -= amount;
+        }
+        if((zbounds[0] + amount) < (zbounds[1] - amount)){
+            DPRINT("Changing bounds to z=");
+            DPRINTLN(zbounds[0] + amount);
+            zbounds[0] += amount;
+            zbounds[1] -= amount;
+        }
+    }
+}
+
+// Set the needle's current position as the new center by generating new bounds
+void M3LS::recenter(int newx, int newy, int newz){
+    int curXsize = xbounds[1] - xbounds[0];
+    int curYsize = ybounds[1] - ybounds[0];
+    int curZsize = zbounds[1] - zbounds[0];
+
+    xbounds[0] = max(0, newx - curXsize/2);
+    xbounds[1] = min(12000, newx + curXsize/2);
+
+    ybounds[0] = max(0, newy - curYsize/2);
+    ybounds[1] = min(12000, newy + curYsize/2);
+
+    zbounds[0] = max(0, newz - curZsize/2);
+    zbounds[1] = min(12000, newz + curZsize/2);
 }
 
 // Sends a command over the SPI bus and writes the response to the buffer
