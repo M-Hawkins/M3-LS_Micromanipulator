@@ -217,7 +217,7 @@ TEST(UpdatePosition, Z){
     ArduinoMock* arduinoMock = arduinoMockInstance();
     for (int pin = 0; pin < numAxes; pin++){
         EXPECT_CALL(*arduinoMock, pinMode(pins[pin], OUTPUT));
-        EXPECT_CALL(*arduinoMock, digitalWrite(pins[pin], HIGH));
+        EXPECT_CALL(*arduinoMock, digitalWrite(pCOLOR_YELLOWins[pin], HIGH));
     }
 
     // Initialize M3LS with starting positions
