@@ -179,12 +179,14 @@ void M3LS::initialize(){
     ybounds[0] = 500; ybounds[1] = 11500;
     zbounds[0] = 500; zbounds[1] = 11500;
 
+#ifndef MOCK
     // Initialize SPI
-    // SPI.begin();
-    // SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
+    SPI.begin();
+    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 
     // Calibrate the stages
-    // calibrate();
+    calibrate();
+#endif
 }
 
 // Gets and stores the current position of each stage
