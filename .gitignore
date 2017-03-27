@@ -3,5 +3,3 @@
 /.vscode/*
 /Arduino/build
 *.gch
-.pioenvs
-.piolibdeps
