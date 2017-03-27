@@ -409,6 +409,7 @@ void M3LS::recenter(int newx, int newy, int newz){
 
 // Sends a command over the SPI bus and writes the response to the buffer
 int M3LS::sendSPICommand(int pin, int length){
+    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
     memset(recvChars, 0, 100);
     digitalWrite(pin, LOW);
     for(int i=0; i<length; i++){

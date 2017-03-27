@@ -30,6 +30,7 @@ void setup(){
     if(!Hid.SetReportParser(0, &Joy)){
         ErrorMessage<uint8_t > (PSTR("SetReportParser"), 1);
     }
+    delay(1000);
     myM3LS->setControlMode(M3LS::open);
     myM3LS->setControlMode(M3LS::position);
     myM3LS->calibrate();
@@ -50,7 +51,7 @@ void loop(){
     Serial.print(Joy.getY());
     Serial.print(" ");
     Serial.println(Joy.getZ());
-
+    myM3LS->updatePosition(Joy.getX(), Joy.getY(), Joy.getZ());
 
 
 }
