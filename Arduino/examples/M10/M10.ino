@@ -4,7 +4,7 @@
 #include <hiduniversal.h>
 #include <usbhub.h>
 
-#define INTERVAL 500
+#define INTERVAL 100
 
 USB Usb;
 USBHub Hub(&Usb);
@@ -19,7 +19,7 @@ unsigned long curMillis;
 M3LS *myM3LS;
 
 void setup(){
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.println("Testing M3LS USB Joystick Movement");
     myM3LS = new M3LS(xpin, ypin, zpin);
     Serial.println("Done instantiating M3LS object");
@@ -45,7 +45,11 @@ void loop(){
     Usb.Task();
 
     Serial.print("Updating position to: ");
-    Serial.println(Joy.getX());
+    Serial.print(Joy.getX());
+    Serial.print(" ");
+    Serial.print(Joy.getY());
+    Serial.print(" ");
+    Serial.println(Joy.getZ());
 
 
 
