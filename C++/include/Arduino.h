@@ -35,6 +35,7 @@ extern "C" {
 
 #define LSBFIRST 0
 #define MSBFIRST 1
+#define SPI_MODE1 1
 
 #define CHANGE 1
 #define FALLING 2
@@ -66,6 +67,11 @@ void detachInterrupt(uint8_t);
 
 void setup(void);
 void loop(void);
+
+inline int max(int a,int b) {return ((a)>(b)?(a):(b)); }
+inline int min(int a,int b) {return ((a)<(b)?(a):(b)); }
+inline long map(long x, long in_min, long in_max, long out_min, long out_max)
+{return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min; }
 
 #ifdef __cplusplus
 } // extern "C"

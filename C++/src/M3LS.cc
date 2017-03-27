@@ -180,11 +180,11 @@ void M3LS::initialize(){
     zbounds[0] = 500; zbounds[1] = 11500;
 
     // Initialize SPI
-    SPI.begin();
-    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
+    // SPI.begin();
+    // SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 
     // Calibrate the stages
-    calibrate();
+    // calibrate();
 }
 
 // Gets and stores the current position of each stage
