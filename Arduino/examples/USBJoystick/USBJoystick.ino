@@ -33,6 +33,8 @@ void setup() {
 }
 
 void loop() {
-        Usb.Task();
-}
 
+    Usb.Task();
+
+    Joy.ReportValues();
+}
