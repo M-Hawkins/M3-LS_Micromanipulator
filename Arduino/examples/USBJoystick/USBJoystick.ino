@@ -36,5 +36,6 @@ void loop() {
 
     Usb.Task();
 
-    Joy.ReportValues();
+    Serial.print("X: ");
+    Serial.println(Joy.getX());
 }
