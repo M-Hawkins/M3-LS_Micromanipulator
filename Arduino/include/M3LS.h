@@ -37,8 +37,7 @@ class M3LS{
         void setHome();
         void returnHome();
         void getCurrentPosition();
-        void boundsSmaller();
-        void boundsLarger();
+        void setBounds(int amount);
     private:
         // Variables
         int numAxes;
@@ -60,7 +59,6 @@ class M3LS{
         void setTargetPosition(int target);
         void setMotorSpeed(int inp0, int inp1, int inp2);
         void advanceMotor(int inp0, int inp1, int inp2);
-        void setBounds(int amount);
         void recenter(int newx, int newy, int newz);
         int sendSPICommand(int pin, int length);
 };

@@ -167,6 +167,7 @@ void M3LS::initialize(){
 
     // Set the default internal bounds
     center[0]=6000; center[1]=6000; center[2]=6000;
+    radius = 5500;
 
     // Initialize SPI
     SPI.begin();

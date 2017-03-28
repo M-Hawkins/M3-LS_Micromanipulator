@@ -33,7 +33,6 @@ void setup(){
     delay(1000);
     myM3LS->setControlMode(M3LS::open);
     myM3LS->setControlMode(M3LS::position);
-    myM3LS->calibrate();
 }
 
 void loop(){
@@ -51,7 +50,8 @@ void loop(){
     Serial.print(Joy.getY());
     Serial.print(" ");
     Serial.println(Joy.getZ());
-    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), 255-Joy.getZ());
+    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), 128);
+    myM3LS->setBounds(255-Joy.getZ());
 
 
 }
