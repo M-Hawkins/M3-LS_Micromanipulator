@@ -54,7 +54,7 @@ void JoystickReportParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8
 
 uint16_t JoystickReportParser::getButtons(void){
     // bit vector of buttons. Simply toggles each bit vector when pressed
-    return ((oldPad[4] << 8) | oldPad[3]);
+    return (uint16_t)(((uint16_t)oldPad[4] << 8) | oldPad[3]);
 }
 
     /*

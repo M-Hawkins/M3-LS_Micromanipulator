@@ -46,21 +46,26 @@ void loop(){
     Usb.Task();
 
     // Debug print outs
+    /*
     Serial.print("Updating position to: ");
     Serial.print(Joy.getX());
     Serial.print(" ");
     Serial.print(255-Joy.getY());
     Serial.print(" ");
     Serial.println(Joy.getZ());
+    */
 
     // Update the position and bounds based upon the joystick inputs
     myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), 128);
     myM3LS->setBounds(Joy.getZ());
 
     curButtons = Joy.getButtons();
-    if(curButtons ^ lastButtons){ // if any button changed
+    if(curButtons && lastButtons == 0){ // if any button changed
+        int status = curButtons;
         Serial.print("Button changed: ");
-        Serial.println(log2(curButtons ^ lastButtons));
-        lastButtons = curButtons;
+        int but = 1;
+        while (status >>= 1) { ++but; }
+        Serial.println(but);
     }
+    lastButtons = curButtons;
 }
