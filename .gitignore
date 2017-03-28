@@ -1,5 +1,5 @@
 /tmp/*
 /.build/*
 /.vscode/*
-/Arduino/build
+/C++/build
 *.gch
