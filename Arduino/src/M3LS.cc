@@ -101,9 +101,9 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         break;
         case position : // Map the inputs based on the current bounds
         // Joystick reports 0-255
-                        inp0 = map(inp0, 0, 255, xbounds[0], xbounds[1]);
-                        inp1 = map(inp1, 0, 255, ybounds[0], ybounds[1]);
-                        inp2 = map(inp2, 0, 255, zbounds[0], zbounds[1]);
+                        inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
+                        inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
+                        inp2 = map(inp2, 0, 255, center[2]-radius, center[2]+radius);
                         moveToTargetPosition(inp0, inp1, inp2, axis);
                         break;
 
@@ -153,16 +153,6 @@ void M3LS::returnHome(){
     setControlMode(previousMode);
 }
 
-// Decrease the internal bounds
-void M3LS::boundsSmaller(){
-    setBounds(-50);
-}
-
-// Increase the internal boundsr
-void M3LS::boundsLarger(){
-    setBounds(50);
-}
-
 // Private Functions
 // Initialize starting parameters and SPI settings
 void M3LS::initialize(){
@@ -176,9 +166,7 @@ void M3LS::initialize(){
     }
 
     // Set the default internal bounds
-    xbounds[0] = 500; xbounds[1] = 11500;
-    ybounds[0] = 500; ybounds[1] = 11500;
-    zbounds[0] = 500; zbounds[1] = 11500;
+    center[0]=6000; center[1]=6000; center[2]=6000;
 
     // Initialize SPI
     SPI.begin();
@@ -366,7 +354,9 @@ void M3LS::advanceMotor(int inp0, int inp1, int inp2){
 }
 
 // Adjust the internal bounds based on a given number of encoder counts
-void M3LS::setBounds(int amount){
+void M3LS::setBounds(int raw){
+    radius = map(raw, 0, 255, 10, 5500);
+    /*
     if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000)
         && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000)
         && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
@@ -389,22 +379,12 @@ void M3LS::setBounds(int amount){
             zbounds[1] -= amount;
         }
     }
+    */
 }
 
 // Set the needle's current position as the new center by generating new bounds
 void M3LS::recenter(int newx, int newy, int newz){
-    int curXsize = xbounds[1] - xbounds[0];
-    int curYsize = ybounds[1] - ybounds[0];
-    int curZsize = zbounds[1] - zbounds[0];
-
-    xbounds[0] = max(0, newx - curXsize/2);
-    xbounds[1] = min(12000, newx + curXsize/2);
-
-    ybounds[0] = max(0, newy - curYsize/2);
-    ybounds[1] = min(12000, newy + curYsize/2);
-
-    zbounds[0] = max(0, newz - curZsize/2);
-    zbounds[1] = min(12000, newz + curZsize/2);
+    center[0]=newx; center[1]=newy; center[2]=newz;
 }
 
 // Sends a command over the SPI bus and writes the response to the buffer

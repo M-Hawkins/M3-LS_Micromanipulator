@@ -46,9 +46,8 @@ class M3LS{
         char sendChars[50];
         char recvChars[100];
         // First int is lower bound, second upper
-        int xbounds[2];
-        int ybounds[2];
-        int zbounds[2];
+        int radius;
+        int center[3];
         // Functions
         void initialize();
         int getAxisPosition(int pin);
