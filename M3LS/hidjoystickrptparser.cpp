@@ -1,1 +1,1 @@
-/home/mhawkins/Documents/Code/M3-LS_Micromanipulator/C++/src/hidjoystickrptparser.cpp
+../C++/src/hidjoystickrptparser.cpp
