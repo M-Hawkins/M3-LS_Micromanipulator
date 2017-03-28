@@ -16,6 +16,7 @@ int xpin = 4; int ypin = 2; int zpin = 3;
 unsigned long lastMillis = 0;
 unsigned long curMillis;
 int lastButtons, curButtons;
+int z = 125;
 
 M3LS *myM3LS;
 
@@ -55,17 +56,35 @@ void loop(){
     Serial.println(Joy.getZ());
     */
 
-    // Update the position and bounds based upon the joystick inputs
-    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), 128);
-    myM3LS->setBounds(Joy.getZ());
 
     curButtons = Joy.getButtons();
+    // first, buttons that can be held down:
+    if(curButtons){
+        int status = curButtons;
+        int button = 1;
+        while (status >>=1) ++button;
+        switch(button){
+            case 2: z = max(0, z-5);
+                break;
+            case 3: z = min(255, z+5);
+                break;
+        }
+    }
     if(curButtons && lastButtons == 0){ // if any button changed
         int status = curButtons;
-        Serial.print("Button changed: ");
-        int but = 1;
-        while (status >>= 1) { ++but; }
-        Serial.println(but);
+        Serial.print("Button pressed: ");
+        int button = 1;
+        while (status >>= 1) { ++button; }
+        Serial.println(button);
+
+        switch (button) {
+            case 1:
+                break;
+        }
     }
     lastButtons = curButtons;
+
+    // Update the position and bounds based upon the joystick inputs
+    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), z);
+    myM3LS->setBounds(Joy.getZ());
 }
