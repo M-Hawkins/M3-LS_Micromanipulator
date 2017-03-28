@@ -110,9 +110,14 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
         case velocity : // Set the speed and target positions based on
                         // displacement, divided between 7 zones
                         // This should result in zone 0 being a "dead zone."
-                        inp0 = ((inp0 / 128) - 3) * 100;
-                        inp1 = ((inp1 / 128) - 3) * 100;
-                        inp2 = ((inp2 / 128) - 3) * 100;
+                        int numZones = 7;
+                        int scaleFactor = 10;
+                        inp0 = map(inp0, 0, 255, -((numZones - 1) / 2), 
+                                    ((numZones - 1) / 2)) * scaleFactor;
+                        inp1 = map(inp1, 0, 255, -((numZones - 1) / 2), 
+                                    ((numZones - 1) / 2)) * scaleFactor;
+                        inp2 = map(inp2, 0, 255, -((numZones - 1) / 2), 
+                                    ((numZones - 1) / 2)) * scaleFactor;
                         // setMotorSpeed(abs(inp0), abs(inp1), abs(inp2));
                         advanceMotor(inp0, inp1, inp2);
                         break;
