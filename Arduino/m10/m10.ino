@@ -31,27 +31,28 @@ void setup(){
         ErrorMessage<uint8_t > (PSTR("SetReportParser"), 1);
     }
     delay(1000);
-    myM3LS->setControlMode(M3LS::open);
-    myM3LS->setControlMode(M3LS::position);
 }
 
 void loop(){
+    // Ensure that at least INTERVAL ms have passed since the last update
     curMillis = millis();
     if(curMillis - lastMillis < INTERVAL){
         return;
     }
-
     lastMillis = curMillis;
+
+    // Get input from USB controller
     Usb.Task();
 
+    // Debug print outs
     Serial.print("Updating position to: ");
     Serial.print(Joy.getX());
     Serial.print(" ");
     Serial.print(Joy.getY());
     Serial.print(" ");
     Serial.println(Joy.getZ());
+
+    // Update the position and bounds based upon the joystick inputs
     myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), 128);
     myM3LS->setBounds(255-Joy.getZ());
-
-
 }

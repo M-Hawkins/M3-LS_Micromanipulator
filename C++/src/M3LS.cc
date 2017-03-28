@@ -193,6 +193,10 @@ void M3LS::initialize(){
 
     // Calibrate the stages
     calibrate();
+
+    // Ensure the system is in position mode
+    setControlMode(M3LS::open);
+    setControlMode(M3LS::position);
 #endif
 }
 
