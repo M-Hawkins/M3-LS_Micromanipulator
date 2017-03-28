@@ -15,6 +15,7 @@ JoystickReportParser Joy(&JoyEvents);
 int xpin = 4; int ypin = 2; int zpin = 3;
 unsigned long lastMillis = 0;
 unsigned long curMillis;
+int lastButtons, curButtons;
 
 M3LS *myM3LS;
 
@@ -47,11 +48,16 @@ void loop(){
     Serial.print("Updating position to: ");
     Serial.print(Joy.getX());
     Serial.print(" ");
-    Serial.print(Joy.getY());
+    Serial.print(255-Joy.getY());
     Serial.print(" ");
     Serial.println(Joy.getZ());
     myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), 128);
-    myM3LS->setBounds(255-Joy.getZ());
+    myM3LS->setBounds(Joy.getZ());
 
+    curButtons = Joy.getButtons();
+    if(curButtons ^ lastButtons){ // if any button changed
+        Serial.print("Button changed: ");
+        Serial.println(log2(curButtons ^ lastButtons));
+    }
 
 }

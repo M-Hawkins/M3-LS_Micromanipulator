@@ -20,8 +20,6 @@ void JoystickReportParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8
 
         // Calling Game Pad event handler
         if (!match && joyEvents) {
-                joyEvents->OnGamePadChanged((const GamePadEventData*)buf);
-
                 for (uint8_t i = 0; i < RPT_GEMEPAD_LEN; i++) oldPad[i] = buf[i];
         }
 
@@ -54,7 +52,11 @@ void JoystickReportParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8
         }
 }
 
-void JoystickEvents::OnGamePadChanged(const GamePadEventData *evt) {
+uint16_t JoystickReportParser::getButtons(void){
+    // bit vector of buttons. Simply toggles each bit vector when pressed
+    return ((oldPad[4] << 8) | oldPad[3]);
+}
+
     /*
         Serial.print("X1: ");
         PrintHex<uint8_t > (evt->X, 0x80);
@@ -68,7 +70,6 @@ void JoystickEvents::OnGamePadChanged(const GamePadEventData *evt) {
         PrintHex<uint8_t > (evt->Rz, 0x80);
         Serial.println("");
         */
-}
 
 uint8_t JoystickReportParser::getX(void){
     return oldPad[0];

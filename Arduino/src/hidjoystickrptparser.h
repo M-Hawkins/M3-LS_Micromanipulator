@@ -9,7 +9,6 @@ struct GamePadEventData {
 
 class JoystickEvents {
 public:
-        virtual void OnGamePadChanged(const GamePadEventData *evt);
         virtual void OnHatSwitch(uint8_t hat);
         virtual void OnButtonUp(uint8_t but_id);
         virtual void OnButtonDn(uint8_t but_id);
@@ -32,6 +31,8 @@ public:
         uint8_t getX();
         uint8_t getY();
         uint8_t getZ();
+
+        uint16_t getButtons();
 };
 
 #endif // __HIDJOYSTICKRPTPARSER_H__
