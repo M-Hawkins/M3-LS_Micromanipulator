@@ -4,7 +4,7 @@
 #include <hiduniversal.h>
 #include <usbhub.h>
 
-#define INTERVAL 100
+#define INTERVAL 50
 
 USB Usb;
 USBHub Hub(&Usb);
@@ -12,7 +12,7 @@ HIDUniversal Hid(&Usb);
 JoystickEvents JoyEvents;
 JoystickReportParser Joy(&JoyEvents);
 
-int xpin = 2; int ypin = 3; int zpin = 4;
+int xpin = 4; int ypin = 2; int zpin = 3;
 unsigned long lastMillis = 0;
 unsigned long curMillis;
 
@@ -33,7 +33,6 @@ void setup(){
     delay(1000);
     myM3LS->setControlMode(M3LS::open);
     myM3LS->setControlMode(M3LS::position);
-    myM3LS->calibrate();
 }
 
 void loop(){
@@ -51,7 +50,8 @@ void loop(){
     Serial.print(Joy.getY());
     Serial.print(" ");
     Serial.println(Joy.getZ());
-    myM3LS->updatePosition(Joy.getX(), Joy.getY(), Joy.getZ());
+    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), 128);
+    myM3LS->setBounds(255-Joy.getZ());
 
 
 }
