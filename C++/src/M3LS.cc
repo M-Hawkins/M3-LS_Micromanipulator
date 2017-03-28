@@ -100,9 +100,10 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         }
                         break;
         case position : // Map the inputs based on the current bounds
-                        inp0 = map(inp0/8, 0, 127, xbounds[0], xbounds[1]);
-                        inp1 = map(inp1/8, 0, 127, ybounds[0], ybounds[1]);
-                        inp2 = map(inp2/8, 0, 127, zbounds[0], zbounds[1]);
+        // Joystick reports 0-255
+                        inp0 = map(inp0, 0, 255, xbounds[0], xbounds[1]);
+                        inp1 = map(inp1, 0, 255, ybounds[0], ybounds[1]);
+                        inp2 = map(inp2, 0, 255, zbounds[0], zbounds[1]);
                         moveToTargetPosition(inp0, inp1, inp2, axis);
                         break;
 
@@ -157,7 +158,7 @@ void M3LS::boundsSmaller(){
     setBounds(-50);
 }
 
-// Increase the internal boundsr    
+// Increase the internal boundsr
 void M3LS::boundsLarger(){
     setBounds(50);
 }
@@ -368,8 +369,8 @@ void M3LS::advanceMotor(int inp0, int inp1, int inp2){
 
 // Adjust the internal bounds based on a given number of encoder counts
 void M3LS::setBounds(int amount){
-    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000) 
-        && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000) 
+    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000)
+        && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000)
         && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
         if((xbounds[0] + amount) < (xbounds[1] - amount)){
             DPRINT("Changing bounds to x=");
@@ -410,6 +411,7 @@ void M3LS::recenter(int newx, int newy, int newz){
 
 // Sends a command over the SPI bus and writes the response to the buffer
 int M3LS::sendSPICommand(int pin, int length){
+    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
     memset(recvChars, 0, 100);
     digitalWrite(pin, LOW);
     for(int i=0; i<length; i++){
