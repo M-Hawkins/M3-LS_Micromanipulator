@@ -1,6 +1,5 @@
 import pygame
 from math import pi
-import numpy as np
 
 def scale(n):
     return int(n*50 + 200)

@@ -4,6 +4,7 @@ project (arduino_mock)
 find_package(Threads REQUIRED)
 add_subdirectory(lib/gtest)
 add_subdirectory(lib/gmock)
+add_definitions(-DMOCK)
 
 #message ("Building arduino_mock")
 #message("Gtest include: ${GTEST_INCLUDE_DIRS}")

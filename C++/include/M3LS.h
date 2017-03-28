@@ -12,7 +12,7 @@ Copyright info?
 #define IN_PROGRESS 0x01
 
 #include "Arduino.h"
-#include <SPI.h>
+#include "SPI.h"
 
 class M3LS{
     public:
@@ -42,11 +42,10 @@ class M3LS{
         // Variables
         int numAxes;
         int pins[3];
-        char sendChars[50];
-        char recvChars[100];
-        // First int is lower bound, second upper
         int radius;
         int center[3];
+        char sendChars[50];
+        char recvChars[100];
         // Functions
         void initialize();
         int getAxisPosition(int pin);
