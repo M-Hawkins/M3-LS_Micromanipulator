@@ -100,7 +100,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         }
                         break;
         case position : // Map the inputs based on the current bounds
-        // Joystick reports 0-255
+                        // Joystick reports 0-255
                         inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
                         inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
                         inp2 = map(inp2, 0, 255, center[2]-radius, center[2]+radius);
@@ -153,6 +153,18 @@ void M3LS::returnHome(){
     setControlMode(previousMode);
 }
 
+// Gets and stores the current position of each stage
+void M3LS::getCurrentPosition(){
+    for (int axis = 0; axis < numAxes; axis++){
+        currentPosition[axis] = getAxisPosition(pins[axis]);
+    }
+}
+
+// Adjust the internal bounds based on a given number of encoder counts
+void M3LS::setBounds(int raw){
+    radius = map(raw, 0, 255, 10, 5500);
+}
+
 // Private Functions
 // Initialize starting parameters and SPI settings
 void M3LS::initialize(){
@@ -177,13 +189,6 @@ void M3LS::initialize(){
     // Calibrate the stages
     calibrate();
 #endif
-}
-
-// Gets and stores the current position of each stage
-void M3LS::getCurrentPosition(){
-    for (int axis = 0; axis < numAxes; axis++){
-        currentPosition[axis] = getAxisPosition(pins[axis]);
-    }
 }
 
 // Get the current position of a single stage
@@ -356,38 +361,11 @@ void M3LS::advanceMotor(int inp0, int inp1, int inp2){
     sendSPICommand(pins[2], 16);
 }
 
-// Adjust the internal bounds based on a given number of encoder counts
-void M3LS::setBounds(int raw){
-    radius = map(raw, 0, 255, 10, 5500);
-    /*
-    if((xbounds[0] + amount > 0) && (xbounds[1] - amount < 12000)
-        && (ybounds[0] + amount > 0) && (ybounds[1] - amount < 12000)
-        && (zbounds[0] + amount > 0 && zbounds[1] - amount < 12000)){
-        if((xbounds[0] + amount) < (xbounds[1] - amount)){
-            DPRINT("Changing bounds to x=");
-            DPRINTLN(xbounds[0] + amount);
-            xbounds[0] += amount;
-            xbounds[1] -= amount;
-        }
-        if((ybounds[0] + amount) < (ybounds[1] - amount)){
-            DPRINT("Changing bounds to y=");
-            DPRINTLN(ybounds[0] + amount);
-            ybounds[0] += amount;
-            ybounds[1] -= amount;
-        }
-        if((zbounds[0] + amount) < (zbounds[1] - amount)){
-            DPRINT("Changing bounds to z=");
-            DPRINTLN(zbounds[0] + amount);
-            zbounds[0] += amount;
-            zbounds[1] -= amount;
-        }
-    }
-    */
-}
-
 // Set the needle's current position as the new center by generating new bounds
 void M3LS::recenter(int newx, int newy, int newz){
-    center[0]=newx; center[1]=newy; center[2]=newz;
+    center[0]=newx;
+    center[1]=newy;
+    center[2]=newz;
 }
 
 // Sends a command over the SPI bus and writes the response to the buffer
