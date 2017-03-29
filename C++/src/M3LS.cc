@@ -111,7 +111,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         // displacement, divided between 7 zones
                         // This should result in zone 0 being a "dead zone."
                         int numZones = 7;
-                        int scaleFactor = 10;
+                        int scaleFactor = radius / (numZones * 10);
                         inp0 = map(inp0, 0, 255, -((numZones - 1) / 2), 
                                     ((numZones - 1) / 2)) * scaleFactor;
                         inp1 = map(inp1, 0, 255, -((numZones - 1) / 2), 
