@@ -51,6 +51,8 @@ void M3LS::calibrate(){
             // Build command and send it to SPI
             memcpy(sendChars, "<87 4>\r", 7);
             sendSPICommand(axis, 7);
+            memcpy(sendChars, "<87 5>\r", 7);
+            sendSPICommand(axis, 7);
     }
 }
 
