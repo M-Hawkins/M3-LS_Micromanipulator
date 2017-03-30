@@ -29,6 +29,7 @@ class M3LS{
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Functions
         void calibrate();
+        void initUSBShield();
         void setRefreshRate(int newRate);
         void setControlMode(ControlMode newMode);
         void updatePosition(int inp0, int inp1, int inp2);
@@ -48,6 +49,17 @@ class M3LS{
         int refreshRate;
         char sendChars[50];
         char recvChars[100];
+        // USB Shield
+        USB Usb;
+        USBHub Hub;
+        HIDUniversal Hid;
+        JoystickEvents JoyEvents;
+        JoystickReportParser Joy;
+        // Timing
+        unsigned long lastMillis;
+        unsigned long curMillis;
+        int lastButtons;
+        int curButtons;
         // Functions
         void initialize();
         int getAxisPosition(int pin);

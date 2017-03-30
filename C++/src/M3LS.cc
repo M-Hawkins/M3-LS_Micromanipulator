@@ -1,5 +1,5 @@
 /*
-M3LS.cpp - An Arduino library for translating high level commands to M3-LS API
+M3LS.cc - An Arduino library for translating high level commands to M3-LS API
            calls over SPI
 Created by Matthew Hawkins
 Copyright info?
@@ -56,6 +56,19 @@ void M3LS::calibrate(){
     }
 }
 
+// Instantiate the USB shield controller
+void M3LS::initUSBShield(){
+    // Initialize USB shield variables
+    Hub = Hub(&Usb);
+    Hid = Hid(&Usb);
+    Joy = Joy(&JoyEvents);
+
+    // Call initialization routines
+    Usb.Init();
+    Hid.SetReportParser(0, &Joy);
+}
+
+// Sets the current refresh rate to the new value
 void M3LS::setRefreshRate(int newRate){
     refreshRate = newRate;
 }
