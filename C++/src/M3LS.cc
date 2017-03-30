@@ -114,14 +114,15 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         // This should result in zone 0 being a "dead zone."
                         int numZones = 7;
                         int scaleFactor = radius / (numZones * 10);
-                        inp0 = map(inp0, 0, 255, -((numZones - 1) / 2), 
+                        int inputs[3] = {inp0, inp1, inp2};
+
+                        // Loop through each available axis
+                        for (int axis = 0; axis < numAxes; axis++){
+                            inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2), 
                                     ((numZones - 1) / 2)) * scaleFactor;
-                        inp1 = map(inp1, 0, 255, -((numZones - 1) / 2), 
-                                    ((numZones - 1) / 2)) * scaleFactor;
-                        inp2 = map(inp2, 0, 255, -((numZones - 1) / 2), 
-                                    ((numZones - 1) / 2)) * scaleFactor;
-                        // setMotorSpeed(abs(inp0), abs(inp1), abs(inp2));
-                        advanceMotor(inp0, inp1, inp2);
+                            advanceMotor(inp, axisNum);
+                        }
+
                         break;
     }
 }
@@ -268,8 +269,6 @@ void M3LS::moveToTargetPosition(int target0, int target1, int target2){
 
 // Move the specified axes to the target positions
 void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis){
-
-
     switch(axis)
     {
         case X   :  setTargetPosition(target0);
@@ -349,27 +348,13 @@ void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
 }
 
 // Move the needle a short distance based on each axis's current zone
-void M3LS::advanceMotor(int inp0, int inp1, int inp2){
+void M3LS::advanceMotor(int inp, int axisNum){
     memcpy(sendChars, "<06 ", 4);
-    sprintf(sendChars + 4, "%01d", inp0 < 0);
+    sprintf(sendChars + 4, "%01d", inp < 0);
     memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp0);
+    sprintf(sendChars + 6, "%08x", inp);
     memcpy(sendChars + 14, ">\r", 2);
-    sendSPICommand(pins[0], 16);
-
-    memcpy(sendChars, "<06 ", 4);
-    sprintf(sendChars + 4, "%01d", inp1 < 0);
-    memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp1);
-    memcpy(sendChars + 14, ">\r", 2);
-    sendSPICommand(pins[1], 16);
-
-    memcpy(sendChars, "<06 ", 4);
-    sprintf(sendChars + 4, "%01d", inp2 < 0);
-    memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp2);
-    memcpy(sendChars + 14, ">\r", 2);
-    sendSPICommand(pins[2], 16);
+    sendSPICommand(pins[axisNum], 16);
 }
 
 // Set the needle's current position as the new center by generating new bounds
