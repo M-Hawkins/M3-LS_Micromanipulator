@@ -29,6 +29,7 @@ class M3LS{
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Functions
         void calibrate();
+        void setRefreshRate(int newRate);
         void setControlMode(ControlMode newMode);
         void updatePosition(int inp0, int inp1, int inp2);
         void updatePosition(int inp0, int inp1, int inp2, bool isActive);
@@ -44,6 +45,7 @@ class M3LS{
         int pins[3];
         int radius;
         int center[3];
+        int refreshRate;
         char sendChars[50];
         char recvChars[100];
         // Functions

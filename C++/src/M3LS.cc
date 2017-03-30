@@ -56,6 +56,10 @@ void M3LS::calibrate(){
     }
 }
 
+void M3LS::setRefreshRate(int newRate){
+    refreshRate = newRate;
+}
+
 // Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
     if (newMode == open && currentControlMode != open){
@@ -185,9 +189,12 @@ void M3LS::initialize(){
         digitalWrite(pins[pin], HIGH);
     }
 
-    // Set the default internal bounds
-    center[0]=6000; center[1]=6000; center[2]=6000;
+    // Set the default internal bounds, radius, and refresh rate
+    center[0]=6000;
+    center[1]=6000;
+    center[2]=6000;
     radius = 5500;
+    refreshRate = 20;
 
 #ifndef MOCK
     // Initialize SPI
