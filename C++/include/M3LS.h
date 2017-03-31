@@ -29,6 +29,8 @@ class M3LS{
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Functions
         void calibrate();
+        void calibrateForward();
+        void calibrateReverse();
         void setControlMode(ControlMode newMode);
         void updatePosition(int inp0, int inp1, int inp2);
         void updatePosition(int inp0, int inp1, int inp2, bool isActive);

@@ -47,17 +47,28 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
 // Public functions
 // Calibrate the stages
 void M3LS::calibrate(){
+    calibrateForward();
+    calibrateReverse();
+
+}
+void M3LS::calibrateForward(){
     // Build command and send it to SPI
-    memcpy(sendChars, "<87 4>\r", 7);
-    for (int axis = 0; axis < numAxes; axis++){
-            sendSPICommand(pins[axis], 7);
-    }
+    delay(250);
     memcpy(sendChars, "<87 5>\r", 7);
     for (int axis = 0; axis < numAxes; axis++){
             sendSPICommand(pins[axis], 7);
     }
+    delay(250);
 }
 
+void M3LS::calibrateReverse(){
+    delay(250);
+    memcpy(sendChars, "<87 4>\r", 7);
+    for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+    }
+    delay(250);
+}
 // Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
     if (newMode == open && currentControlMode != open){
@@ -188,9 +199,10 @@ void M3LS::initialize(){
 
     // Set the default internal bounds
     center[0]=6000; center[1]=6000; center[2]=6000;
-    radius = 5500;
+    radius = 6000;
 
 #ifndef MOCK
+    delay(50);
     SPI.begin();
 
 /*

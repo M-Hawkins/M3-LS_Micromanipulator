@@ -22,6 +22,11 @@ void setup(){
 
 void loop(){
     Serial.println("Updating position to: 500");
+    myM3LS->calibrateReverse();
+    myM3LS->updatePosition(0, 0, 0);
+    delay(10);
+    myM3LS->updatePosition(0, 0, 0);
+    delay(10);
     myM3LS->updatePosition(0, 0, 0);
     delay(2500);
     myM3LS->getCurrentPosition();
@@ -33,6 +38,11 @@ void loop(){
     Serial.println(myM3LS->currentPosition[2]);
 
     Serial.println("Updating position to: 11500");
+    myM3LS->calibrateForward();
+    myM3LS->updatePosition(255, 255, 255);
+    delay(10);
+    myM3LS->updatePosition(255, 255, 255);
+    delay(10);
     myM3LS->updatePosition(255, 255, 255);
     delay(2500);
     myM3LS->getCurrentPosition();
