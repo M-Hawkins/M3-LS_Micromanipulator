@@ -47,15 +47,28 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
 // Public functions
 // Calibrate the stages
 void M3LS::calibrate(){
+    calibrateForward();
+    calibrateReverse();
+
+}
+void M3LS::calibrateForward(){
+    // Build command and send it to SPI
+    delay(250);
+    memcpy(sendChars, "<87 5>\r", 7);
     for (int axis = 0; axis < numAxes; axis++){
-            // Build command and send it to SPI
-            memcpy(sendChars, "<87 4>\r", 7);
-            sendSPICommand(axis, 7);
-            memcpy(sendChars, "<87 5>\r", 7);
-            sendSPICommand(axis, 7);
+        sendSPICommand(pins[axis], 7);
     }
+    delay(250);
 }
 
+void M3LS::calibrateReverse(){
+    delay(250);
+    memcpy(sendChars, "<87 4>\r", 7);
+    for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+    }
+    delay(250);
+}
 // Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
     if (newMode == open && currentControlMode != open){
@@ -118,8 +131,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
 
                         // Loop through each available axis
                         for (int axis = 0; axis < numAxes; axis++){
-                            inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2), 
-                                    ((numZones - 1) / 2)) * scaleFactor;
+                            inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2), ((numZones - 1) / 2)) * scaleFactor;
                             advanceMotor(inp, axisNum);
                         }
 
@@ -190,16 +202,17 @@ void M3LS::initialize(){
     radius = 5500;
 
 #ifndef MOCK
-    // Initialize SPI
+    delay(50);
     SPI.begin();
-    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
 
     // Calibrate the stages
     calibrate();
 
     // Ensure the system is in position mode
     setControlMode(M3LS::open);
+    delayMicroseconds(100);
     setControlMode(M3LS::position);
+    delayMicroseconds(100);
 #endif
 }
 
@@ -317,7 +330,7 @@ void M3LS::setTargetPosition(int target){
 
     // Build command and send it to SPI
     memcpy(sendChars, "<08 ", 4);
-    sprintf(sendChars + 4, "%08x", target);
+    sprintf(sendChars + 4, "%08X", target);
     memcpy(sendChars + 12, ">\r", 2);
 }
 
@@ -332,17 +345,17 @@ void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
 
     // Build commands and send them to SPI
     memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp0);
+    sprintf(sendChars + 4, "%06X", inp0);
     memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[0], 30);
 
     memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp1);
+    sprintf(sendChars + 4, "%06X", inp1);
     memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[1], 30);
 
     memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp2);
+    sprintf(sendChars + 4, "%06X", inp2);
     memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[2], 30);
 }
@@ -352,7 +365,7 @@ void M3LS::advanceMotor(int inp, int axisNum){
     memcpy(sendChars, "<06 ", 4);
     sprintf(sendChars + 4, "%01d", inp < 0);
     memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp);
+    sprintf(sendChars + 6, "%08X", inp);
     memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[axisNum], 16);
 }
@@ -369,6 +382,7 @@ int M3LS::sendSPICommand(int pin, int length){
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
     memset(recvChars, 0, 100);
     digitalWrite(pin, LOW);
+    delayMicroseconds(60);
     for(int i=0; i<length; i++){
         SPI.transfer(sendChars[i]);
         // Minimum delay time: 60 microseconds between SPI transfers.
@@ -384,7 +398,11 @@ int M3LS::sendSPICommand(int pin, int length){
     delayMicroseconds(60);
     while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
-        if(j >= 99) return -1;
+        if(j >= 99){
+            digitalWrite(pin, HIGH);
+            SPI.endTransaction();
+            return -1;
+        }
     }
     // DPRINT("Received from M3-LS:");
     // DPRINTLN(recvChars);

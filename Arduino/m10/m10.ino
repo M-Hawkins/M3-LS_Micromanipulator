@@ -17,25 +17,34 @@ unsigned long lastMillis = 0;
 unsigned long curMillis;
 int lastButtons, curButtons;
 int z = 125;
+int LED = A7;
+int ledstat = 0;
 
 M3LS *myM3LS;
 
 void setup(){
+    pinMode(LED, OUTPUT);
+    digitalWrite(LED, 0);
     Serial.begin(115200);
     Serial.println("Testing M3LS USB Joystick Movement");
+    delay(1000);
     myM3LS = new M3LS(xpin, ypin, zpin);
     Serial.println("Done instantiating M3LS object");
     if(-1 == Usb.Init()){
         Serial.println("ERROR: OSC did not start.");
+        digitalWrite(LED, 1);
     }
     delay(200);
     if(!Hid.SetReportParser(0, &Joy)){
         ErrorMessage<uint8_t > (PSTR("SetReportParser"), 1);
+        //digitalWrite(LED,1);
     }
     delay(1000);
 }
 
 void loop(){
+    //digitalWrite(LED, ledstat);
+    ledstat = !ledstat;
     // Ensure that at least INTERVAL ms have passed since the last update
     curMillis = millis();
     if(curMillis - lastMillis < INTERVAL){

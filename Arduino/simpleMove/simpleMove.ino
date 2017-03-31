@@ -1,8 +1,13 @@
+/*
+This sketch simply moves back and forth: from encoder
+counts 500 to 11500
+*/
+
 #include "M3LS.h"
 
-int xpin = 3;
+int xpin = 4;
 int ypin = 2;
-int zpin = 4;
+int zpin = 3;
 
 M3LS *myM3LS;
 
@@ -12,20 +17,39 @@ void setup(){
     Serial.println("About to construct M3LS object:");
     myM3LS = new M3LS(xpin, ypin, zpin);
     Serial.println("DONE instantiating object");
-
-    myM3LS->setControlMode(M3LS::open);
-    myM3LS->setControlMode(M3LS::position);
-    
-
+    delay(1000);
 }
 
 void loop(){
-    Serial.println("Starting movement test.");
-    delay(100);
-    for(int i=0; i<12; i++){
-        myM3LS->updatePosition(500+i*1000, 500+i*1000, 500+i*1000);
-        delay(2000);
-        myM3LS->getCurrentPosition();
-        Serial.println(myM3LS->currentPosition[0]);
-    }
+    Serial.println("Updating position to: 500");
+    myM3LS->calibrateReverse();
+    myM3LS->updatePosition(0, 0, 0);
+    delay(10);
+    myM3LS->updatePosition(0, 0, 0);
+    delay(10);
+    myM3LS->updatePosition(0, 0, 0);
+    delay(2500);
+    myM3LS->getCurrentPosition();
+    Serial.print("Position: ");
+    Serial.print(myM3LS->currentPosition[0]);
+    Serial.print(" ");
+    Serial.print(myM3LS->currentPosition[1]);
+    Serial.print(" ");
+    Serial.println(myM3LS->currentPosition[2]);
+
+    Serial.println("Updating position to: 11500");
+    myM3LS->calibrateForward();
+    myM3LS->updatePosition(255, 255, 255);
+    delay(10);
+    myM3LS->updatePosition(255, 255, 255);
+    delay(10);
+    myM3LS->updatePosition(255, 255, 255);
+    delay(2500);
+    myM3LS->getCurrentPosition();
+    Serial.print("Position: ");
+    Serial.print(myM3LS->currentPosition[0]);
+    Serial.print(" ");
+    Serial.print(myM3LS->currentPosition[1]);
+    Serial.print(" ");
+    Serial.println(myM3LS->currentPosition[2]);
 }
