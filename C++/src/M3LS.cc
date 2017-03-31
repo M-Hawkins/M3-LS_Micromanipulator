@@ -47,9 +47,13 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
 // Public functions
 // Calibrate the stages
 void M3LS::calibrate(){
+    // Build command and send it to SPI
+    memcpy(sendChars, "<87 4>\r", 7);
     for (int axis = 0; axis < numAxes; axis++){
-            // Build command and send it to SPI
-            memcpy(sendChars, "<87 4>\r", 7);
+            sendSPICommand(axis, 7);
+    }
+    memcpy(sendChars, "<87 5>\r", 7);
+    for (int axis = 0; axis < numAxes; axis++){
             sendSPICommand(axis, 7);
     }
 }
@@ -189,6 +193,7 @@ void M3LS::initialize(){
 #ifndef MOCK
     SPI.begin();
 
+/*
     memcpy(sendChars, "<07>\r ", 4);
     sendSPICommand(pins[0], 4);
     sendSPICommand(pins[1], 4);
@@ -199,12 +204,14 @@ void M3LS::initialize(){
     sendSPICommand(pins[0], 4);
     sendSPICommand(pins[1], 4);
     sendSPICommand(pins[2], 4);
+    */
 
     // Calibrate the stages
     calibrate();
 
     // Ensure the system is in position mode
     setControlMode(M3LS::open);
+    delayMicroseconds(100);
     setControlMode(M3LS::position);
 #endif
 }
@@ -325,7 +332,7 @@ void M3LS::setTargetPosition(int target){
 
     // Build command and send it to SPI
     memcpy(sendChars, "<08 ", 4);
-    sprintf(sendChars + 4, "%08x", target);
+    sprintf(sendChars + 4, "%08X", target);
     memcpy(sendChars + 12, ">\r", 2);
 }
 
@@ -340,17 +347,17 @@ void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
 
     // Build commands and send them to SPI
     memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp0);
+    sprintf(sendChars + 4, "%06X", inp0);
     memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[0], 30);
 
     memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp1);
+    sprintf(sendChars + 4, "%06X", inp1);
     memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[1], 30);
 
     memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06x", inp2);
+    sprintf(sendChars + 4, "%06X", inp2);
     memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
     sendSPICommand(pins[2], 30);
 }
@@ -360,21 +367,21 @@ void M3LS::advanceMotor(int inp0, int inp1, int inp2){
     memcpy(sendChars, "<06 ", 4);
     sprintf(sendChars + 4, "%01d", inp0 < 0);
     memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp0);
+    sprintf(sendChars + 6, "%08X", inp0);
     memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[0], 16);
 
     memcpy(sendChars, "<06 ", 4);
     sprintf(sendChars + 4, "%01d", inp1 < 0);
     memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp1);
+    sprintf(sendChars + 6, "%08X", inp1);
     memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[1], 16);
 
     memcpy(sendChars, "<06 ", 4);
     sprintf(sendChars + 4, "%01d", inp2 < 0);
     memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08x", inp2);
+    sprintf(sendChars + 6, "%08X", inp2);
     memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[2], 16);
 }
