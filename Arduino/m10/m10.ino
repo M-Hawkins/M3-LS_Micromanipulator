@@ -27,6 +27,7 @@ void setup(){
     digitalWrite(LED, 0);
     Serial.begin(115200);
     Serial.println("Testing M3LS USB Joystick Movement");
+    delay(1000);
     myM3LS = new M3LS(xpin, ypin, zpin);
     Serial.println("Done instantiating M3LS object");
     if(-1 == Usb.Init()){

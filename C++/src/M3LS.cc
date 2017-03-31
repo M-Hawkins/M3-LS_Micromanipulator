@@ -50,11 +50,11 @@ void M3LS::calibrate(){
     // Build command and send it to SPI
     memcpy(sendChars, "<87 4>\r", 7);
     for (int axis = 0; axis < numAxes; axis++){
-            sendSPICommand(axis, 7);
+            sendSPICommand(pins[axis], 7);
     }
     memcpy(sendChars, "<87 5>\r", 7);
     for (int axis = 0; axis < numAxes; axis++){
-            sendSPICommand(axis, 7);
+            sendSPICommand(pins[axis], 7);
     }
 }
 
