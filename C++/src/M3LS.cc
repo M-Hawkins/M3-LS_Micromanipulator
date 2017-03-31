@@ -190,6 +190,50 @@ void M3LS::setBounds(int raw){
     radius = map(raw, 0, 255, 10, 5500);
 }
 
+void M3LS::run(){
+    int currentZPosition = 125;
+
+    // Ensure that at least INTERVAL ms have passed since the last update
+    curMillis = millis();
+    if(curMillis - lastMillis < refreshRate){
+        return;
+    }
+    lastMillis = curMillis;
+
+    // Get input from USB controller
+    Usb.Task();
+    curButtons = Joy.getButtons();
+
+    // Handle buttons that can be held down:
+    if(curButtons){
+        int status = curButtons;
+        int button = 1;
+        while (status >>=1) { ++button; }
+        switch(button){
+            case 2: currentZPosition = max(0, currentZPosition-5);
+                break;
+            case 3: currentZPosition = min(255, currentZPosition+5);
+                break;
+        }
+    }
+
+    // Handle any buttons that have changed
+    if(curButtons && lastButtons == 0){
+        int status = curButtons;
+        int button = 1;
+        while (status >>= 1) { ++button; }
+        switch (button) {
+            case 1:
+                break;
+        }
+    }
+    lastButtons = curButtons;
+
+    // Update the position and bounds based upon the joystick inputs
+    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), currentZPosition);
+    myM3LS->setBounds(Joy.getZ());
+}
+
 // Private Functions
 // Initialize starting parameters and SPI settings
 void M3LS::initialize(){
@@ -208,6 +252,7 @@ void M3LS::initialize(){
     center[2]=6000;
     radius = 5500;
     refreshRate = 20;
+    currentZPosition = 125;
 
 #ifndef MOCK
     // Initialize SPI

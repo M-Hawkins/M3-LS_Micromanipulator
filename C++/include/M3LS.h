@@ -13,6 +13,10 @@ Copyright info?
 
 #include "Arduino.h"
 #include "SPI.h"
+#include "hidjoystickrptparser.h"
+#include <usbhid.h>
+#include <hiduniversal.h>
+#include <usbhub.h>
 
 class M3LS{
     public:
@@ -40,6 +44,7 @@ class M3LS{
         void returnHome();
         void getCurrentPosition();
         void setBounds(int amount);
+        void run();
     private:
         // Variables
         int numAxes;
@@ -47,6 +52,7 @@ class M3LS{
         int radius;
         int center[3];
         int refreshRate;
+        int currentZPosition;
         char sendChars[50];
         char recvChars[100];
         // USB Shield
