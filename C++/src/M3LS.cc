@@ -199,7 +199,7 @@ void M3LS::initialize(){
 
     // Set the default internal bounds
     center[0]=6000; center[1]=6000; center[2]=6000;
-    radius = 6000;
+    radius = 5500;
 
 #ifndef MOCK
     delay(50);
@@ -426,7 +426,11 @@ int M3LS::sendSPICommand(int pin, int length){
     delayMicroseconds(60);
     while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
         delayMicroseconds(60);
-        if(j >= 99) return -1;
+        if(j >= 99){
+            digitalWrite(pin, HIGH);
+            SPI.endTransaction();
+            return -1;
+        }
     }
     // DPRINT("Received from M3-LS:");
     // DPRINTLN(recvChars);

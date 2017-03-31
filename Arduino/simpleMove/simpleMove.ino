@@ -5,9 +5,9 @@ counts 500 to 11500
 
 #include "M3LS.h"
 
-int xpin = 3;
+int xpin = 4;
 int ypin = 2;
-int zpin = 4;
+int zpin = 3;
 
 M3LS *myM3LS;
 
