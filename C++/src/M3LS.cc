@@ -112,11 +112,11 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         // This should result in zone 0 being a "dead zone."
                         int numZones = 7;
                         int scaleFactor = 10;
-                        inp0 = map(inp0, 0, 255, -((numZones - 1) / 2), 
+                        inp0 = map(inp0, 0, 255, -((numZones - 1) / 2),
                                     ((numZones - 1) / 2)) * scaleFactor;
-                        inp1 = map(inp1, 0, 255, -((numZones - 1) / 2), 
+                        inp1 = map(inp1, 0, 255, -((numZones - 1) / 2),
                                     ((numZones - 1) / 2)) * scaleFactor;
-                        inp2 = map(inp2, 0, 255, -((numZones - 1) / 2), 
+                        inp2 = map(inp2, 0, 255, -((numZones - 1) / 2),
                                     ((numZones - 1) / 2)) * scaleFactor;
                         // setMotorSpeed(abs(inp0), abs(inp1), abs(inp2));
                         advanceMotor(inp0, inp1, inp2);
@@ -187,9 +187,18 @@ void M3LS::initialize(){
     radius = 5500;
 
 #ifndef MOCK
-    // Initialize SPI
     SPI.begin();
-    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
+
+    memcpy(sendChars, "<07>\r ", 4);
+    sendSPICommand(pins[0], 4);
+    sendSPICommand(pins[1], 4);
+    sendSPICommand(pins[2], 4);
+
+    delayMicroseconds(100);
+    memcpy(sendChars, "<07>\r ", 4);
+    sendSPICommand(pins[0], 4);
+    sendSPICommand(pins[1], 4);
+    sendSPICommand(pins[2], 4);
 
     // Calibrate the stages
     calibrate();
@@ -382,6 +391,7 @@ int M3LS::sendSPICommand(int pin, int length){
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
     memset(recvChars, 0, 100);
     digitalWrite(pin, LOW);
+    delayMicroseconds(60);
     for(int i=0; i<length; i++){
         SPI.transfer(sendChars[i]);
         // Minimum delay time: 60 microseconds between SPI transfers.

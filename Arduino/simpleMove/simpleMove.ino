@@ -1,3 +1,8 @@
+/*
+This sketch simply moves back and forth: from encoder
+counts 500 to 11500
+*/
+
 #include "M3LS.h"
 
 int xpin = 3;
@@ -12,20 +17,19 @@ void setup(){
     Serial.println("About to construct M3LS object:");
     myM3LS = new M3LS(xpin, ypin, zpin);
     Serial.println("DONE instantiating object");
-
-    myM3LS->setControlMode(M3LS::open);
-    myM3LS->setControlMode(M3LS::position);
-    
-
 }
 
 void loop(){
-    Serial.println("Starting movement test.");
-    delay(100);
-    for(int i=0; i<12; i++){
-        myM3LS->updatePosition(500+i*1000, 500+i*1000, 500+i*1000);
-        delay(2000);
-        myM3LS->getCurrentPosition();
-        Serial.println(myM3LS->currentPosition[0]);
-    }
+    Serial.println("Updating position to: 500");
+    myM3LS->updatePosition(0, 0, 0);
+    delay(2000);
+    myM3LS->getCurrentPosition();
+    Serial.print("Position: ");
+    Serial.println(myM3LS->currentPosition[0]);
+    Serial.println("Updating position to: 11500");
+    myM3LS->updatePosition(255, 255, 255);
+    delay(2000);
+    Serial.print("Position: ");
+    myM3LS->getCurrentPosition();
+    Serial.println(myM3LS->currentPosition[0]);
 }
