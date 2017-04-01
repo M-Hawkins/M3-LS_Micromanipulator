@@ -23,7 +23,7 @@ class M3LS{
         // Enums
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
-        enum Commands {ToggleHold, ToggleVelocity, SetHome, ReturnHome, 
+        enum Commands {Def, ToggleHold, ToggleVelocity, SetHome, ReturnHome,
                         ZUp, ZDown};
         // Variables
         ControlMode currentControlMode;
@@ -50,6 +50,7 @@ class M3LS{
         void getCurrentPosition();
         void setBounds(int amount);
         void run();
+        void begin();
     private:
         // Variables
         int numAxes;
@@ -63,17 +64,16 @@ class M3LS{
         char recvChars[100];
         // USB Shield
         USB Usb;
-        USBHub Hub = USBHub(&Usb);
-        HIDUniversal Hid = HIDUniversal(&Usb);
+        USBHub Hub;
+        HIDUniversal Hid;
         JoystickEvents JoyEvents;
-        JoystickReportParser Joy = JoystickReportParser(&JoyEvents);
+        JoystickReportParser Joy;
         // Timing
         unsigned long lastMillis;
         unsigned long curMillis;
         int lastButtons;
         int curButtons;
         // Functions
-        void initialize();
         int getAxisPosition(int pin);
         void moveToTargetPosition(int target0);
         void moveToTargetPosition(int target0, Axes a);

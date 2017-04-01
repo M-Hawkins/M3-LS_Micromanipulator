@@ -18,30 +18,42 @@ Copyright info?
 
 // Constructors
 // Class constructor for a one axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS){
+M3LS::M3LS(int X_SS) :
+Usb(),
+Hub(&Usb),
+Hid(&Usb),
+Joy(&JoyEvents)
+{
     // Initialize variables
     numAxes = 1;
     pins[0] = X_SS;
-    initialize();
 }
 
 // Class constructor for a two axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS, int Y_SS){
+M3LS::M3LS(int X_SS, int Y_SS) :
+Usb(),
+Hub(&Usb),
+Hid(&Usb),
+Joy(&JoyEvents)
+{
     // Initialize variables
     numAxes = 2;
     pins[0] = X_SS;
     pins[1] = Y_SS;
-    initialize();
 }
 
 // Class constructor for a three axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
+M3LS::M3LS(int X_SS, int Y_SS, int Z_SS) :
+Usb(),
+Hub(&Usb),
+Hid(&Usb),
+Joy(&JoyEvents)
+{
     // Initialize variables
     numAxes = 3;
     pins[0] = X_SS;
     pins[1] = Y_SS;
     pins[2] = Z_SS;
-    initialize();
 }
 
 // Public functions
@@ -279,9 +291,7 @@ void M3LS::run(){
     setBounds(Joy.getZ());
 }
 
-// Private Functions
-// Initialize starting parameters and SPI settings
-void M3LS::initialize(){
+void M3LS::begin(){
     // Set the default control mode
     currentControlMode = position;
 
@@ -292,6 +302,7 @@ void M3LS::initialize(){
     }
 
     // Set the default internal bounds, radius, and refresh rate
+    lastMillis = 0;
     center[0]=6000;
     center[1]=6000;
     center[2]=6000;
@@ -300,6 +311,7 @@ void M3LS::initialize(){
     currentZPosition = 125;
 
 #ifndef MOCK
+    initUSBShield();
     delay(50);
     SPI.begin();
 
@@ -312,11 +324,12 @@ void M3LS::initialize(){
     setControlMode(M3LS::position);
 
     // Initialize the USB shield
-    initUSBShield();
     delayMicroseconds(100);
 #endif
 }
 
+// Private Functions
+// Initialize starting parameters and SPI settings
 // Get the current position of a single stage
 int M3LS::getAxisPosition(int pin){
     /*
