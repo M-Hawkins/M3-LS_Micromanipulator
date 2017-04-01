@@ -23,6 +23,8 @@ class M3LS{
         // Enums
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
+        enum Commands {ToggleHold, SetHome, ReturnHome, 
+                        SensitivityUp, SensitivityDown};
         // Variables
         ControlMode currentControlMode;
         int currentPosition[3];
@@ -53,6 +55,7 @@ class M3LS{
         int center[3];
         int refreshRate;
         int currentZPosition;
+        Commands buttonMap[20];
         char sendChars[50];
         char recvChars[100];
         // USB Shield

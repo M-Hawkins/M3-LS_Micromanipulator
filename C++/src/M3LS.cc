@@ -206,27 +206,44 @@ void M3LS::run(){
 
     // Handle buttons that can be held down:
     if(curButtons){
+        // Calculate which button was pressed
         int status = curButtons;
         int button = 1;
         while (status >>=1) { ++button; }
-        switch(button){
-            case 2: currentZPosition = max(0, currentZPosition-5);
-                break;
-            case 3: currentZPosition = min(255, currentZPosition+5);
-                break;
+
+        // Retrieve the associated function
+        Commands comm = buttonMap[button];
+
+        // Handle requested function
+        switch(comm){
+            case SensitivityUp:     currentZPosition = max(0, currentZPosition - 5);
+                                    break;
+            case SensitivityDown:   currentZPosition = min(255, currentZPosition + 5);
+                                    break;
         }
     }
 
     // Handle any buttons that have changed
     if(curButtons && lastButtons == 0){
+        // Calculate which button was pressed
         int status = curButtons;
         int button = 1;
-        while (status >>= 1) { ++button; }
-        switch (button) {
-            case 1:
-                break;
+        while (status >>=1) { ++button; }
+
+        // Retrieve the associated function
+        Commands comm = buttonMap[button];
+
+        // Handle requested function
+        switch(comm){
+            case ToggleHold:    break; //TODO
+            case SetHome:       setHome();
+                                break;
+            case ReturnHome:    returnHome();
+                                break;
         }
     }
+
+    // Save current button status
     lastButtons = curButtons;
 
     // Update the position and bounds based upon the joystick inputs
