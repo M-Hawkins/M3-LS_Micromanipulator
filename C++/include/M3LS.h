@@ -36,6 +36,7 @@ class M3LS{
         // Functions
         void calibrate();
         void initUSBShield();
+        void bindButton(int buttonNumber, Commands comm);
         void setRefreshRate(int newRate);
         void setControlMode(ControlMode newMode);
         void updatePosition(int inp0, int inp1, int inp2);

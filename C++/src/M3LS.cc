@@ -68,6 +68,11 @@ void M3LS::initUSBShield(){
     Hid.SetReportParser(0, &Joy);
 }
 
+// Binds a given button to a specified command
+void bindButton(int buttonNumber, Commands comm){
+    buttonMap[buttonNumber] = comm;
+}
+
 // Sets the current refresh rate to the new value
 void M3LS::setRefreshRate(int newRate){
     refreshRate = newRate;
@@ -282,6 +287,9 @@ void M3LS::initialize(){
     // Ensure the system is in position mode
     setControlMode(M3LS::open);
     setControlMode(M3LS::position);
+
+    // Initialize the USB shield
+    initUSBShield();
 #endif
 }
 
