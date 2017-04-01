@@ -35,6 +35,8 @@ class M3LS{
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Functions
         void calibrate();
+        void calibrateForward();
+        void calibrateReverse();
         void initUSBShield();
         void bindButton(int buttonNumber, Commands comm);
         void setRefreshRate(int newRate);
