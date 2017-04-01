@@ -63,10 +63,10 @@ class M3LS{
         char recvChars[100];
         // USB Shield
         USB Usb;
-        USBHub Hub;
-        HIDUniversal Hid;
+        USBHub Hub = USBHub(&Usb);
+        HIDUniversal Hid = HIDUniversal(&Usb);
         JoystickEvents JoyEvents;
-        JoystickReportParser Joy;
+        JoystickReportParser Joy = JoystickReportParser(&JoyEvents);
         // Timing
         unsigned long lastMillis;
         unsigned long curMillis;

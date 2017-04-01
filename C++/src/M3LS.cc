@@ -76,9 +76,9 @@ void M3LS::calibrateReverse(){
 // Instantiate the USB shield controller
 void M3LS::initUSBShield(){
     // Initialize USB shield variables
-    Hub = Hub(&Usb);
-    Hid = Hid(&Usb);
-    Joy = Joy(&JoyEvents);
+    // Hub = USBHub(&Usb);
+    // Hid = HIDUniversal(&Usb);
+    // Joy = JoystickReportParser(&JoyEvents);
 
     // Call initialization routines
     Usb.Init();
@@ -275,8 +275,8 @@ void M3LS::run(){
     lastButtons = curButtons;
 
     // Update the position and bounds based upon the joystick inputs
-    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), currentZPosition);
-    myM3LS->setBounds(Joy.getZ());
+    updatePosition(Joy.getX(), 255-Joy.getY(), currentZPosition);
+    setBounds(Joy.getZ());
 }
 
 // Private Functions
