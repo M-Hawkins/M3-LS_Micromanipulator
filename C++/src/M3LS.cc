@@ -18,30 +18,35 @@ Copyright info?
 
 // Constructors
 // Class constructor for a one axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS){
-    // Initialize variables
-    numAxes = 1;
-    pins[0] = X_SS;
-    initialize();
-}
+// M3LS::M3LS(int X_SS){
+//     // Initialize variables
+//     numAxes = 1;
+//     pins[0] = X_SS;
+//     initialize();
+// }
+//
+// // Class constructor for a two axis M3LS micromanipulator setup
+// M3LS::M3LS(int X_SS, int Y_SS){
+//     // Initialize variables
+//     numAxes = 2;
+//     pins[0] = X_SS;
+//     pins[1] = Y_SS;
+//     initialize();
+// }
+//
+// // Class constructor for a three axis M3LS micromanipulator setup
+M3LS::M3LS(int X_SS, int Y_SS, int Z_SS) :
+Usb(),
+Hub(&Usb),
+Hid(&Usb),
+Joy(&JoyEvents)
 
-// Class constructor for a two axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS, int Y_SS){
-    // Initialize variables
-    numAxes = 2;
-    pins[0] = X_SS;
-    pins[1] = Y_SS;
-    initialize();
-}
-
-// Class constructor for a three axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS, int Y_SS, int Z_SS){
+{
     // Initialize variables
     numAxes = 3;
     pins[0] = X_SS;
     pins[1] = Y_SS;
     pins[2] = Z_SS;
-    initialize();
 }
 
 // Public functions
@@ -81,8 +86,10 @@ void M3LS::initUSBShield(){
     // Joy = JoystickReportParser(&JoyEvents);
 
     // Call initialization routines
-    Usb.Init();
-    Hid.SetReportParser(0, &Joy);
+    // Serial.println("Before USB Init");
+    // Usb.Init();
+    // Serial.println("Past USB Init");
+    // Hid.SetReportParser(0, &Joy);
 }
 
 // Binds a given button to a specified command
@@ -218,7 +225,9 @@ void M3LS::run(){
     lastMillis = curMillis;
 
     // Get input from USB controller
+    Serial.println("Before USB Task");
     Usb.Task();
+    Serial.println("Past USB Task");
     curButtons = Joy.getButtons();
 
     // Handle buttons that can be held down:
@@ -281,7 +290,13 @@ void M3LS::run(){
 
 // Private Functions
 // Initialize starting parameters and SPI settings
-void M3LS::initialize(){
+void M3LS::begin(){
+    Serial.begin(115200);
+    Serial.println("Before USB Init");
+    Serial.println(Usb.Init());
+    Serial.println("Past USB Init");
+    Hid.SetReportParser(0, &Joy);
+
     // Set the default control mode
     currentControlMode = position;
 
@@ -292,6 +307,7 @@ void M3LS::initialize(){
     }
 
     // Set the default internal bounds, radius, and refresh rate
+    lastMillis = 0;
     center[0]=6000;
     center[1]=6000;
     center[2]=6000;

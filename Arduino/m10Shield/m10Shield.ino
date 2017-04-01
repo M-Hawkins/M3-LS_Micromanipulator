@@ -8,9 +8,11 @@
 
 USB Usb;
 USBHub Hub(&Usb);
-HIDUniversal Hid(&Usb);
+// HIDUniversal Hid(&Usb);
+HIDUniversal *Hid;
 JoystickEvents JoyEvents;
-JoystickReportParser Joy(&JoyEvents);
+// JoystickReportParser Joy(&JoyEvents);
+JoystickReportParser *Joy;
 
 int xpin = 4; int ypin = 2; int zpin = 3;
 unsigned long lastMillis = 0;
@@ -23,6 +25,8 @@ int ledstat = 0;
 M3LS *myM3LS;
 
 void setup(){
+    Hid = new HIDUniversal(&Usb);
+    Joy = new JoystickReportParser(&JoyEvents);
     pinMode(LED, OUTPUT);
     digitalWrite(LED, 0);
     Serial.begin(115200);
@@ -35,7 +39,7 @@ void setup(){
         digitalWrite(LED, 1);
     }
     delay(200);
-    if(!Hid.SetReportParser(0, &Joy)){
+    if(!Hid->SetReportParser(0, Joy)){
         ErrorMessage<uint8_t > (PSTR("SetReportParser"), 1);
         //digitalWrite(LED,1);
     }
@@ -51,9 +55,11 @@ void loop(){
         return;
     }
     lastMillis = curMillis;
-
+    Serial.println("Around loop");
+    delay(200);
     // Get input from USB controller
     Usb.Task();
+    Serial.println("PAST USBTASK");
 
     // Debug print outs
     /*
@@ -66,7 +72,7 @@ void loop(){
     */
 
 
-    curButtons = Joy.getButtons();
+    curButtons = Joy->getButtons();
     // first, buttons that can be held down:
     if(curButtons){
         int status = curButtons;
@@ -94,6 +100,6 @@ void loop(){
     lastButtons = curButtons;
 
     // Update the position and bounds based upon the joystick inputs
-    myM3LS->updatePosition(Joy.getX(), 255-Joy.getY(), z);
-    myM3LS->setBounds(Joy.getZ());
+    myM3LS->updatePosition(Joy->getX(), 255-Joy->getY(), z);
+    myM3LS->setBounds(Joy->getZ());
 }

@@ -13,25 +13,25 @@ Copyright info?
 
 #include "Arduino.h"
 #include "SPI.h"
-#include "hidjoystickrptparser.h"
 #include <usbhid.h>
 #include <hiduniversal.h>
 #include <usbhub.h>
+#include "hidjoystickrptparser.h"
 
 class M3LS{
     public:
         // Enums
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
-        enum Commands {ToggleHold, ToggleVelocity, SetHome, ReturnHome, 
+        enum Commands {ToggleHold, ToggleVelocity, SetHome, ReturnHome,
                         ZUp, ZDown};
         // Variables
         ControlMode currentControlMode;
         int currentPosition[3];
         int homePosition[3];
         // Constructors
-        M3LS(int X_SS);
-        M3LS(int X_SS, int Y_SS);
+        // M3LS(int X_SS);
+        // M3LS(int X_SS, int Y_SS);
         M3LS(int X_SS, int Y_SS, int Z_SS);
         // Functions
         void calibrate();
@@ -50,6 +50,7 @@ class M3LS{
         void getCurrentPosition();
         void setBounds(int amount);
         void run();
+        void begin();
     private:
         // Variables
         int numAxes;
@@ -63,17 +64,16 @@ class M3LS{
         char recvChars[100];
         // USB Shield
         USB Usb;
-        USBHub Hub = USBHub(&Usb);
-        HIDUniversal Hid = HIDUniversal(&Usb);
         JoystickEvents JoyEvents;
-        JoystickReportParser Joy = JoystickReportParser(&JoyEvents);
+        USBHub Hub;
+        HIDUniversal Hid;
+        JoystickReportParser Joy;
         // Timing
         unsigned long lastMillis;
         unsigned long curMillis;
         int lastButtons;
         int curButtons;
         // Functions
-        void initialize();
         int getAxisPosition(int pin);
         void moveToTargetPosition(int target0);
         void moveToTargetPosition(int target0, Axes a);
