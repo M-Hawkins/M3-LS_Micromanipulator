@@ -212,13 +212,9 @@ void M3LS::setBounds(int raw){
 }
 
 void M3LS::run(){
-    int currentZPosition = 125;
-
     // Ensure that at least INTERVAL ms have passed since the last update
     curMillis = millis();
-    if(curMillis - lastMillis < refreshRate){
-        return;
-    }
+    if(curMillis - lastMillis < refreshRate){ return; }
     lastMillis = curMillis;
 
     // Get input from USB controller
