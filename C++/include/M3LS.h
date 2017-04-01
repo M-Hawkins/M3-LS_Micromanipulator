@@ -23,7 +23,7 @@ class M3LS{
         // Enums
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
-        enum Commands {ToggleHold, SetHome, ReturnHome, 
+        enum Commands {ToggleHold, ToggleVelocity, SetHome, ReturnHome, 
                         ZUp, ZDown};
         // Variables
         ControlMode currentControlMode;

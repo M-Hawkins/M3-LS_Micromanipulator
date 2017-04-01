@@ -14,6 +14,7 @@ void setup(){
     myM3LS->bindButton(3, M3LS::Commands::ZDown);
     //myM3LS->bindButton(4, M3LS::Commands::SetHome);
     //myM3LS->bindButton(5, M3LS::Commands::ReturnHome);
+    //myM3LS->bindButton(6, M3LS::Commands::ToggleVelocity);
 
     delay(1000);
 }

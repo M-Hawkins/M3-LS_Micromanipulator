@@ -252,16 +252,22 @@ void M3LS::run(){
 
         // Handle requested function
         switch(comm){
-            case ToggleHold:    if (currentControlMode == hold){
-                                    setControlMode(position);
-                                } else if (currentControlMode == position){
-                                    setControlMode(hold);
-                                }
-                                break;
-            case SetHome:       setHome();
-                                break;
-            case ReturnHome:    returnHome();
-                                break;
+            case ToggleHold:        if (currentControlMode == hold){
+                                        setControlMode(position);
+                                    } else if (currentControlMode == position){
+                                        setControlMode(hold);
+                                    }
+                                    break;
+            case ToggleVelocity:    if (currentControlMode == velocity){
+                                        setControlMode(position);
+                                    } else {
+                                        setControlMode(velocity);
+                                    }
+                                    break;
+            case SetHome:           setHome();
+                                    break;
+            case ReturnHome:        returnHome();
+                                    break;
         }
     }
 
