@@ -9,8 +9,11 @@ void setup(){
     myM3LS = new M3LS(xpin, ypin, zpin);
 
     // Set handlers for moving the Z axis up or down
+    //myM3LS->bindButton(1, M3LS::Commands::ToggleHold);
     myM3LS->bindButton(2, M3LS::Commands::ZUp);
     myM3LS->bindButton(3, M3LS::Commands::ZDown);
+    //myM3LS->bindButton(4, M3LS::Commands::SetHome);
+    //myM3LS->bindButton(5, M3LS::Commands::ReturnHome);
 
     delay(1000);
 }
