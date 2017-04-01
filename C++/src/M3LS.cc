@@ -86,7 +86,7 @@ void M3LS::initUSBShield(){
 }
 
 // Binds a given button to a specified command
-void bindButton(int buttonNumber, Commands comm){
+void M3LS::bindButton(int buttonNumber, Commands comm){
     buttonMap[buttonNumber] = comm;
 }
 
