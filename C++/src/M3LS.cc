@@ -237,10 +237,10 @@ void M3LS::run(){
 
         // Handle requested function
         switch(comm){
-            case SensitivityUp:     currentZPosition = max(0, currentZPosition - 5);
-                                    break;
-            case SensitivityDown:   currentZPosition = min(255, currentZPosition + 5);
-                                    break;
+            case ZUp:       currentZPosition = max(0, currentZPosition - 5);
+                            break;
+            case ZDown:     currentZPosition = min(255, currentZPosition + 5);
+                            break;
         }
     }
 
