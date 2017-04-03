@@ -169,7 +169,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
 
                         // Loop through each available axis
                         for (int axis = 0; axis < numAxes; axis++){
-                            int inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2) * scaleFactor, ((numZones - 1) / 2)) * scaleFactor;
+                            int inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2), ((numZones - 1) / 2)) * scaleFactor;
                             advanceMotor(inp, axis);
                         }
 
