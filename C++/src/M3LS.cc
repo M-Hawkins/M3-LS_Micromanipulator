@@ -169,7 +169,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
 
                         // Loop through each available axis
                         for (int axis = 0; axis < numAxes; axis++){
-                            int inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2), ((numZones - 1) / 2)) * scaleFactor;
+                            int inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2) * scaleFactor, ((numZones - 1) / 2)) * scaleFactor;
                             advanceMotor(inp, axis);
                         }
 
@@ -477,9 +477,10 @@ void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
 // Move the needle a short distance based on each axis's current zone
 void M3LS::advanceMotor(int inp, int axisNum){
     memcpy(sendChars, "<06 ", 4);
+    // D=1: forward, D=0: backward
     sprintf(sendChars + 4, "%01d", inp < 0);
     memcpy(sendChars + 5, " ", 1);
-    sprintf(sendChars + 6, "%08X", inp);
+    sprintf(sendChars + 6, "%08X", abs(inp));
     memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[axisNum], 16);
 }
