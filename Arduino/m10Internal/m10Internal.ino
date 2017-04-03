@@ -9,12 +9,12 @@ void setup(){
     myM3LS.begin();
 
     // Set handlers for moving the Z axis up or down
-    //myM3LS->bindButton(1, M3LS::ToggleHold);
+    myM3LS.bindButton(1, M3LS::ToggleHold);
     myM3LS.bindButton(2, M3LS::ZUp);
     myM3LS.bindButton(3, M3LS::ZDown);
-    //myM3LS->bindButton(4, M3LS::SetHome);
-    //myM3LS->bindButton(5, M3LS::ReturnHome);
-    //myM3LS->bindButton(6, M3LS::ToggleVelocity);
+    myM3LS.bindButton(4, M3LS::SetHome);
+    myM3LS.bindButton(5, M3LS::ReturnHome);
+    myM3LS.bindButton(6, M3LS::ToggleVelocity);
 
     delay(1000);
 }
