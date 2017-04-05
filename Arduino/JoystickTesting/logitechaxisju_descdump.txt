@@ -1,0 +1,55 @@
+Start
+0000: 05 01 09 04 A1 01 A1 02 15 00 26 FF 00 35 00 46
+0010: FF 00 75 08 95 03 09 30 09 31 09 32 81 02 25 01
+0020: 45 01 75 01 95 0B 05 09 19 01 29 0B 81 02 75 01
+0030: 95 05 81 01 C0 A1 02 26 FF 00 46 FF 00 75 08 95
+0040: 04 06 00 FF 09 01 B1 02 C0 C0
+Usage Page Gen Desktop Ctrls(01)
+Usage Game Pad
+Collection Application
+Collection Logical
+Logical Min(00)
+Logical Max(FF00)
+Physical Min(00)
+Physical Max(FF00)
+Report Size(08)
+Report Count(03)
+Usage X
+Usage Y
+Usage Z
+Input(00000010)
+Logical Max(01)
+Physical Max(01)
+Report Size(01)
+Report Count(0B)
+Usage Page Button(09)
+Usage Min(01)
+Usage Max(0B)
+Input(00000010)
+Report Size(01)
+Report Count(05)
+Input(00000001)
+End Collection
+Collection Logical
+Logical Max(FF00)
+Physical Max(FF00)
+Report Size(08)
+Report Count(04)
+Usage Page Undef(00)
+Usage
+Feature(00000010)
+End Collection
+End Collection Game Pad X Y Z(80)(80)(00)
+ Btn0001
+(00) Btn0002
+(00) Btn0003
+(00) Btn0004
+(00) Btn0005
+(00) Btn0006
+(00) Btn0007
+(00) Btn0008
+(00) Btn0009
+(00) Btn000A
+(00) Btn000B
+(00)
+(00)(00)(00)(00)(00)

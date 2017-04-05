@@ -1,0 +1,106 @@
+Start
+0000: 05 01 09 04 A1 01 05 09 19 01 29 0C 15 00 25 01
+0010: 35 00 45 01 75 01 95 0C 81 02 95 01 75 04 81 01
+0020: 05 01 09 39 15 00 25 07 35 00 46 3B 01 65 14 75
+0030: 04 95 01 81 42 81 01 05 01 09 30 09 31 09 35 09
+0040: 36 15 00 26 FF 00 35 00 46 FF 00 65 00 75 08 95
+0050: 04 81 02 06 01 00 09 BB 75 08 95 02 91 02 06 00
+0060: FF 09 20 09 21 09 22 09 23 09 24 09 25 09 26 09
+0070: 27 09 28 09 29 09 2A 09 2B 95 0C 81 02 0A 21 26
+
+Usage Page Gen Desktop Ctrls(01)
+Usage Game Pad
+Collection Application
+Usage Page Button(09)
+Usage Min(01)
+Usage Max(0C)
+Logical Min(00)
+Logical Max(01)
+Physical Min(00)
+Physical Max(01)
+Report Size(01)
+Report Count(0C)
+Input(00000010)
+Report Count(01)
+Report Size(04)
+Input(00000001)
+Usage Page Gen Desktop Ctrls(01)
+Usage Hat Switch
+Logical Min(00)
+Logical Max(07)
+Physical Min(00)
+Physical Max(3B01)
+Unit(14)
+Report Size(04)
+Report Count(01)
+Input(01000010)
+Input(00000001)
+Usage Page Gen Desktop Ctrls(01)
+Usage X
+Usage Y
+Usage Rz
+Usage Slider
+Logical Min(00)
+Logical Max(FF00)
+Physical Min(00)
+Physical Max(FF00)
+Unit(00)
+Report Size(08)
+Report Count(04)
+Input(00000010)
+Usage Page Gen Desktop Ctrls(01)
+Usage Undef
+Report Size(08)
+Report Count(02)
+Output(00000010)
+Usage Page Undef(00)
+Usage
+Usage
+Usage
+Usage
+Usage
+Usage
+Usage
+Usage
+Usage
+Usage
+Usage
+Usage
+Report Count(0C)
+Input(00000010)
+Usage Game Pad Btn0001
+(00) Btn0002
+(00) Btn0003
+(01) Btn0004
+(00) Btn0005
+(00) Btn0006
+(00) Btn0007
+(00) Btn0008
+(00) Btn0009
+(00) Btn000A
+(00) Btn000B
+(00) Btn000C
+(00)
+(0F)
+ Hat Switch(0F)
+
+ X Y Rz Slider(04)(0F)(0F)(80)
+ Undef(00)(00)(00)(00)(00)(00)(00)(00)(00)(00)(00)(00)
+ Game Pad Btn0001
+(00) Btn0002
+(00) Btn0003
+(00) Btn0004
+(00) Btn0005
+(00) Btn0006
+(00) Btn0007
+(00) Btn0008
+(00) Btn0009
+(00) Btn000A
+(00) Btn000B
+(00) Btn000C
+(00)
+(0F)
+ Hat Switch(0F)
+
+ X Y Rz Slider(00)(0F)(0F)(80)
+ Undef(00)(00)(00)(00)(00)(00)(00)(00)(00)(00)(00)(00)
