@@ -169,8 +169,8 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
 
                         // Loop through each available axis
                         for (int axis = 0; axis < numAxes; axis++){
-                            int inp = (round(inputs[axis] * 
-                                        (numZones - 1) / 255.0) - 
+                            int inp = (round(inputs[axis] *
+                                        (numZones - 1) / 255.0) -
                                         ((numZones - 1) / 2)) * scaleFactor;
                             advanceMotor(inp, axis);
                         }
@@ -326,6 +326,10 @@ void M3LS::begin(){
     radius = 5500;
     refreshRate = 20;
     currentZPosition = 125;
+
+#ifdef DEBUG
+    Serial.begin(115200);
+#endif
 
 #ifndef MOCK
     initUSBShield();
