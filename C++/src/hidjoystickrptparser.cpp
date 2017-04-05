@@ -9,95 +9,68 @@ oldButtons(0) {
 }
 
 void JoystickReportParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
-        bool match = true;
+    switch(len){
+        case 5:
+            jtype = SimpleLogitech;
+            break;
+        case 19:
+            jtype = ThrustMaster;
+            break;
+    }
 
-        // Checking if there are changes in report since the method was last called
-        for (uint8_t i = 0; i < RPT_GEMEPAD_LEN; i++)
-                if (buf[i] != oldPad[i]) {
-                        match = false;
-                        break;
-                }
+    bool match = true;
 
-        // Calling Game Pad event handler
-        if (!match && joyEvents) {
-                for (uint8_t i = 0; i < RPT_GEMEPAD_LEN; i++) oldPad[i] = buf[i];
-        }
+    // Checking if there are changes in report since the method was last called
+    for (uint8_t i = 0; i < RPT_GEMEPAD_LEN; i++)
+            if (buf[i] != oldPad[i]) {
+                    match = false;
+                    break;
+            }
 
-        uint8_t hat = (buf[5] & 0xF);
-
-        // Calling Hat Switch event handler
-        if (hat != oldHat && joyEvents) {
-                joyEvents->OnHatSwitch(hat);
-                oldHat = hat;
-        }
-
-        uint16_t buttons = (0x0000 | buf[6]);
-        buttons <<= 4;
-        buttons |= (buf[5] >> 4);
-        uint16_t changes = (buttons ^ oldButtons);
-
-        // Calling Button Event Handler for every button changed
-        if (changes) {
-                for (uint8_t i = 0; i < 0x0C; i++) {
-                        uint16_t mask = (0x0001 << i);
-
-                        if (((mask & changes) > 0) && joyEvents) {
-                                if ((buttons & mask) > 0)
-                                        joyEvents->OnButtonDn(i + 1);
-                                else
-                                        joyEvents->OnButtonUp(i + 1);
-                        }
-                }
-                oldButtons = buttons;
-        }
+    // Calling Game Pad event handler
+    if (!match && joyEvents) {
+            for (uint8_t i = 0; i < RPT_GEMEPAD_LEN; i++) oldPad[i] = buf[i];
+    }
 }
 
 uint16_t JoystickReportParser::getButtons(void){
+    switch(jtype){
+        case SimpleLogitech:
+            return (uint16_t)(((uint16_t)oldPad[4] << 8) | oldPad[3]);
+        case ThrustMaster:
+            return (uint16_t)(((uint16_t)oldPad[1]&0xF << 8) | oldPad[0]);
+    }
     // bit vector of buttons. Simply toggles each bit vector when pressed
     return (uint16_t)(((uint16_t)oldPad[4] << 8) | oldPad[3]);
 }
 
-    /*
-        Serial.print("X1: ");
-        PrintHex<uint8_t > (evt->X, 0x80);
-        Serial.print("\tY1: ");
-        PrintHex<uint8_t > (evt->Y, 0x80);
-        Serial.print("\tX2: ");
-        PrintHex<uint8_t > (evt->Z1, 0x80);
-        Serial.print("\tY2: ");
-        PrintHex<uint8_t > (evt->Z2, 0x80);
-        Serial.print("\tRz: ");
-        PrintHex<uint8_t > (evt->Rz, 0x80);
-        Serial.println("");
-        */
-
 uint8_t JoystickReportParser::getX(void){
+    switch(jtype){
+        case SimpleLogitech:
+            return oldPad[0];
+        case ThrustMaster:
+            return oldPad[3];
+    }
     return oldPad[0];
-    // Serial.print("X1: ");
-    // Serial.println(oldPad[0]);
 }
 
 
 uint8_t JoystickReportParser::getY(void){
+    switch(jtype){
+        case SimpleLogitech:
+            return oldPad[1];
+        case ThrustMaster:
+            return oldPad[4];
+    }
     return oldPad[1];
 }
 
 uint8_t JoystickReportParser::getZ(void){
+    switch(jtype){
+        case SimpleLogitech:
+            return oldPad[2];
+        case ThrustMaster:
+            return oldPad[6];
+    }
     return oldPad[2];
-}
-
-void JoystickEvents::OnHatSwitch(uint8_t hat) {
-        Serial.print("Hat Switch: ");
-        PrintHex<uint8_t > (hat, 0x80);
-        Serial.println("");
-}
-
-void JoystickEvents::OnButtonUp(uint8_t but_id) {
-        Serial.print("Up: ");
-        Serial.println(but_id, DEC);
-}
-
-void JoystickEvents::OnButtonDn(uint8_t but_id) {
-        Serial.print("Dn: ");
-        Serial.println(but_id, DEC);
 }

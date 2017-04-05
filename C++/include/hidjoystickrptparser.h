@@ -4,17 +4,17 @@
 #include <usbhid.h>
 
 struct GamePadEventData {
-        uint8_t X, Y, Z1, Z2, Rz;
+        uint8_t X, Y, Z1, Z2, Rz, A, B;
+};
+
+enum JoystickType { SimpleLogitech, ThrustMaster
 };
 
 class JoystickEvents {
 public:
-        virtual void OnHatSwitch(uint8_t hat);
-        virtual void OnButtonUp(uint8_t but_id);
-        virtual void OnButtonDn(uint8_t but_id);
 };
 
-#define RPT_GEMEPAD_LEN		5
+#define RPT_GEMEPAD_LEN		7
 
 class JoystickReportParser : public HIDReportParser {
         JoystickEvents *joyEvents;
@@ -22,6 +22,7 @@ class JoystickReportParser : public HIDReportParser {
         uint8_t oldPad[RPT_GEMEPAD_LEN];
         uint8_t oldHat;
         uint16_t oldButtons;
+        JoystickType jtype;
 
 public:
         JoystickReportParser(JoystickEvents *evt);
