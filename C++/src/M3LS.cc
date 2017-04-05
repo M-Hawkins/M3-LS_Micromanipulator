@@ -236,6 +236,11 @@ void M3LS::run(){
     Usb.Task();
     curButtons = Joy.getButtons();
 
+    // Default the Z axis to a middle value if in velocity mode
+    if (currentControlMode == velocity){
+        currentZPosition = 125;
+    }
+
     // Handle buttons that can be held down:
     if(curButtons){
         // Calculate which button was pressed
@@ -248,9 +253,17 @@ void M3LS::run(){
 
         // Handle requested function
         switch(comm){
-            case ZUp:       currentZPosition = max(0, currentZPosition + 5);
+            case ZUp:       if (currentControlMode == velocity){
+                                currentZPosition = 255;
+                            } else {
+                                currentZPosition = max(0, currentZPosition + 5);
+                            }
                             break;
-            case ZDown:     currentZPosition = min(255, currentZPosition - 5);
+            case ZDown:     if (currentControlMode == velocity){
+                                currentZPosition = 0;
+                            } else {
+                                currentZPosition = min(255, currentZPosition - 5);
+                            }
                             break;
         }
     }
