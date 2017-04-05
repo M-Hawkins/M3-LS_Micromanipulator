@@ -11,7 +11,6 @@ enum JoystickType { SimpleLogitech, ThrustMaster
 };
 
 class JoystickEvents {
-public:
 };
 
 #define RPT_GEMEPAD_LEN		7

@@ -70,7 +70,7 @@ uint8_t JoystickReportParser::getZ(void){
         case SimpleLogitech:
             return oldPad[2];
         case ThrustMaster:
-            return oldPad[6];
+            return 255-oldPad[6];
     }
     return oldPad[2];
 }
