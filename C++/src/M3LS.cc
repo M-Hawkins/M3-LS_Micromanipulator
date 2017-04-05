@@ -169,7 +169,9 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
 
                         // Loop through each available axis
                         for (int axis = 0; axis < numAxes; axis++){
-                            int inp = map(inputs[axis], 0, 255, -((numZones - 1) / 2), ((numZones - 1) / 2)) * scaleFactor;
+                            int inp = (round(inputs[axis] * 
+                                        (numZones - 1) / 255.0) - 
+                                        ((numZones - 1) / 2)) * scaleFactor;
                             advanceMotor(inp, axis);
                         }
 
@@ -223,6 +225,7 @@ void M3LS::setBounds(int raw){
     radius = map(raw, 0, 255, 10, 5500);
 }
 
+// The main event loop
 void M3LS::run(){
     // Ensure that at least INTERVAL ms have passed since the last update
     curMillis = millis();
@@ -291,6 +294,7 @@ void M3LS::run(){
     setBounds(Joy.getZ());
 }
 
+// Initializes internal parameters and calibrates the motors and USB shield
 void M3LS::begin(){
     // Set the default control mode
     currentControlMode = position;
@@ -448,37 +452,11 @@ void M3LS::setTargetPosition(int target){
     memcpy(sendChars + 12, ">\r", 2);
 }
 
-// Set the controller's sensitivity to a new value
-void M3LS::setMotorSpeed(int inp0, int inp1, int inp2){
-    /*
-    Send to controller:
-        <40 SSSSSS CCCCCC AAAAAA IIII>
-    Receive from controller:
-        <40>
-    */
-
-    // Build commands and send them to SPI
-    memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06X", inp0);
-    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
-    sendSPICommand(pins[0], 30);
-
-    memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06X", inp1);
-    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
-    sendSPICommand(pins[1], 30);
-
-    memcpy(sendChars, "<40 ", 4);
-    sprintf(sendChars + 4, "%06X", inp2);
-    memcpy(sendChars + 10, " 000033 0000CD 0001>\r", 20);
-    sendSPICommand(pins[2], 30);
-}
-
 // Move the needle a short distance based on each axis's current zone
 void M3LS::advanceMotor(int inp, int axisNum){
     memcpy(sendChars, "<06 ", 4);
     // D=1: forward, D=0: backward
-    sprintf(sendChars + 4, "%01d", inp < 0);
+    sprintf(sendChars + 4, "%01d", inp > 0);
     memcpy(sendChars + 5, " ", 1);
     sprintf(sendChars + 6, "%08X", abs(inp));
     memcpy(sendChars + 14, ">\r", 2);

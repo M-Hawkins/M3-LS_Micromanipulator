@@ -82,7 +82,6 @@ class M3LS{
         void moveToTargetPosition(int target0, int target1, int target2);
         void moveToTargetPosition(int target0, int target1, int target2, Axes a);
         void setTargetPosition(int target);
-        void setMotorSpeed(int inp0, int inp1, int inp2);
         void advanceMotor(int inp, int axisNum);
         void recenter(int newx, int newy, int newz);
         int sendSPICommand(int pin, int length);
