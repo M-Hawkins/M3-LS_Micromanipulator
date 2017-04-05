@@ -245,9 +245,9 @@ void M3LS::run(){
 
         // Handle requested function
         switch(comm){
-            case ZUp:       currentZPosition = max(0, currentZPosition - 5);
+            case ZUp:       currentZPosition = max(0, currentZPosition + 5);
                             break;
-            case ZDown:     currentZPosition = min(255, currentZPosition + 5);
+            case ZDown:     currentZPosition = min(255, currentZPosition - 5);
                             break;
         }
     }
@@ -287,7 +287,7 @@ void M3LS::run(){
     lastButtons = curButtons;
 
     // Update the position and bounds based upon the joystick inputs
-    updatePosition(Joy.getX(), 255-Joy.getY(), currentZPosition);
+    updatePosition(255 - Joy.getX(), 255 - Joy.getY(), currentZPosition);
     setBounds(Joy.getZ());
 }
 
