@@ -161,7 +161,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         moveToTargetPosition(inp0, inp1);
                         inp2 = (round(inp2 *
                                     (7 - 1) / 255.0) -
-                                    ((7 - 1) / 2)) * (radius/(70));
+                                    ((7 - 1) / 2)) * (radius/(70)+1);
                         advanceMotor(inp2, 2);
                         break;
 
@@ -169,7 +169,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         // displacement, divided between 7 zones
                         // This should result in zone 0 being a "dead zone."
                         int numZones = 7;
-                        int scaleFactor = radius / (numZones * 10);
+                        int scaleFactor = radius / (numZones * 10)+1;
                         int inputs[3] = {inp0, inp1, inp2};
 
                         // Loop through each available axis
@@ -227,7 +227,15 @@ void M3LS::getCurrentPosition(){
 
 // Adjust the internal bounds based on a given number of encoder counts
 void M3LS::setBounds(int raw){
-    radius = map(raw, 0, 255, 10, 5500);
+    if(raw < 64){
+        radius = map(raw, 0, 64, 10, 50);
+    } else if(raw < 128){
+        radius = map(raw, 64, 128, 50, 500);
+    } else if(raw < 192){
+        radius = map(raw, 128, 192, 500, 2250);
+    } else
+        radius = map(raw, 192, 255, 2250, 5500);
+    Serial.print("radius = "); Serial.println(radius);
 }
 
 // The main event loop
