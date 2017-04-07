@@ -9,6 +9,7 @@ oldButtons(0) {
 }
 
 void JoystickReportParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8_t *buf) {
+    // Serial.println(len);
     switch(len){
         case 5:
             jtype = SimpleLogitech;

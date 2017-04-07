@@ -253,13 +253,13 @@ void M3LS::run(){
 
         // Handle requested function
         switch(comm){
-            case ZUp:       if (currentControlMode == velocity){
+            case ZDown:       if (currentControlMode == velocity){
                                 currentZPosition = 255;
                             } else {
                                 currentZPosition = max(0, currentZPosition + 5);
                             }
                             break;
-            case ZDown:     if (currentControlMode == velocity){
+            case ZUp:     if (currentControlMode == velocity){
                                 currentZPosition = 0;
                             } else {
                                 currentZPosition = min(255, currentZPosition - 5);

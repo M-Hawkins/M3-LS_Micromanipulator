@@ -1,6 +1,6 @@
 #include "M3LS.h"
 
-int xpin = 4; int ypin = 3; int zpin = 2;
+int xpin = 2; int ypin = 3; int zpin = 4;
 
 M3LS myM3LS(xpin, ypin, zpin);
 
