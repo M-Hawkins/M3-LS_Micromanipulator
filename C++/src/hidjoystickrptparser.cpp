@@ -32,6 +32,15 @@ void JoystickReportParser::Parse(USBHID *hid, bool is_rpt_id, uint8_t len, uint8
     if (!match && joyEvents) {
             for (uint8_t i = 0; i < RPT_GEMEPAD_LEN; i++) oldPad[i] = buf[i];
     }
+
+    if(jtype == ThrustMaster){
+        if(oldPad[2] == 0x00){
+            oldPad[1] = 1;
+        }
+        else if(oldPad[2] == 0x04){
+            oldPad[1] = 2;
+        }
+    }
 }
 
 uint16_t JoystickReportParser::getButtons(void){
@@ -39,7 +48,7 @@ uint16_t JoystickReportParser::getButtons(void){
         case SimpleLogitech:
             return (uint16_t)(((uint16_t)oldPad[4] << 8) | oldPad[3]);
         case ThrustMaster:
-            return (uint16_t)(((uint16_t)oldPad[1]&0xF << 8) | oldPad[0]);
+            return (uint16_t)((((uint16_t) oldPad[1]&0x0F) << 8) | oldPad[0]);
     }
     // bit vector of buttons. Simply toggles each bit vector when pressed
     return (uint16_t)(((uint16_t)oldPad[4] << 8) | oldPad[3]);

@@ -247,19 +247,20 @@ void M3LS::run(){
         int status = curButtons;
         int button = 1;
         while (status >>=1) { ++button; }
+        // Serial.println(button);
 
         // Retrieve the associated function
         Commands comm = buttonMap[button];
 
         // Handle requested function
         switch(comm){
-            case ZDown:       if (currentControlMode == velocity){
+            case ZUp:       if (currentControlMode == velocity){
                                 currentZPosition = 255;
                             } else {
                                 currentZPosition = max(0, currentZPosition + 5);
                             }
                             break;
-            case ZUp:     if (currentControlMode == velocity){
+            case ZDown:     if (currentControlMode == velocity){
                                 currentZPosition = 0;
                             } else {
                                 currentZPosition = min(255, currentZPosition - 5);
@@ -274,6 +275,7 @@ void M3LS::run(){
         int status = curButtons;
         int button = 1;
         while (status >>=1) { ++button; }
+        // Serial.println(button);
 
         // Retrieve the associated function
         Commands comm = buttonMap[button];
