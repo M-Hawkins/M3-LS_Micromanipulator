@@ -156,8 +156,13 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         // Joystick reports 0-255
                         inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
                         inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
-                        inp2 = map(inp2, 0, 255, center[2]-radius, center[2]+radius);
-                        moveToTargetPosition(inp0, inp1, inp2, axis);
+                        // inp2 = map(inp2, 0, 255, center[2]-radius, center[2]+radius);
+
+                        moveToTargetPosition(inp0, inp1);
+                        inp2 = (round(inp2 *
+                                    (7 - 1) / 255.0) -
+                                    ((7 - 1) / 2)) * (radius/(70));
+                        advanceMotor(inp2, 2);
                         break;
 
         case velocity : // Set the speed and target positions based on
@@ -237,9 +242,9 @@ void M3LS::run(){
     curButtons = Joy.getButtons();
 
     // Default the Z axis to a middle value if in velocity mode
-    if (currentControlMode == velocity){
+    // if (currentControlMode == velocity){
         currentZPosition = 125;
-    }
+    // }
 
     // Handle buttons that can be held down:
     if(curButtons){
@@ -254,17 +259,17 @@ void M3LS::run(){
 
         // Handle requested function
         switch(comm){
-            case ZUp:       if (currentControlMode == velocity){
+            case ZUp:       //if (currentControlMode == velocity){
                                 currentZPosition = 255;
-                            } else {
-                                currentZPosition = max(0, currentZPosition + 5);
-                            }
+                            //} else {
+                            //    currentZPosition = max(0, currentZPosition + 5);
+                            //}
                             break;
-            case ZDown:     if (currentControlMode == velocity){
-                                currentZPosition = 0;
-                            } else {
-                                currentZPosition = min(255, currentZPosition - 5);
-                            }
+            case ZDown:     //if (currentControlMode == velocity){
+                            currentZPosition = 0;
+                            // } else {
+                            //     currentZPosition = min(255, currentZPosition - 5);
+                            // }
                             break;
         }
     }
