@@ -119,7 +119,7 @@ void M3LS::invertZAxis(bool newStatus){
 
 // Sets the current refresh rate to the new value
 void M3LS::setRefreshRate(int newRate){
-    refreshRate = newRate;
+    refreshRate = 1000/newRate;
 }
 
 // Sets the current control mode to the new mode
@@ -169,10 +169,12 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         break;
         case position : // Map the inputs based on the current bounds
                         // Joystick reports 0-255
-                        DPRINT("X: "); DPRINTLN(inp0);
+                        DPRINT("X: "); DPRINT(inp0); DPRINT(" ");
                         inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
-                        DPRINT("Y: "); DPRINTLN(inp1);
+                        DPRINTLN(inp0);
+                        DPRINT("Y: "); DPRINT(inp1); DPRINT(" ");
                         inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
+                        DPRINTLN(inp1);
                         moveToTargetPosition(inp0, inp1);
 
                         // Z axis is always treated like velocity mode
@@ -283,10 +285,10 @@ void M3LS::run(){
         // Handle requested function
         switch(comm){
             case ZUp: // run at 'full speed' up or down
-                currentZPosition = 255;
+                currentZPosition = 127+30;
                 break;
             case ZDown:
-                currentZPosition = 0;
+                currentZPosition = 127-30;
                 break;
         }
     }
@@ -326,6 +328,8 @@ void M3LS::run(){
                                     break;
             case InvertZ:           invertZAxis(!invertZ);
                                     break;
+            case CenterAxes:        recenter(6000, 6000, 6000);
+                                    break;
         }
     }
 
@@ -335,7 +339,7 @@ void M3LS::run(){
     // Update the position and bounds based upon the joystick inputs
     int x = Joy.getX();
     int y = Joy.getY();
-    updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y), 
+    updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y),
                     currentZPosition + invertZ * (255 - 2*currentZPosition));
     setBounds(Joy.getZ());
 }
@@ -353,11 +357,9 @@ void M3LS::begin(){
 
     // Set the default internal bounds, radius, and refresh rate
     lastMillis = 0;
-    center[0]=6000;
-    center[1]=6000;
-    center[2]=6000;
+    recenter(6000, 6000, 6000);
     radius = 5500;
-    refreshRate = 20;
+    refreshRate = 1000/50;
     currentZPosition = 125;
 
 #ifdef DEBUG

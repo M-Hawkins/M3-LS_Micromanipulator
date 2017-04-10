@@ -1,6 +1,6 @@
 #include "M3LS.h"
 
-int xpin = 2; int ypin = 3; int zpin = 4;
+int xpin = A3; int ypin = A2; int zpin = A0;
 
 M3LS myM3LS(xpin, ypin, zpin);
 
@@ -18,6 +18,7 @@ void setup(){
     myM3LS.bindButton(7, M3LS::InvertX);
     myM3LS.bindButton(8, M3LS::InvertY);
     myM3LS.bindButton(9, M3LS::InvertZ);
+    myM3LS.bindButton(10, M3LS::CenterAxes);
 
     myM3LS.invertXAxis(true);
     myM3LS.invertYAxis(true);
