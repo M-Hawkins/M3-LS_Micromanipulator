@@ -85,6 +85,7 @@ class M3LS{
         void advanceMotor(int inp, int axisNum);
         void recenter(int newx, int newy, int newz);
         int sendSPICommand(int pin, int length);
+        int scaleToZones(int numZones, int input);
 };
 
 #endif
