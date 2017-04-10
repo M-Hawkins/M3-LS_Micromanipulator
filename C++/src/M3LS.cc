@@ -329,6 +329,7 @@ void M3LS::run(){
             case InvertZ:           invertZAxis(!invertZ);
                                     break;
             case CenterAxes:        recenter(6000, 6000, 6000);
+                                    moveToTargetPosition(127, 127);
                                     break;
         }
     }
