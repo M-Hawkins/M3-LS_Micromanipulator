@@ -341,8 +341,8 @@ void M3LS::run(){
     // Update the position and bounds based upon the joystick inputs
     int x = Joy.getX();
     int y = Joy.getY();
-    updatePosition(x - invertX * (255 - 2*x), y - invertY * (255 - 2*y), 
-                    currentZPosition - invertZ * (255 - 2*currentZPosition));
+    updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y), 
+                    currentZPosition + invertZ * (255 - 2*currentZPosition));
     setBounds(Joy.getZ());
 }
 
