@@ -24,7 +24,7 @@ class M3LS{
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
         enum Commands {Def, ToggleHold, ToggleVelocity, SetHome, ReturnHome,
-                        ZUp, ZDown};
+                        ZUp, ZDown, InvertX, InvertY, InvertZ};
         // Variables
         ControlMode currentControlMode;
         int currentPosition[3];

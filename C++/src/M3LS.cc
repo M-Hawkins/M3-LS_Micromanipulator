@@ -326,6 +326,12 @@ void M3LS::run(){
                                     break;
             case ReturnHome:        returnHome();
                                     break;
+            case InvertX:           invertXAxis(!invertX);
+                                    break;
+            case InvertY:           invertYAxis(!invertY);
+                                    break;
+            case InvertZ:           invertZAxis(!invertZ);
+                                    break;
         }
     }
 
