@@ -39,6 +39,9 @@ class M3LS{
         void calibrateReverse();
         void initUSBShield();
         void bindButton(int buttonNumber, Commands comm);
+        void invertXAxis(bool newStatus);
+        void invertYAxis(bool newStatus);
+        void invertZAxis(bool newStatus);
         void setRefreshRate(int newRate);
         void setControlMode(ControlMode newMode);
         void updatePosition(int inp0, int inp1, int inp2);
@@ -59,6 +62,9 @@ class M3LS{
         int center[3];
         int refreshRate;
         int currentZPosition;
+        bool invertX;
+        bool invertY;
+        bool invertZ;
         Commands buttonMap[20];
         char sendChars[50];
         char recvChars[100];

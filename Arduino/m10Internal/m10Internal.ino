@@ -16,8 +16,8 @@ void setup(){
     myM3LS.bindButton(5, M3LS::ReturnHome);
     myM3LS.bindButton(6, M3LS::ToggleVelocity);
 
-    myM3LS.bindButton(9, M3LS::ZUp);
-    myM3LS.bindButton(10, M3LS::ZDown);
+    myM3LS.invertXAxis(true);
+    myM3LS.invertYAxis(true);
 
     delay(1000);
 }

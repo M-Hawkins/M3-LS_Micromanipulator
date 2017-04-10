@@ -102,6 +102,21 @@ void M3LS::bindButton(int buttonNumber, Commands comm){
     buttonMap[buttonNumber] = comm;
 }
 
+// Sets the inversion status of the X axis
+void M3LS::invertXAxis(bool newStatus){
+    invertX = newStatus;
+}
+
+// Sets the inversion status of the Y axis
+void M3LS::invertYAxis(bool newStatus){
+    invertY = newStatus;
+}
+
+// Sets the inversion status of the Z axis
+void M3LS::invertZAxis(bool newStatus){
+    invertZ = newStatus;
+}
+
 // Sets the current refresh rate to the new value
 void M3LS::setRefreshRate(int newRate){
     refreshRate = newRate;
@@ -318,7 +333,10 @@ void M3LS::run(){
     lastButtons = curButtons;
 
     // Update the position and bounds based upon the joystick inputs
-    updatePosition(255 - Joy.getX(), 255 - Joy.getY(), currentZPosition);
+    int x = Joy.getX();
+    int y = Joy.getY();
+    updatePosition(x - invertX * (255 - 2*x), y - invertY * (255 - 2*y), 
+                    currentZPosition - invertZ * (255 - 2*currentZPosition));
     setBounds(Joy.getZ());
 }
 
