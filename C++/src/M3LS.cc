@@ -169,14 +169,14 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         break;
         case position : // Map the inputs based on the current bounds
                         // Joystick reports 0-255
+                        DPRINT("X: "); DPRINTLN(inp0);
                         inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
+                        DPRINT("Y: "); DPRINTLN(inp1);
                         inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
-                        // inp2 = map(inp2, 0, 255, center[2]-radius, center[2]+radius);
-
                         moveToTargetPosition(inp0, inp1);
-                        inp2 = (round(inp2 *
-                                    (7 - 1) / 255.0) -
-                                    ((7 - 1) / 2)) * (radius/(70)+1);
+
+                        // Z axis is always treated like velocity mode
+                        inp2 = scaleToZones(7, inp2);
                         advanceMotor(inp2, 2);
                         break;
 
@@ -184,19 +184,20 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         // displacement, divided between 7 zones
                         // This should result in zone 0 being a "dead zone."
                         int numZones = 7;
-                        int scaleFactor = radius / (numZones * 10)+1;
                         int inputs[3] = {inp0, inp1, inp2};
 
                         // Loop through each available axis
                         for (int axis = 0; axis < numAxes; axis++){
-                            int inp = (round(inputs[axis] *
-                                        (numZones - 1) / 255.0) -
-                                        ((numZones - 1) / 2)) * scaleFactor;
+                            int inp = scaleToZones(numZones, inputs[axis]);
                             advanceMotor(inp, axis);
                         }
 
                         break;
     }
+}
+
+int M3LS::scaleToZones(int numZones, int input){
+    return (round(input * (numZones-1)/255.0) - ((numZones-1)/2))*(radius/(numZones*10)+1);
 }
 
 // Store the current position as the home position
@@ -264,10 +265,8 @@ void M3LS::run(){
     Usb.Task();
     curButtons = Joy.getButtons();
 
-    // Default the Z axis to a middle value if in velocity mode
-    // if (currentControlMode == velocity){
-        currentZPosition = 125;
-    // }
+    // Default the Z axis to dead zone
+    currentZPosition = 125;
 
     // Handle buttons that can be held down:
     if(curButtons){
@@ -282,18 +281,12 @@ void M3LS::run(){
 
         // Handle requested function
         switch(comm){
-            case ZUp:       //if (currentControlMode == velocity){
-                                currentZPosition = 255;
-                            //} else {
-                            //    currentZPosition = max(0, currentZPosition + 5);
-                            //}
-                            break;
-            case ZDown:     //if (currentControlMode == velocity){
-                            currentZPosition = 0;
-                            // } else {
-                            //     currentZPosition = min(255, currentZPosition - 5);
-                            // }
-                            break;
+            case ZUp: // run at 'full speed' up or down
+                currentZPosition = 255;
+                break;
+            case ZDown:
+                currentZPosition = 0;
+                break;
         }
     }
 
