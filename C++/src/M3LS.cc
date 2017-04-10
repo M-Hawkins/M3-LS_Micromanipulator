@@ -196,6 +196,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
     }
 }
 
+// Map a joystick input to a smaller zone number
 int M3LS::scaleToZones(int numZones, int input){
     return (round(input * (numZones-1)/255.0) - ((numZones-1)/2))*(radius/(numZones*10)+1);
 }
