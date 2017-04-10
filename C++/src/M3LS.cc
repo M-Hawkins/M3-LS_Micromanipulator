@@ -198,6 +198,10 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
     }
 }
 
+void M3LS::centerAxes(){
+    recenter(6000, 6000, 6000);
+}
+
 int M3LS::scaleToZones(int numZones, int input){
     return (round(input * (numZones-1)/255.0) - ((numZones-1)/2))*(radius/(numZones*10)+1);
 }
@@ -327,6 +331,9 @@ void M3LS::run(){
                                     break;
             case InvertZ:           invertZAxis(!invertZ);
                                     break;
+            case CenterAxes:
+                                    centerAxes();
+                                    break;
         }
     }
 
@@ -354,9 +361,7 @@ void M3LS::begin(){
 
     // Set the default internal bounds, radius, and refresh rate
     lastMillis = 0;
-    center[0]=6000;
-    center[1]=6000;
-    center[2]=6000;
+    centerAxes();
     radius = 5500;
     refreshRate = 1000/50;
     currentZPosition = 125;
