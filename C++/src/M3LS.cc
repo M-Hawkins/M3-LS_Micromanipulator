@@ -117,6 +117,11 @@ void M3LS::invertZAxis(bool newStatus){
     invertZ = newStatus;
 }
 
+// Sets the inversion status of the sensitivity axis
+void M3LS::invertSAxis(bool newStatus){
+    invertS = newStatus;
+}
+
 // Sets the current refresh rate to the new value
 void M3LS::setRefreshRate(int newRate){
     refreshRate = 1000/newRate;
@@ -285,10 +290,10 @@ void M3LS::run(){
         // Handle requested function
         switch(comm){
             case ZUp: // run at 'full speed' up or down
-                currentZPosition = 127+30;
+                currentZPosition = 127 + 30;
                 break;
             case ZDown:
-                currentZPosition = 127-30;
+                currentZPosition = 127 - 30;
                 break;
         }
     }
@@ -327,6 +332,8 @@ void M3LS::run(){
                                     break;
             case InvertZ:           invertZAxis(!invertZ);
                                     break;
+            case InvertS:           invertSAxis(!invertS);
+                                    break;
             case CenterAxes:        recenter(6000, 6000, 6000);
                                     moveToTargetPosition(6000, 6000);
                                     break;
@@ -340,15 +347,15 @@ void M3LS::run(){
     int x = Joy.getX();
     int y = Joy.getY();
     int z = Joy.getZ();
-    updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y),
-                    currentZPosition, XY);
-    setBounds(z + invertZ * (255 - 2*z));
+    updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y), 
+            currentZPosition + invertZ * (255 - 2*currentZPosition), XY);
+    setBounds(z + invertS * (255 - 2*z));
 }
 
 // Initializes internal parameters and calibrates the motors and USB shield
 void M3LS::begin(){
     // Set the default control mode
-    currentControlMode = position;
+    setControlMode(velocity);
 
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
@@ -364,6 +371,7 @@ void M3LS::begin(){
     invertX = false;
     invertY = false;
     invertZ = false;
+    invertS = false;
 
 #ifdef DEBUG
     Serial.begin(115200);

@@ -24,7 +24,7 @@ class M3LS{
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
         enum Commands {Def, ToggleHold, ToggleVelocity, SetHome, ReturnHome,
-                        ZUp, ZDown, InvertX, InvertY, InvertZ, CenterAxes};
+                        ZUp, ZDown, InvertX, InvertY, InvertZ, InvertS, CenterAxes};
         // Variables
         ControlMode currentControlMode;
         int currentPosition[3];
@@ -42,6 +42,7 @@ class M3LS{
         void invertXAxis(bool newStatus);
         void invertYAxis(bool newStatus);
         void invertZAxis(bool newStatus);
+        void invertSAxis(bool newStatus);
         void setRefreshRate(int newRate);
         void setControlMode(ControlMode newMode);
         void updatePosition(int inp0, int inp1, int inp2);
@@ -66,6 +67,7 @@ class M3LS{
         bool invertX;
         bool invertY;
         bool invertZ;
+        bool invertS;
         Commands buttonMap[20];
         char sendChars[50];
         char recvChars[100];

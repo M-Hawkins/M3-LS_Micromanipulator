@@ -19,9 +19,10 @@ void setup(){
     myM3LS.bindButton(8, M3LS::InvertY);
     myM3LS.bindButton(9, M3LS::InvertZ);
     myM3LS.bindButton(10, M3LS::CenterAxes);
+    myM3LS.bindButton(11, M3LS::InvertS);
 
     myM3LS.invertXAxis(true);
-    myM3LS.invertZAxis(true);
+    myM3LS.invertSAxis(true);
 
     delay(1000);
 }
