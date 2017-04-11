@@ -175,7 +175,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         DPRINT("Y: "); DPRINT(inp1); DPRINT(" ");
                         inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
                         DPRINTLN(inp1);
-                        moveToTargetPosition(inp0, inp1);
+                        moveToTargetPosition(inp0, inp1, axis);
 
                         // Z axis is always treated like velocity mode
                         inp2 = scaleToZones(7, inp2);
@@ -329,7 +329,7 @@ void M3LS::run(){
             case InvertZ:           invertZAxis(!invertZ);
                                     break;
             case CenterAxes:        recenter(6000, 6000, 6000);
-                                    moveToTargetPosition(127, 127);
+                                    moveToTargetPosition(6000, 6000);
                                     break;
         }
     }
@@ -442,6 +442,8 @@ void M3LS::moveToTargetPosition(int target0, int target1, Axes axis){
                     sendSPICommand(pins[1], 14);
                     setTargetPosition(target1);
                     sendSPICommand(pins[2], 14);
+                    break;
+        default:    moveToTargetPosition(target0, target1, 0, axis);
                     break;
     }
 }
