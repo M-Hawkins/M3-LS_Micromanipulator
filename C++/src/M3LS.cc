@@ -366,6 +366,7 @@ void M3LS::begin(){
     // Set the default internal bounds, radius, and refresh rate
     lastMillis = 0;
     radius = 5500;
+    recenter(6000, 6000, 6000);
     refreshRate = 1000/50;
     currentZPosition = 125;
     invertX = false;
