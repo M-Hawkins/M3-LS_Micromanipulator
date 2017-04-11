@@ -21,7 +21,7 @@ void setup(){
     myM3LS.bindButton(10, M3LS::CenterAxes);
 
     myM3LS.invertXAxis(true);
-    myM3LS.invertYAxis(true);
+    myM3LS.invertZAxis(true);
 
     delay(1000);
 }

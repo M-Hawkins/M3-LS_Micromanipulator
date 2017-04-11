@@ -299,7 +299,6 @@ void M3LS::run(){
         int status = curButtons;
         int button = 1;
         while (status >>=1) { ++button; }
-        // Serial.println(button);
 
         // Retrieve the associated function
         Commands comm = buttonMap[button];
@@ -340,9 +339,10 @@ void M3LS::run(){
     // Update the position and bounds based upon the joystick inputs
     int x = Joy.getX();
     int y = Joy.getY();
+    int z = Joy.getZ();
     updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y),
-                    currentZPosition + invertZ * (255 - 2*currentZPosition));
-    setBounds(Joy.getZ());
+                    currentZPosition, XY);
+    setBounds(z + invertZ * (255 - 2*z));
 }
 
 // Initializes internal parameters and calibrates the motors and USB shield
@@ -358,10 +358,12 @@ void M3LS::begin(){
 
     // Set the default internal bounds, radius, and refresh rate
     lastMillis = 0;
-    recenter(6000, 6000, 6000);
     radius = 5500;
     refreshRate = 1000/50;
     currentZPosition = 125;
+    invertX = false;
+    invertY = false;
+    invertZ = false;
 
 #ifdef DEBUG
     Serial.begin(115200);
