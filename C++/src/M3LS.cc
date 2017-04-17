@@ -58,7 +58,6 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS)
 void M3LS::calibrate(){
     calibrateForward();
     calibrateReverse();
-
 }
 
 // Executes a forward calibration routine on all axes
@@ -364,7 +363,7 @@ void M3LS::begin(){
     // Set the default internal bounds, radius, and refresh rate
     lastMillis = 0;
     radius = 5500;
-    // recenter(6000, 6000, 6000);
+    recenter(6000, 6000, 6000);
     refreshRate = 1000/50;
     currentZPosition = 125;
     invertX = false;
@@ -379,14 +378,14 @@ void M3LS::begin(){
 #ifndef MOCK
     // Initialize the USB shield
     initUSBShield();
-    delay(50);
 #endif
 
     // Initialize SPI
+    delay(50);
     SPI.begin();
 
     // Calibrate the stages
-    // calibrate();
+    calibrate();
 
     // Ensure the system is in position mode
     currentControlMode = position;
