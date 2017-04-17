@@ -83,7 +83,7 @@ TEST(Constructor, TripleAxis){
     releaseSPIMock();
 }
 
-TEST(ToggleHold, SetHold){
+TEST(Toggle, Hold){
     // Initialize test parameters
     int pins[] = {1, 2, 3};
     int numAxes = 3;
@@ -107,13 +107,15 @@ TEST(ToggleHold, SetHold){
 
     // Set up expected calls for setting the control mode
     m3.setControlMode(M3LS::hold);
+    m3.setControlMode(M3LS::position);
+    m3.setControlMode(M3LS::hold);
 
     // Cleanup mock
     releaseArduinoMock();
     releaseSPIMock();
 }
 
-TEST(ToggleHold, SetPosition){
+TEST(Toggle, Velocity){
     // Initialize test parameters
     int pins[] = {1, 2, 3};
     int numAxes = 3;
@@ -136,7 +138,9 @@ TEST(ToggleHold, SetPosition){
     m3.begin();
 
     // Set up expected calls for setting the control mode
+    m3.setControlMode(M3LS::velocity);
     m3.setControlMode(M3LS::position);
+    m3.setControlMode(M3LS::velocity);
 
     // Cleanup mock
     releaseArduinoMock();
