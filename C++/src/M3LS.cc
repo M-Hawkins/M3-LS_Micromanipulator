@@ -257,7 +257,6 @@ void M3LS::setBounds(int raw){
         radius = map(raw, 128, 192, 500, 2250);
     } else
         radius = map(raw, 192, 255, 2250, 5500);
-    Serial.print("radius = "); Serial.println(radius);
 }
 
 // The main event loop
