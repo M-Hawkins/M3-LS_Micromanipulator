@@ -18,11 +18,10 @@ Copyright info?
 
 // Constructors
 // Class constructor for a one axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS) :
-Usb(),
-Hub(&Usb),
-Hid(&Usb),
-Joy(&JoyEvents)
+M3LS::M3LS(int X_SS)
+#ifndef MOCK
+    : Usb(), Hub(&Usb), Hid(&Usb), Joy(&JoyEvents)
+#endif
 {
     // Initialize variables
     numAxes = 1;
@@ -30,11 +29,10 @@ Joy(&JoyEvents)
 }
 
 // Class constructor for a two axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS, int Y_SS) :
-Usb(),
-Hub(&Usb),
-Hid(&Usb),
-Joy(&JoyEvents)
+M3LS::M3LS(int X_SS, int Y_SS)
+#ifndef MOCK
+    : Usb(), Hub(&Usb), Hid(&Usb), Joy(&JoyEvents)
+#endif
 {
     // Initialize variables
     numAxes = 2;
@@ -43,11 +41,10 @@ Joy(&JoyEvents)
 }
 
 // Class constructor for a three axis M3LS micromanipulator setup
-M3LS::M3LS(int X_SS, int Y_SS, int Z_SS) :
-Usb(),
-Hub(&Usb),
-Hid(&Usb),
-Joy(&JoyEvents)
+M3LS::M3LS(int X_SS, int Y_SS, int Z_SS)
+#ifndef MOCK
+    : Usb(), Hub(&Usb), Hid(&Usb), Joy(&JoyEvents)
+#endif
 {
     // Initialize variables
     numAxes = 3;
@@ -93,8 +90,10 @@ void M3LS::initUSBShield(){
     // Joy = JoystickReportParser(&JoyEvents);
 
     // Call initialization routines
-    Usb.Init();
-    Hid.SetReportParser(0, &Joy);
+    #ifndef MOCK
+        Usb.Init();
+        Hid.SetReportParser(0, &Joy);
+    #endif
 }
 
 // Binds a given button to a specified command
@@ -269,87 +268,89 @@ void M3LS::run(){
     if(curMillis - lastMillis < refreshRate){ return; }
     lastMillis = curMillis;
 
-    // Get input from USB controller
-    Usb.Task();
-    curButtons = Joy.getButtons();
+    #ifndef MOCK
+        // Get input from USB controller
+        Usb.Task();
+        curButtons = Joy.getButtons();
 
-    // Default the Z axis to dead zone
-    currentZPosition = 125;
+        // Default the Z axis to dead zone
+        currentZPosition = 125;
 
-    // Handle buttons that can be held down:
-    if(curButtons){
-        // Calculate which button was pressed
-        int status = curButtons;
-        int button = 1;
-        while (status >>=1) { ++button; }
-        // Serial.println(button);
+        // Handle buttons that can be held down:
+        if(curButtons){
+            // Calculate which button was pressed
+            int status = curButtons;
+            int button = 1;
+            while (status >>=1) { ++button; }
+            // Serial.println(button);
 
-        // Retrieve the associated function
-        Commands comm = buttonMap[button];
+            // Retrieve the associated function
+            Commands comm = buttonMap[button];
 
-        // Handle requested function
-        switch(comm){
-            case ZUp: // run at 'full speed' up or down
-                currentZPosition = 127 + 30;
-                break;
-            case ZDown:
-                currentZPosition = 127 - 30;
-                break;
+            // Handle requested function
+            switch(comm){
+                case ZUp: // run at 'full speed' up or down
+                    currentZPosition = 127 + 30;
+                    break;
+                case ZDown:
+                    currentZPosition = 127 - 30;
+                    break;
+            }
         }
-    }
 
-    // Handle any buttons that have changed
-    if(curButtons && lastButtons == 0){
-        // Calculate which button was pressed
-        int status = curButtons;
-        int button = 1;
-        while (status >>=1) { ++button; }
+        // Handle any buttons that have changed
+        if(curButtons && lastButtons == 0){
+            // Calculate which button was pressed
+            int status = curButtons;
+            int button = 1;
+            while (status >>=1) { ++button; }
 
-        // Retrieve the associated function
-        Commands comm = buttonMap[button];
+            // Retrieve the associated function
+            Commands comm = buttonMap[button];
 
-        // Handle requested function
-        switch(comm){
-            case ToggleHold:        if (currentControlMode == hold){
-                                        setControlMode(position);
-                                    } else if (currentControlMode == position){
-                                        setControlMode(hold);
-                                    }
-                                    break;
-            case ToggleVelocity:    if (currentControlMode == velocity){
-                                        setControlMode(position);
-                                    } else {
-                                        setControlMode(velocity);
-                                    }
-                                    break;
-            case SetHome:           setHome();
-                                    break;
-            case ReturnHome:        returnHome();
-                                    break;
-            case InvertX:           invertXAxis(!invertX);
-                                    break;
-            case InvertY:           invertYAxis(!invertY);
-                                    break;
-            case InvertZ:           invertZAxis(!invertZ);
-                                    break;
-            case InvertS:           invertSAxis(!invertS);
-                                    break;
-            case CenterAxes:        recenter(6000, 6000, 6000);
-                                    moveToTargetPosition(6000, 6000);
-                                    break;
+            // Handle requested function
+            switch(comm){
+                case ToggleHold:        if (currentControlMode == hold){
+                                            setControlMode(position);
+                                        } else if (currentControlMode == position){
+                                            setControlMode(hold);
+                                        }
+                                        break;
+                case ToggleVelocity:    if (currentControlMode == velocity){
+                                            setControlMode(position);
+                                        } else {
+                                            setControlMode(velocity);
+                                        }
+                                        break;
+                case SetHome:           setHome();
+                                        break;
+                case ReturnHome:        returnHome();
+                                        break;
+                case InvertX:           invertXAxis(!invertX);
+                                        break;
+                case InvertY:           invertYAxis(!invertY);
+                                        break;
+                case InvertZ:           invertZAxis(!invertZ);
+                                        break;
+                case InvertS:           invertSAxis(!invertS);
+                                        break;
+                case CenterAxes:        recenter(6000, 6000, 6000);
+                                        moveToTargetPosition(6000, 6000);
+                                        break;
+            }
         }
-    }
 
-    // Save current button status
-    lastButtons = curButtons;
+        // Save current button status
+        lastButtons = curButtons;
 
-    // Update the position and bounds based upon the joystick inputs
-    int x = Joy.getX();
-    int y = Joy.getY();
-    int z = Joy.getZ();
-    updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y), 
-            currentZPosition + invertZ * (255 - 2*currentZPosition), XY);
-    setBounds(z + invertS * (255 - 2*z));
+        // Update the position and bounds based upon the joystick inputs
+        int x = Joy.getX();
+        int y = Joy.getY();
+        int z = Joy.getZ();
+        updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y), 
+                currentZPosition + invertZ * (255 - 2*currentZPosition), XY);
+        setBounds(z + invertS * (255 - 2*z));
+    #endif
 }
 
 // Initializes internal parameters and calibrates the motors and USB shield
@@ -366,7 +367,7 @@ void M3LS::begin(){
     // Set the default internal bounds, radius, and refresh rate
     lastMillis = 0;
     radius = 5500;
-    recenter(6000, 6000, 6000);
+    // recenter(6000, 6000, 6000);
     refreshRate = 1000/50;
     currentZPosition = 125;
     invertX = false;

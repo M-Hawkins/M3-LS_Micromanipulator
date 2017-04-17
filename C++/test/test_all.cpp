@@ -17,6 +17,7 @@ TEST(Constructor, SingleAxis){
 
     // Initialize M3LS and execute functions to be tested
     M3LS m3 = M3LS(pins[0]);
+    m3.begin();
     releaseArduinoMock();
 }
 
@@ -34,6 +35,7 @@ TEST(Constructor, DoubleAxis){
 
     // Initialize M3LS and execute functions to be tested
     M3LS m3 = M3LS(pins[0], pins[1]);
+    m3.begin();
     releaseArduinoMock();
 }
 
@@ -51,5 +53,6 @@ TEST(Constructor, TripleAxis){
 
     // Initialize M3LS and execute functions to be tested
     M3LS m3 = M3LS(pins[0], pins[1], pins[2]);
+    m3.begin();
     releaseArduinoMock();
 }

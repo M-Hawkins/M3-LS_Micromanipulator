@@ -13,10 +13,13 @@ Copyright info?
 
 #include "Arduino.h"
 #include "SPI.h"
-#include "hidjoystickrptparser.h"
-#include <usbhid.h>
-#include <hiduniversal.h>
-#include <usbhub.h>
+
+#ifndef MOCK
+    #include "hidjoystickrptparser.h"
+    #include <usbhid.h>
+    #include <hiduniversal.h>
+    #include <usbhub.h>
+#endif
 
 class M3LS{
     public:
@@ -71,12 +74,14 @@ class M3LS{
         Commands buttonMap[20];
         char sendChars[50];
         char recvChars[100];
-        // USB Shield
-        USB Usb;
-        USBHub Hub;
-        HIDUniversal Hid;
-        JoystickEvents JoyEvents;
-        JoystickReportParser Joy;
+        #ifndef MOCK
+            // USB Shield
+            USB Usb;
+            USBHub Hub;
+            HIDUniversal Hid;
+            JoystickEvents JoyEvents;
+            JoystickReportParser Joy;
+        #endif
         // Timing
         unsigned long lastMillis;
         unsigned long curMillis;
