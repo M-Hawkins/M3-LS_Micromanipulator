@@ -7,7 +7,7 @@ Copyright info?
 
 #include "M3LS.h"
 
-#define DEBUG   //If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
+// #define DEBUG   //If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
 #ifdef DEBUG    //Macros are usually in all capital letters.
   #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
   #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
@@ -355,9 +355,6 @@ void M3LS::run(){
 
 // Initializes internal parameters and calibrates the motors and USB shield
 void M3LS::begin(){
-    // Set the default control mode
-    setControlMode(velocity);
-
     // Initialize all pins as unselected outputs
     for (int pin = 0; pin < numAxes; pin++){
         pinMode(pins[pin], OUTPUT);
@@ -380,21 +377,21 @@ void M3LS::begin(){
 #endif
 
 #ifndef MOCK
+    // Initialize the USB shield
     initUSBShield();
     delay(50);
+#endif
+
+    // Initialize SPI
     SPI.begin();
 
     // Calibrate the stages
-    calibrate();
+    // calibrate();
 
     // Ensure the system is in position mode
+    currentControlMode = position;
     setControlMode(M3LS::open);
-    delayMicroseconds(100);
     setControlMode(M3LS::position);
-
-    // Initialize the USB shield
-    delayMicroseconds(100);
-#endif
 }
 
 // Private Functions
@@ -539,37 +536,39 @@ void M3LS::recenter(int newx, int newy, int newz){
 
 // Sends a command over the SPI bus and writes the response to the buffer
 int M3LS::sendSPICommand(int pin, int length){
-    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
-    memset(recvChars, 0, 100);
-    digitalWrite(pin, LOW);
-    delayMicroseconds(60);
-    for(int i=0; i<length; i++){
-        SPI.transfer(sendChars[i]);
-        // Minimum delay time: 60 microseconds between SPI transfers.
+    #ifndef MOCK
+        SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
+        memset(recvChars, 0, 100);
+        digitalWrite(pin, LOW);
         delayMicroseconds(60);
-    }
-
-    int j = 0;
-    int counter = 0;
-    while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
-        delayMicroseconds(60);
-        if (counter++ == 100) break;
-    }
-    delayMicroseconds(60);
-    while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
-        delayMicroseconds(60);
-        if(j >= 99){
-            digitalWrite(pin, HIGH);
-            SPI.endTransaction();
-            return -1;
+        for(int i=0; i<length; i++){
+            SPI.transfer(sendChars[i]);
+            // Minimum delay time: 60 microseconds between SPI transfers.
+            delayMicroseconds(60);
         }
-    }
-    // DPRINT("Received from M3-LS:");
-    // DPRINTLN(recvChars);
-    // DPRINT("Took ");
-    // DPRINT(j-1);
-    // DPRINTLN(" iterations.\n");
-    digitalWrite(pin, HIGH);
-    SPI.endTransaction();
+
+        int j = 0;
+        int counter = 0;
+        while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
+            delayMicroseconds(60);
+            if (counter++ == 100) break;
+        }
+        delayMicroseconds(60);
+        while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
+            delayMicroseconds(60);
+            if(j >= 99){
+                digitalWrite(pin, HIGH);
+                SPI.endTransaction();
+                return -1;
+            }
+        }
+        // DPRINT("Received from M3-LS:");
+        // DPRINTLN(recvChars);
+        // DPRINT("Took ");
+        // DPRINT(j-1);
+        // DPRINTLN(" iterations.\n");
+        digitalWrite(pin, HIGH);
+        SPI.endTransaction();
+    #endif
     return 0;
 }
