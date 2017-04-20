@@ -112,6 +112,9 @@ void M3LS::run(){
     // Default the Z axis to dead zone
     currentZPosition = 125;
 
+    // Default hold position movement to its active state
+    bool isActive = false;
+
     // Handle buttons that can be held down:
     if(curButtons){
         // Calculate which button was pressed
@@ -125,12 +128,13 @@ void M3LS::run(){
         // Handle requested command
         switch(comm){
              // These will run the Z axis at 'full speed' up or down
-            case ZUp:
-                currentZPosition = 127 + 30;
-                break;
-            case ZDown:
-                currentZPosition = 127 - 30;
-                break;
+            case ZUp:               currentZPosition = 127 + 30;
+                                    break;
+            case ZDown:             currentZPosition = 127 - 30;
+                                    break;
+            // Handles the "hold trigger to move" functionality
+            case ActiveMovement:    isActive = true;
+                                    break;
         }
     }
 
@@ -146,8 +150,6 @@ void M3LS::run(){
 
         // Handle requested command
         switch(comm){
-            case ActiveMovement:    bool isActive = true;
-                                    break;
             case SetHome:           setHome();
                                     break;
             case ReturnHome:        returnHome();
@@ -175,17 +177,13 @@ void M3LS::run(){
                                     break;
             case InvertS:           invertSAxis(!invertS);
                                     break;
-            default:                bool isActive = false;
-                                    break;
         }
     }
 
     // Update the position and bounds based upon the joystick inputs
     updatePosition(Joy.getX() + invertX * (255 - 2 * Joy.getX()), 
-        Joy.getY() + invertY * (255 - 2 * Joy.getY()), XY, isActive);
-    zZone = scaleToZones(7, 
-        currentZPosition + invertZ * (255 - 2 * currentZPosition));
-    advanceMotor(zZone, 2);
+        Joy.getY() + invertY * (255 - 2 * Joy.getY()), 
+        currentZPosition + invertZ * (255 - 2 * currentZPosition), XY, isActive);
     setBounds(Joy.getZ() + invertS * (255 - 2 * Joy.getZ()));
 
     // Save the current button status
@@ -313,10 +311,12 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
     switch(currentControlMode)
     {
         case hold     : // Only execute a move command if the button is held
-                        if (isActive){
-                            moveToTargetPosition(inp0, inp1, inp2, axis);
+                        if (!isActive){
+                            getCurrentPosition();
+                            recenter(currentPosition[0], currentPosition[1], 
+                                currentPosition[2]);
+                            break;
                         }
-                        break;
         case position : // Map the inputs based on the current bounds
                         // Joystick reports 0-255
                         DPRINT("X: "); DPRINT(inp0); DPRINT(" ");
@@ -327,11 +327,11 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         inp1 = map(inp1, 0, 255, 
                             center[1] - radius, center[1] + radius);
                         DPRINTLN(inp1);
-                        DPRINT("Z: "); DPRINT(inp2); DPRINT(" ");
-                        inp2 = map(inp2, 0, 255, 
-                            center[2] - radius, center[2] + radius);
-                        DPRINTLN(inp2);
-                        moveToTargetPosition(inp0, inp2, inp2, axis);
+                        moveToTargetPosition(inp0, inp1, axis);
+
+                        // Treat the Z axis as if it is in velocity mode
+                        inp2 = scaleToZones(7, inp2);;
+                        advanceMotor(inp2, 2);
                         break;
 
         case velocity : // Set the speed and target positions based on
@@ -613,16 +613,16 @@ int M3LS::sendSPICommand(int pin, int length){
     // Wait until the stage is ready to respond
     int j = 0;
     int counter = 0;
-    char DONE '\r';
-    char IN_PROGRESS 0x01;
-    while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
+    // char DONE '\r';
+    // char IN_PROGRESS 0x01;
+    while('<' != (recvChars[j] = SPI.transfer(0x01))){
         delayMicroseconds(60);
         if (counter++ == 100) break;
     }
     delayMicroseconds(60);
 
     // Read in and store the response
-    while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
+    while('\r' != (recvChars[++j] = SPI.transfer(0x01))){
         delayMicroseconds(60);
         if(j >= 99){
             digitalWrite(pin, HIGH);
