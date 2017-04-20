@@ -40,56 +40,68 @@ TODO: Shield(s) physical setup guide (with pictures)
 ## Customization
 A handful of sketches are including to get your system up and running as 
 quickly as possible. These can be found within the Arduino IDE at 
-`File->Examples->M3LS`. The most basic of these sketches is ___, shown below. 
+`File->Examples->M3LS`. The most basic of these sketches is `basicExample`, 
+shown below. 
 
 ```C++
 #include "M3LS.h"
 
-int xpin = 1; int ypin = 2; int zpin = 3;
+// Select which pins will be used for the X, Y, and Z axis
+int xpin = A3; int ypin = A2; int zpin = A0;
 
-M3LS *myM3LS;
+// Initialize the library with your three selected pins
+M3LS myM3LS(xpin, ypin, zpin);
 
 void setup(){
-    // Initialize M3LS
-    myM3LS = new M3LS(xpin, ypin, zpin);
+    // Run the library's setup routine
+    myM3LS.begin();
 
-    // Set handlers for moving the Z axis up or down
-    //myM3LS->bindButton(1, M3LS::Commands::ToggleHold);
-    myM3LS->bindButton(2, M3LS::Commands::ZUp);
-    myM3LS->bindButton(3, M3LS::Commands::ZDown);
-    //myM3LS->bindButton(4, M3LS::Commands::SetHome);
-    //myM3LS->bindButton(5, M3LS::Commands::ReturnHome);
-    //myM3LS->bindButton(6, M3LS::Commands::ToggleVelocity);
-
-    delay(1000);
+    // Set which buttons will move the Z axis up and down
+    myM3LS.bindButton(2, M3LS::ZDown);
+    myM3LS.bindButton(3, M3LS::ZUp);
 }
 
 void loop(){
-    myM3LS->run();
+    // Have the library run continuously
+    myM3LS.run();
 }
 ```
+
 Note that the faded lines preceeded with "`//`" are inactive.
 
-However, joysticks and personal preference vary significantly. Different button assignments can be made easily. For example, to change the controller to use button #7 for moving the Z axis up and 9 for moving the Z axis down, edit the sketch as such:
-```C++
-myM3LS->bindButton(7, M3LS::Commands::ZUp);
-myM3LS->bindButton(9, M3LS::Commands::ZDown);
-```
-If your joystick's buttons are not clearly labeled, please consult its user manual to determine the appropriate numbers to use.
+Joysticks and personal preference can vary significantly. 
+To accomadate this, different button assignments can be made easily. 
+For example, to change the controller to use button #9 for moving the 
+Z axis down and 7 for moving the Z axis up, edit the sketch as such:
 
-In addition to remapping the desired buttons, the associated functionality can be adjusted as well. In order to use the included position memory and retrieval functionality, remove the preceeding "`//`" from the following lines:
 ```C++
-myM3LS->bindButton(4, M3LS::Commands::SetHome);
-myM3LS->bindButton(5, M3LS::Commands::ReturnHome);
+myM3LS.bindButton(9, M3LS::ZDown);
+myM3LS.bindButton(7, M3LS::ZUp);
 ```
-Each command can be enabled, disabled, or configuring in the same way. 
+
+If your joystick's buttons are not clearly labeled, please consult 
+its user manual to determine the appropriate numbers to use.
+
+In addition to remapping the desired buttons, the associated functionality 
+can be adjusted as well. Please see `fullExample` and the list of available 
+commands below for more examples. 
+
 ***
+
 ## Available Commands
 | Command | Code Snippet | Description |
 |---|----|---:|
-| ToggleHold | `myM3LS->bindButton(1, M3LS::Commands::ToggleHold);` | TODO |
-| ZUp | `myM3LS->bindButton(2, M3LS::Commands::ZUp);` | TODO |
-| ZDown | `myM3LS->bindButton(3, M3LS::Commands::ZDown);` | TODO |
-| SetHome | `myM3LS->bindButton(4, M3LS::Commands::SetHome);` | TODO |
-| ReturnHome | `myM3LS->bindButton(5, M3LS::Commands::ReturnHome);` | TODO |
+| ActiveMovement | `myM3LS.bindButton(1, M3LS::ActiveMovement);` | When held, allows for needle movement while in the hold state. |
+| SetHome | `myM3LS.bindButton(2, M3LS::SetHome);` | Store the needle’s current position as the home position. |
+| ReturnHome | `myM3LS.bindButton(3, M3LS::ReturnHome);` | Moves the needle to the stored home position. |
+| CenterAxes | `myM3LS.bindButton(4, M3LS::CenterAxes);` | Recenters the needle. |
+| ToggleHold | `myM3LS.bindButton(5, M3LS::ToggleHold);` | Prevents new joystick inputs from moving the needle until toggled again.<br/>The current location is set as the new position mode center upon resuming. |
+| ToggleVelocity | `myM3LS.bindButton(6, M3LS::ToggleVelocity);` | Toggles between manipulating the needle with absolute positioning or velocity based positioning.<br/>The current location is set as the new position mode center upon exiting velocity mode. |
+| ZUp | `myM3LS.bindButton(7, M3LS::ZUp);` | Moves the needle’s position within the Z axis upward. |
+| ZDown | `myM3LS.bindButton(8, M3LS::ZDown);` | Moves the needle’s position within the Z axis downward. |
+| InvertX | `myM3LS.bindButton(9, M3LS::InvertX);` | Toggles the direction joystick inputs will cause the X axis to travel in. |
+| InvertY | `myM3LS.bindButton(10, M3LS::InvertY);` | Toggles the direction joystick inputs will cause the Y axis to travel in. |
+| InvertZ | `myM3LS.bindButton(11, M3LS::InvertZ);` | Toggles the direction of travel of the ZUp and ZDown commands.  |
+| InvertS | `myM3LS.bindButton(12, M3LS::InvertS);` | Toggles the direction of the sensitivity adjustment.  |
+
 

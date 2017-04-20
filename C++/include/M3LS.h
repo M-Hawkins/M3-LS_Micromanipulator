@@ -22,9 +22,9 @@ class M3LS{
         // Enums
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
-        enum Commands {ActiveMovement, SetHome, ReturnHome, 
+        enum Commands {ActiveMovement, SetHome, ReturnHome, CenterAxes, 
             ToggleHold, ToggleVelocity, ZUp, ZDown, 
-            InvertX, InvertY, InvertZ, InvertS, CenterAxes};
+            InvertX, InvertY, InvertZ, InvertS};
         // Constructors
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
