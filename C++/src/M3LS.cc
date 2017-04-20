@@ -352,6 +352,7 @@ void M3LS::getCurrentPosition(){
     }
 }
 
+// ---------------------------------------------------------------------------
 // Private Functions
 // Calibrate the stages
 void M3LS::calibrate(){
@@ -361,6 +362,18 @@ void M3LS::calibrate(){
 
 // Executes a forward calibration routine on all axes
 void M3LS::calibrateForward(){
+    /*
+    Send to controller:
+        <87 D>\r
+        7 bytes
+        D = 4: Reverse frequency sweep
+        D = 5: Forward frequency sweep
+    Receive from controller:
+        <87 D XX FFFF>\r
+        15 bytes
+        Ignored for our purposes
+    */
+
     // Build command and send it to SPI
     delay(250);
     memcpy(sendChars, "<87 5>\r", 7);
@@ -372,6 +385,18 @@ void M3LS::calibrateForward(){
 
 // Executes a reverse calibration routine on all axes
 void M3LS::calibrateReverse(){
+    /*
+    Send to controller:
+        <87 D>\r
+        7 bytes
+        D = 4: Reverse frequency sweep
+        D = 5: Forward frequency sweep
+    Receive from controller:
+        <87 D XX FFFF>\r
+        15 bytes
+        Ignored for our purposes
+    */
+
     delay(250);
     memcpy(sendChars, "<87 4>\r", 7);
     for (int axis = 0; axis < numAxes; axis++){
@@ -382,28 +407,23 @@ void M3LS::calibrateReverse(){
 
 // Instantiate the USB shield controller
 void M3LS::initUSBShield(){
-    // Initialize USB shield variables
-    // Hub = USBHub(&Usb);
-    // Hid = HIDUniversal(&Usb);
-    // Joy = JoystickReportParser(&JoyEvents);
-
-    // Call initialization routines
-    #ifndef MOCK
-        Usb.Init();
-        Hid.SetReportParser(0, &Joy);
-    #endif
+#ifndef MOCK
+// Call initialization routines
+    Usb.Init();
+    Hid.SetReportParser(0, &Joy);
+#endif
 }
 
 // Adjust the internal bounds based on a given number of encoder counts
-void M3LS::setBounds(int raw){
-    if(raw < 64){
-        radius = map(raw, 0, 64, 10, 50);
-    } else if(raw < 128){
-        radius = map(raw, 64, 128, 50, 500);
-    } else if(raw < 192){
-        radius = map(raw, 128, 192, 500, 2250);
+void M3LS::setBounds(int amount){
+    if(amount < 64){
+        radius = map(amount, 0, 64, 10, 50);
+    } else if(amount < 128){
+        radius = map(amount, 64, 128, 50, 500);
+    } else if(amount < 192){
+        radius = map(amount, 128, 192, 500, 2250);
     } else
-        radius = map(raw, 192, 255, 2250, 5500);
+        radius = map(amount, 192, 255, 2250, 5500);
 }
 
 // Default single axis move command
@@ -491,7 +511,8 @@ void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis
 
 // Map a joystick input to a smaller zone number
 int M3LS::scaleToZones(int numZones, int input){
-    return (round(input * (numZones-1)/255.0) - ((numZones-1)/2))*(radius/(numZones*10)+1);
+    return (round(input * (numZones - 1) / 255.0) 
+        - ((numZones - 1) / 2)) * (radius / (numZones * 10) + 1);
 }
 
 // Set the target position to move to
@@ -501,8 +522,9 @@ void M3LS::setTargetPosition(int target){
         <08>\r
         4 bytes
     Receive from controller:
-        <10 SSSSSS PPPPPPPP EEEEEEEE>\r
-        30 bytes
+        <08>\r
+        4 bytes
+        Ignored for our purposes
     */
 
     // Build command and send it to SPI
@@ -513,8 +535,21 @@ void M3LS::setTargetPosition(int target){
 
 // Move the needle a short distance based on each axis's current zone
 void M3LS::advanceMotor(int inp, int axisNum){
+    /*
+    Send to controller:
+        <06 D SSSSSSSS>\r
+        16 bytes
+        D = 0: Move backwards
+        D = 1: Move forwards
+        S... : Number of encoder counts to move
+    Receive from controller:
+        <06>\r
+        5 bytes
+        Ignored for our purposes
+    */
+
+    // Build command and send it to SPI
     memcpy(sendChars, "<06 ", 4);
-    // D=1: forward, D=0: backward
     sprintf(sendChars + 4, "%01d", inp > 0);
     memcpy(sendChars + 5, " ", 1);
     sprintf(sendChars + 6, "%08X", abs(inp));
@@ -531,20 +566,24 @@ int M3LS::getAxisPosition(int pin){
     Receive from controller:
         <10 SSSSSS PPPPPPPP EEEEEEEE>\r
         30 bytes
+        S... : Motor status, see datasheet
+        P... : Absolute position in encoder counts
+               This function will extract and store this value
+        E... : Position error in encoder counts
     */
 
     // Build command and send it to SPI
     memcpy(sendChars, "<10>\r", 5);
     sendSPICommand(pin, 5);
 
-    // Allocate space for and generate position value
+    // Allocate space for, extract, and store the position value
     char position[11] = "0x";
     memcpy(position+2, recvChars + 11, 8);
     position[10] = 0;
     return strtol(position, NULL, 0);
 }
 
-// Set the needle's current position as the new center by generating new bounds
+// Set the specified coordinates as the new center
 void M3LS::recenter(int newx, int newy, int newz){
     center[0]=newx;
     center[1]=newy;
@@ -553,39 +592,47 @@ void M3LS::recenter(int newx, int newy, int newz){
 
 // Sends a command over the SPI bus and writes the response to the buffer
 int M3LS::sendSPICommand(int pin, int length){
-    #ifndef MOCK
-        SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
-        memset(recvChars, 0, 100);
-        digitalWrite(pin, LOW);
-        delayMicroseconds(60);
-        for(int i = 0; i < length; i++){
-            SPI.transfer(sendChars[i]);
-            // Minimum delay time: 60 microseconds between SPI transfers.
-            delayMicroseconds(60);
-        }
+#ifndef MOCK
+    // Prepare the appropriate settings and clear the buffer
+    SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE1));
+    memset(recvChars, 0, 100);
+    digitalWrite(pin, LOW);
+    delayMicroseconds(60);
 
-        int j = 0;
-        int counter = 0;
-        while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
-            delayMicroseconds(60);
-            if (counter++ == 100) break;
-        }
+    // Transfer the given command over SPI, one byte at a time
+    for(int i = 0; i < length; i++){
+        SPI.transfer(sendChars[i]);
+        // Minimum delay time: 60 microseconds between SPI transfers.
         delayMicroseconds(60);
-        while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
-            delayMicroseconds(60);
-            if(j >= 99){
-                digitalWrite(pin, HIGH);
-                SPI.endTransaction();
-                return -1;
-            }
+    }
+
+    // Wait until the stage is ready to respond
+    int j = 0;
+    int counter = 0;
+    char DONE '\r';
+    char IN_PROGRESS 0x01;
+    while('<' != (recvChars[j] = SPI.transfer(IN_PROGRESS))){
+        delayMicroseconds(60);
+        if (counter++ == 100) break;
+    }
+    delayMicroseconds(60);
+
+    // Read in and store the response
+    while(DONE != (recvChars[++j] = SPI.transfer(IN_PROGRESS))){
+        delayMicroseconds(60);
+        if(j >= 99){
+            digitalWrite(pin, HIGH);
+            SPI.endTransaction();
+            return -1;
         }
-        // DPRINT("Received from M3-LS:");
-        // DPRINTLN(recvChars);
-        // DPRINT("Took ");
-        // DPRINT(j-1);
-        // DPRINTLN(" iterations.\n");
-        digitalWrite(pin, HIGH);
-        SPI.endTransaction();
-    #endif
+    }
+    // DPRINT("Received from M3-LS:");
+    // DPRINTLN(recvChars);
+    // DPRINT("Took ");
+    // DPRINT(j-1);
+    // DPRINTLN(" iterations.\n");
+    digitalWrite(pin, HIGH);
+    SPI.endTransaction();
+#endif
     return 0;
 }

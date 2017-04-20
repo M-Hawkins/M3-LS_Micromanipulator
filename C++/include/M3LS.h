@@ -7,9 +7,6 @@ Copyright info?
 #ifndef M3LS_h
 #define M3LS_h
 
-#define DONE '\r'
-#define IN_PROGRESS 0x01
-
 #include "Arduino.h"
 #include "SPI.h"
 
