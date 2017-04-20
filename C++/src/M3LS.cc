@@ -308,6 +308,13 @@ void M3LS::run(){
 
             // Handle requested function
             switch(comm){
+                case SetHome:           setHome();
+                                        break;
+                case ReturnHome:        returnHome();
+                                        break;
+                case CenterAxes:        recenter(6000, 6000, 6000);
+                                        moveToTargetPosition(6000, 6000);
+                                        break;
                 case ToggleHold:        if (currentControlMode == hold){
                                             setControlMode(position);
                                         } else if (currentControlMode == position){
@@ -320,10 +327,6 @@ void M3LS::run(){
                                             setControlMode(velocity);
                                         }
                                         break;
-                case SetHome:           setHome();
-                                        break;
-                case ReturnHome:        returnHome();
-                                        break;
                 case InvertX:           invertXAxis(!invertX);
                                         break;
                 case InvertY:           invertYAxis(!invertY);
@@ -331,9 +334,6 @@ void M3LS::run(){
                 case InvertZ:           invertZAxis(!invertZ);
                                         break;
                 case InvertS:           invertSAxis(!invertS);
-                                        break;
-                case CenterAxes:        recenter(6000, 6000, 6000);
-                                        moveToTargetPosition(6000, 6000);
                                         break;
             }
         }
@@ -539,7 +539,7 @@ int M3LS::sendSPICommand(int pin, int length){
         memset(recvChars, 0, 100);
         digitalWrite(pin, LOW);
         delayMicroseconds(60);
-        for(int i=0; i<length; i++){
+        for(int i = 0; i < length; i++){
             SPI.transfer(sendChars[i]);
             // Minimum delay time: 60 microseconds between SPI transfers.
             delayMicroseconds(60);

@@ -27,38 +27,29 @@ class M3LS{
         enum Axes {X, Y, Z, XY, XZ, YZ, XYZ};
         enum ControlMode {hold, open, position, velocity};
         enum Commands {Def, ToggleHold, ToggleVelocity, SetHome, ReturnHome,
-                        ZUp, ZDown, InvertX, InvertY, InvertZ, InvertS, CenterAxes};
-        // Variables
-        ControlMode currentControlMode;
-        int currentPosition[3];
-        int homePosition[3];
+            ZUp, ZDown, InvertX, InvertY, InvertZ, InvertS, CenterAxes};
         // Constructors
         M3LS(int X_SS);
         M3LS(int X_SS, int Y_SS);
         M3LS(int X_SS, int Y_SS, int Z_SS);
-        // Functions
-        void calibrate();
-        void calibrateForward();
-        void calibrateReverse();
-        void initUSBShield();
+        // Initializiation Functions
+        void begin();
+        void run();
         void bindButton(int buttonNumber, Commands comm);
+        void setRefreshRate(int newRate);
+        void setControlMode(ControlMode newMode);
+        void setHome();
+        void returnHome();
         void invertXAxis(bool newStatus);
         void invertYAxis(bool newStatus);
         void invertZAxis(bool newStatus);
         void invertSAxis(bool newStatus);
-        void setRefreshRate(int newRate);
-        void setControlMode(ControlMode newMode);
+        void centerAxes();
         void updatePosition(int inp0, int inp1, int inp2);
         void updatePosition(int inp0, int inp1, int inp2, bool isActive);
         void updatePosition(int inp0, int inp1, int inp2, Axes axis);
         void updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive);
-        void setHome();
-        void returnHome();
         void getCurrentPosition();
-        void setBounds(int amount);
-        void run();
-        void begin();
-        void centerAxes();
     private:
         // Variables
         int numAxes;
@@ -66,7 +57,10 @@ class M3LS{
         int radius;
         int center[3];
         int refreshRate;
+        ControlMode currentControlMode;
         int currentZPosition;
+        int currentPosition[3];
+        int homePosition[3];
         bool invertX;
         bool invertY;
         bool invertZ;
@@ -74,32 +68,37 @@ class M3LS{
         Commands buttonMap[20];
         char sendChars[50];
         char recvChars[100];
-        #ifndef MOCK
-            // USB Shield
-            USB Usb;
-            USBHub Hub;
-            HIDUniversal Hid;
-            JoystickEvents JoyEvents;
-            JoystickReportParser Joy;
-        #endif
+#ifndef MOCK
+        // USB Shield
+        USB Usb;
+        USBHub Hub;
+        HIDUniversal Hid;
+        JoystickEvents JoyEvents;
+        JoystickReportParser Joy;
+#endif
         // Timing
         unsigned long lastMillis;
         unsigned long curMillis;
         int lastButtons;
         int curButtons;
         // Functions
-        int getAxisPosition(int pin);
+        void calibrate();
+        void calibrateForward();
+        void calibrateReverse();
+        void initUSBShield();
+        void setBounds(int amount);
         void moveToTargetPosition(int target0);
         void moveToTargetPosition(int target0, Axes a);
         void moveToTargetPosition(int target0, int target1);
         void moveToTargetPosition(int target0, int target1, Axes a);
         void moveToTargetPosition(int target0, int target1, int target2);
         void moveToTargetPosition(int target0, int target1, int target2, Axes a);
+        int scaleToZones(int numZones, int input);
         void setTargetPosition(int target);
         void advanceMotor(int inp, int axisNum);
+        int getAxisPosition(int pin);
         void recenter(int newx, int newy, int newz);
         int sendSPICommand(int pin, int length);
-        int scaleToZones(int numZones, int input);
 };
 
 #endif
