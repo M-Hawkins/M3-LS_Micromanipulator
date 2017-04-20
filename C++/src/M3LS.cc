@@ -15,7 +15,7 @@ Copyright info?
   #define DPRINT(...)     //now defines a blank line
   #define DPRINTLN(...)   //now defines a blank line
 #endif
-
+// Initialize starting parameters and SPI settings
 // Constructors
 // Class constructor for a one axis M3LS micromanipulator setup
 M3LS::M3LS(int X_SS)
@@ -54,209 +54,45 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS)
 }
 
 // Public functions
-// Calibrate the stages
-void M3LS::calibrate(){
-    calibrateForward();
-    calibrateReverse();
-}
-
-// Executes a forward calibration routine on all axes
-void M3LS::calibrateForward(){
-    // Build command and send it to SPI
-    delay(250);
-    memcpy(sendChars, "<87 5>\r", 7);
-    for (int axis = 0; axis < numAxes; axis++){
-        sendSPICommand(pins[axis], 7);
-    }
-    delay(250);
-}
-
-// Executes a reverse calibration routine on all axes
-void M3LS::calibrateReverse(){
-    delay(250);
-    memcpy(sendChars, "<87 4>\r", 7);
-    for (int axis = 0; axis < numAxes; axis++){
-            sendSPICommand(pins[axis], 7);
-    }
-    delay(250);
-}
-
-// Instantiate the USB shield controller
-void M3LS::initUSBShield(){
-    // Initialize USB shield variables
-    // Hub = USBHub(&Usb);
-    // Hid = HIDUniversal(&Usb);
-    // Joy = JoystickReportParser(&JoyEvents);
-
-    // Call initialization routines
-    #ifndef MOCK
-        Usb.Init();
-        Hid.SetReportParser(0, &Joy);
-    #endif
-}
-
-// Binds a given button to a specified command
-void M3LS::bindButton(int buttonNumber, Commands comm){
-    buttonMap[buttonNumber] = comm;
-}
-
-// Sets the inversion status of the X axis
-void M3LS::invertXAxis(bool newStatus){
-    invertX = newStatus;
-}
-
-// Sets the inversion status of the Y axis
-void M3LS::invertYAxis(bool newStatus){
-    invertY = newStatus;
-}
-
-// Sets the inversion status of the Z axis
-void M3LS::invertZAxis(bool newStatus){
-    invertZ = newStatus;
-}
-
-// Sets the inversion status of the sensitivity axis
-void M3LS::invertSAxis(bool newStatus){
-    invertS = newStatus;
-}
-
-// Sets the current refresh rate to the new value
-void M3LS::setRefreshRate(int newRate){
-    refreshRate = 1000/newRate;
-}
-
-// Sets the current control mode to the new mode
-void M3LS::setControlMode(ControlMode newMode){
-    if (newMode == open && currentControlMode != open){
-        memcpy(sendChars, "<20 0>\r", 7);
-        for (int axis = 0; axis < numAxes; axis++){
-            sendSPICommand(pins[axis], 7);
-        }
-    } else if(newMode != open && currentControlMode == open){
-        memcpy(sendChars, "<20 1>\r", 7);
-        for (int axis = 0; axis < numAxes; axis++){
-            sendSPICommand(pins[axis], 7);
-        }
-    } else if(newMode == position && currentControlMode != position){
-        // This is where re-centering has to occur.
-        // get current position, re-center bounds around that.
-        getCurrentPosition(); // BLOCKING
-        recenter(currentPosition[0], currentPosition[1], currentPosition[2]);
-    }
-    currentControlMode = newMode;
-}
-
-// Default method for updating the needle's position
-void M3LS::updatePosition(int inp0, int inp1, int inp2){
-    updatePosition(inp0, inp1, inp2, XYZ, false);
-}
-
-// Default method for updating the needle's position with a trigger arg
-void M3LS::updatePosition(int inp0, int inp1, int inp2, bool isActive){
-    updatePosition(inp0, inp1, inp2, XYZ, isActive);
-}
-
-// Default method for updating the needle's position with an axis arg
-void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis){
-    updatePosition(inp0, inp1, inp2, axis, false);
-}
-
-// Update the needle's position based upon current mode and joystick inputs
-void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive){
-    // Handle inputs based on the current control mode
-    switch(currentControlMode)
-    {
-        case hold     : if (isActive){
-                            moveToTargetPosition(inp0, inp1, inp2, axis);
-                        }
-                        break;
-        case position : // Map the inputs based on the current bounds
-                        // Joystick reports 0-255
-                        DPRINT("X: "); DPRINT(inp0); DPRINT(" ");
-                        inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
-                        DPRINTLN(inp0);
-                        DPRINT("Y: "); DPRINT(inp1); DPRINT(" ");
-                        inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
-                        DPRINTLN(inp1);
-                        moveToTargetPosition(inp0, inp1, axis);
-
-                        // Z axis is always treated like velocity mode
-                        inp2 = scaleToZones(7, inp2);
-                        advanceMotor(inp2, 2);
-                        break;
-
-        case velocity : // Set the speed and target positions based on
-                        // displacement, divided between 7 zones
-                        // This should result in zone 0 being a "dead zone."
-                        int numZones = 7;
-                        int inputs[3] = {inp0, inp1, inp2};
-
-                        // Loop through each available axis
-                        for (int axis = 0; axis < numAxes; axis++){
-                            int inp = scaleToZones(numZones, inputs[axis]);
-                            advanceMotor(inp, axis);
-                        }
-
-                        break;
-    }
-}
-
-// Map a joystick input to a smaller zone number
-int M3LS::scaleToZones(int numZones, int input){
-    return (round(input * (numZones-1)/255.0) - ((numZones-1)/2))*(radius/(numZones*10)+1);
-}
-
-// Store the current position as the home position
-void M3LS::setHome(){
-    getCurrentPosition();
-    memcpy(homePosition, currentPosition, numAxes * sizeof(int));
-    DPRINT("Setting home to ");
-    DPRINT(homePosition[0]); DPRINT(" ");
-    DPRINT(homePosition[1]); DPRINT(" ");
-    DPRINTLN(homePosition[2]);
-}
-
-// Return to the stored home position
-void M3LS::returnHome(){
-    // Store current mode and switch to position mode
-    ControlMode previousMode = currentControlMode;
-    setControlMode(position);
-    DPRINTLN("Returning home");
-    DPRINT(homePosition[0]); DPRINT(" ");
-    DPRINTLN(homePosition[1]);
-
-    // Raise Z axis
-    if (numAxes > 2){
-        getCurrentPosition();
-        // TODO: Figure out appropriate offset
-        moveToTargetPosition(currentPosition[2] + 10, Z);
+// Initializes internal parameters and calibrates the motors and USB shield
+void M3LS::begin(){
+    // Initialize all pins as unselected outputs
+    for (int pin = 0; pin < numAxes; pin++){
+        pinMode(pins[pin], OUTPUT);
+        digitalWrite(pins[pin], HIGH);
     }
 
-    // Move X and Y to home position
-    moveToTargetPosition(homePosition[0], homePosition[1], XY);
-    recenter(homePosition[0], homePosition[1], homePosition[2]);
+    // Set the default internal bounds, radius, and refresh rate
+    lastMillis = 0;
+    radius = 5500;
+    recenter(6000, 6000, 6000);
+    refreshRate = 1000/50;
+    currentZPosition = 125;
+    invertX = false;
+    invertY = false;
+    invertZ = false;
+    invertS = false;
 
-    // Restored previous mode
-    setControlMode(previousMode);
-}
+#ifdef DEBUG
+    Serial.begin(115200);
+#endif
 
-// Gets and stores the current position of each stage
-void M3LS::getCurrentPosition(){
-    for (int axis = 0; axis < numAxes; axis++){
-        currentPosition[axis] = getAxisPosition(pins[axis]);
-    }
-}
+#ifndef MOCK
+    // Initialize the USB shield
+    initUSBShield();
+#endif
 
-// Adjust the internal bounds based on a given number of encoder counts
-void M3LS::setBounds(int raw){
-    if(raw < 64){
-        radius = map(raw, 0, 64, 10, 50);
-    } else if(raw < 128){
-        radius = map(raw, 64, 128, 50, 500);
-    } else if(raw < 192){
-        radius = map(raw, 128, 192, 500, 2250);
-    } else
-        radius = map(raw, 192, 255, 2250, 5500);
+    // Initialize SPI
+    delay(50);
+    SPI.begin();
+
+    // Calibrate the stages
+    calibrate();
+
+    // Ensure the system is in position mode
+    currentControlMode = position;
+    setControlMode(M3LS::open);
+    setControlMode(M3LS::position);
 }
 
 // The main event loop
@@ -351,68 +187,205 @@ void M3LS::run(){
     #endif
 }
 
-// Initializes internal parameters and calibrates the motors and USB shield
-void M3LS::begin(){
-    // Initialize all pins as unselected outputs
-    for (int pin = 0; pin < numAxes; pin++){
-        pinMode(pins[pin], OUTPUT);
-        digitalWrite(pins[pin], HIGH);
+// Binds a given button to a specified command
+void M3LS::bindButton(int buttonNumber, Commands comm){
+    buttonMap[buttonNumber] = comm;
+}
+
+// Sets the current refresh rate to the new value
+void M3LS::setRefreshRate(int newRate){
+    refreshRate = 1000 / newRate;
+}
+
+// Sets the current control mode to the new mode
+void M3LS::setControlMode(ControlMode newMode){
+    if (newMode == open && currentControlMode != open){
+        memcpy(sendChars, "<20 0>\r", 7);
+        for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+        }
+    } else if(newMode != open && currentControlMode == open){
+        memcpy(sendChars, "<20 1>\r", 7);
+        for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+        }
+    } else if(newMode == position && currentControlMode != position){
+        // This is where re-centering has to occur.
+        // get current position, re-center bounds around that.
+        getCurrentPosition(); // BLOCKING
+        recenter(currentPosition[0], currentPosition[1], currentPosition[2]);
+    }
+    currentControlMode = newMode;
+}
+
+// Store the current position as the home position
+void M3LS::setHome(){
+    getCurrentPosition();
+    memcpy(homePosition, currentPosition, numAxes * sizeof(int));
+    DPRINT("Setting home to ");
+    DPRINT(homePosition[0]); DPRINT(" ");
+    DPRINT(homePosition[1]); DPRINT(" ");
+    DPRINTLN(homePosition[2]);
+}
+
+// Return to the stored home position
+void M3LS::returnHome(){
+    // Store current mode and switch to position mode
+    ControlMode previousMode = currentControlMode;
+    setControlMode(position);
+    DPRINTLN("Returning home");
+    DPRINT(homePosition[0]); DPRINT(" ");
+    DPRINTLN(homePosition[1]);
+
+    // Raise Z axis
+    if (numAxes > 2){
+        getCurrentPosition();
+        // TODO: Figure out appropriate offset
+        moveToTargetPosition(currentPosition[2] + 10, Z);
     }
 
-    // Set the default internal bounds, radius, and refresh rate
-    lastMillis = 0;
-    radius = 5500;
-    recenter(6000, 6000, 6000);
-    refreshRate = 1000/50;
-    currentZPosition = 125;
-    invertX = false;
-    invertY = false;
-    invertZ = false;
-    invertS = false;
+    // Move X and Y to home position
+    moveToTargetPosition(homePosition[0], homePosition[1], XY);
+    recenter(homePosition[0], homePosition[1], homePosition[2]);
 
-#ifdef DEBUG
-    Serial.begin(115200);
-#endif
+    // Restored previous mode
+    setControlMode(previousMode);
+}
 
-#ifndef MOCK
-    // Initialize the USB shield
-    initUSBShield();
-#endif
+// Sets the inversion status of the X axis
+void M3LS::invertXAxis(bool newStatus){
+    invertX = newStatus;
+}
 
-    // Initialize SPI
-    delay(50);
-    SPI.begin();
+// Sets the inversion status of the Y axis
+void M3LS::invertYAxis(bool newStatus){
+    invertY = newStatus;
+}
 
-    // Calibrate the stages
-    calibrate();
+// Sets the inversion status of the Z axis
+void M3LS::invertZAxis(bool newStatus){
+    invertZ = newStatus;
+}
 
-    // Ensure the system is in position mode
-    currentControlMode = position;
-    setControlMode(M3LS::open);
-    setControlMode(M3LS::position);
+// Sets the inversion status of the sensitivity axis
+void M3LS::invertSAxis(bool newStatus){
+    invertS = newStatus;
+}
+
+// Default method for updating the needle's position
+void M3LS::updatePosition(int inp0, int inp1, int inp2){
+    updatePosition(inp0, inp1, inp2, XYZ, false);
+}
+
+// Default method for updating the needle's position with a trigger arg
+void M3LS::updatePosition(int inp0, int inp1, int inp2, bool isActive){
+    updatePosition(inp0, inp1, inp2, XYZ, isActive);
+}
+
+// Default method for updating the needle's position with an axis arg
+void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis){
+    updatePosition(inp0, inp1, inp2, axis, false);
+}
+
+// Update the needle's position based upon current mode and joystick inputs
+void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive){
+    // Handle inputs based on the current control mode
+    switch(currentControlMode)
+    {
+        case hold     : if (isActive){
+                            moveToTargetPosition(inp0, inp1, inp2, axis);
+                        }
+                        break;
+        case position : // Map the inputs based on the current bounds
+                        // Joystick reports 0-255
+                        DPRINT("X: "); DPRINT(inp0); DPRINT(" ");
+                        inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
+                        DPRINTLN(inp0);
+                        DPRINT("Y: "); DPRINT(inp1); DPRINT(" ");
+                        inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
+                        DPRINTLN(inp1);
+                        moveToTargetPosition(inp0, inp1, axis);
+
+                        // Z axis is always treated like velocity mode
+                        inp2 = scaleToZones(7, inp2);
+                        advanceMotor(inp2, 2);
+                        break;
+
+        case velocity : // Set the speed and target positions based on
+                        // displacement, divided between 7 zones
+                        // This should result in zone 0 being a "dead zone."
+                        int numZones = 7;
+                        int inputs[3] = {inp0, inp1, inp2};
+
+                        // Loop through each available axis
+                        for (int axis = 0; axis < numAxes; axis++){
+                            int inp = scaleToZones(numZones, inputs[axis]);
+                            advanceMotor(inp, axis);
+                        }
+
+                        break;
+    }
+}
+
+// Gets and stores the current position of each stage
+void M3LS::getCurrentPosition(){
+    for (int axis = 0; axis < numAxes; axis++){
+        currentPosition[axis] = getAxisPosition(pins[axis]);
+    }
 }
 
 // Private Functions
-// Initialize starting parameters and SPI settings
-// Get the current position of a single stage
-int M3LS::getAxisPosition(int pin){
-    /*
-    Send to controller:
-        <10>\r
-    Receive from controller:
-        <10 SSSSSS PPPPPPPP EEEEEEEE>\r
-        length: 30 bytes
-    */
+// Calibrate the stages
+void M3LS::calibrate(){
+    calibrateForward();
+    calibrateReverse();
+}
 
+// Executes a forward calibration routine on all axes
+void M3LS::calibrateForward(){
     // Build command and send it to SPI
-    memcpy(sendChars, "<10>\r", 5);
-    sendSPICommand(pin, 5);
+    delay(250);
+    memcpy(sendChars, "<87 5>\r", 7);
+    for (int axis = 0; axis < numAxes; axis++){
+        sendSPICommand(pins[axis], 7);
+    }
+    delay(250);
+}
 
-    // Allocate space for and generate position value
-    char position[11] = "0x";
-    memcpy(position+2, recvChars + 11, 8);
-    position[10] = 0;
-    return strtol(position, NULL, 0);
+// Executes a reverse calibration routine on all axes
+void M3LS::calibrateReverse(){
+    delay(250);
+    memcpy(sendChars, "<87 4>\r", 7);
+    for (int axis = 0; axis < numAxes; axis++){
+            sendSPICommand(pins[axis], 7);
+    }
+    delay(250);
+}
+
+// Instantiate the USB shield controller
+void M3LS::initUSBShield(){
+    // Initialize USB shield variables
+    // Hub = USBHub(&Usb);
+    // Hid = HIDUniversal(&Usb);
+    // Joy = JoystickReportParser(&JoyEvents);
+
+    // Call initialization routines
+    #ifndef MOCK
+        Usb.Init();
+        Hid.SetReportParser(0, &Joy);
+    #endif
+}
+
+// Adjust the internal bounds based on a given number of encoder counts
+void M3LS::setBounds(int raw){
+    if(raw < 64){
+        radius = map(raw, 0, 64, 10, 50);
+    } else if(raw < 128){
+        radius = map(raw, 64, 128, 50, 500);
+    } else if(raw < 192){
+        radius = map(raw, 128, 192, 500, 2250);
+    } else
+        radius = map(raw, 192, 255, 2250, 5500);
 }
 
 // Default single axis move command
@@ -498,6 +471,11 @@ void M3LS::moveToTargetPosition(int target0, int target1, int target2, Axes axis
     }
 }
 
+// Map a joystick input to a smaller zone number
+int M3LS::scaleToZones(int numZones, int input){
+    return (round(input * (numZones-1)/255.0) - ((numZones-1)/2))*(radius/(numZones*10)+1);
+}
+
 // Set the target position to move to
 void M3LS::setTargetPosition(int target){
     /*
@@ -523,6 +501,27 @@ void M3LS::advanceMotor(int inp, int axisNum){
     sprintf(sendChars + 6, "%08X", abs(inp));
     memcpy(sendChars + 14, ">\r", 2);
     sendSPICommand(pins[axisNum], 16);
+}
+
+// Get the current position of a single stage
+int M3LS::getAxisPosition(int pin){
+    /*
+    Send to controller:
+        <10>\r
+    Receive from controller:
+        <10 SSSSSS PPPPPPPP EEEEEEEE>\r
+        length: 30 bytes
+    */
+
+    // Build command and send it to SPI
+    memcpy(sendChars, "<10>\r", 5);
+    sendSPICommand(pin, 5);
+
+    // Allocate space for and generate position value
+    char position[11] = "0x";
+    memcpy(position+2, recvChars + 11, 8);
+    position[10] = 0;
+    return strtol(position, NULL, 0);
 }
 
 // Set the needle's current position as the new center by generating new bounds
