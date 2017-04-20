@@ -182,8 +182,10 @@ void M3LS::run(){
 
     // Update the position and bounds based upon the joystick inputs
     updatePosition(Joy.getX() + invertX * (255 - 2 * Joy.getX()), 
-        Joy.getY() + invertY * (255 - 2 * Joy.getY()), 
-        currentZPosition + invertZ * (255 - 2 * currentZPosition), XY, isActive);
+        Joy.getY() + invertY * (255 - 2 * Joy.getY()), XY, isActive);
+    zZone = scaleToZones(7, 
+        currentZPosition + invertZ * (255 - 2 * currentZPosition));
+    advanceMotor(zZone, 2);
     setBounds(Joy.getZ() + invertS * (255 - 2 * Joy.getZ()));
 
     // Save the current button status
@@ -258,8 +260,8 @@ void M3LS::returnHome(){
     // Raise Z axis
     if (numAxes > 2){
         getCurrentPosition();
-        // TODO: Create ZUp / ZDown functions and use an appropriate Z offset
-        moveToTargetPosition(currentPosition[2] + 10, Z);
+        // TODO: Determine an appropriate Z offset
+        moveToTargetPosition(currentPosition[2] + 10 - (invertZ * 20), Z);
     }
 
     // Move X and Y to home position
@@ -318,16 +320,18 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
         case position : // Map the inputs based on the current bounds
                         // Joystick reports 0-255
                         DPRINT("X: "); DPRINT(inp0); DPRINT(" ");
-                        inp0 = map(inp0, 0, 255, center[0]-radius, center[0]+radius);
+                        inp0 = map(inp0, 0, 255, 
+                            center[0] - radius, center[0] + radius);
                         DPRINTLN(inp0);
                         DPRINT("Y: "); DPRINT(inp1); DPRINT(" ");
-                        inp1 = map(inp1, 0, 255, center[1]-radius, center[1]+radius);
+                        inp1 = map(inp1, 0, 255, 
+                            center[1] - radius, center[1] + radius);
                         DPRINTLN(inp1);
-                        moveToTargetPosition(inp0, inp1, axis);
-
-                        // Z axis is always treated as if it is in velocity mode
-                        inp2 = scaleToZones(7, inp2);
-                        advanceMotor(inp2, 2);
+                        DPRINT("Z: "); DPRINT(inp2); DPRINT(" ");
+                        inp2 = map(inp2, 0, 255, 
+                            center[2] - radius, center[2] + radius);
+                        DPRINTLN(inp2);
+                        moveToTargetPosition(inp0, inp2, inp2, axis);
                         break;
 
         case velocity : // Set the speed and target positions based on

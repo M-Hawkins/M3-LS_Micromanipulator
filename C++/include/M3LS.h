@@ -85,11 +85,11 @@ class M3LS{
         void initUSBShield();
         void setBounds(int amount);
         void moveToTargetPosition(int target0);
-        void moveToTargetPosition(int target0, Axes a);
+        void moveToTargetPosition(int target0, Axes axis);
         void moveToTargetPosition(int target0, int target1);
-        void moveToTargetPosition(int target0, int target1, Axes a);
+        void moveToTargetPosition(int target0, int target1, Axes axis);
         void moveToTargetPosition(int target0, int target1, int target2);
-        void moveToTargetPosition(int target0, int target1, int target2, Axes a);
+        void moveToTargetPosition(int target0, int target1, int target2, Axes axis);
         int scaleToZones(int numZones, int input);
         void setTargetPosition(int target);
         void advanceMotor(int inp, int axisNum);
