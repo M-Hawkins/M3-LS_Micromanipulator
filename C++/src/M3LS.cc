@@ -146,6 +146,8 @@ void M3LS::run(){
 
         // Handle requested command
         switch(comm){
+            case ActiveMovement:    bool isActive = true;
+                                    break;
             case SetHome:           setHome();
                                     break;
             case ReturnHome:        returnHome();
@@ -173,13 +175,15 @@ void M3LS::run(){
                                     break;
             case InvertS:           invertSAxis(!invertS);
                                     break;
+            default:                bool isActive = false;
+                                    break;
         }
     }
 
     // Update the position and bounds based upon the joystick inputs
     updatePosition(Joy.getX() + invertX * (255 - 2 * Joy.getX()), 
         Joy.getY() + invertY * (255 - 2 * Joy.getY()), 
-        currentZPosition + invertZ * (255 - 2 * currentZPosition), XY);
+        currentZPosition + invertZ * (255 - 2 * currentZPosition), XY, isActive);
     setBounds(Joy.getZ() + invertS * (255 - 2 * Joy.getZ()));
 
     // Save the current button status
