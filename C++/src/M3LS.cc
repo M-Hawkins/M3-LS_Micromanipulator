@@ -1,21 +1,24 @@
 /*
 M3LS.cc - An Arduino library for translating high level commands to M3-LS API
            calls over SPI
-Created by Matthew Hawkins
 Copyright info?
 */
 
 #include "M3LS.h"
 
-// #define DEBUG   //If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
-#ifdef DEBUG    //Macros are usually in all capital letters.
-  #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
-  #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
+//If you comment this line, the DPRINT & DPRINTLN lines are defined as blank.
+// #define DEBUG
+#ifdef DEBUG
+    //DPRINT is a macro, debug print
+    #define DPRINT(...)    Serial.print(__VA_ARGS__)
+    //DPRINTLN is a macro, debug print with new line
+    #define DPRINTLN(...)  Serial.println(__VA_ARGS__)
 #else
-  #define DPRINT(...)     //now defines a blank line
-  #define DPRINTLN(...)   //now defines a blank line
+    //Defines a blank line for both
+    #define DPRINT(...)     
+    #define DPRINTLN(...)
 #endif
-// Initialize starting parameters and SPI settings
+
 // Constructors
 // Class constructor for a one axis M3LS micromanipulator setup
 M3LS::M3LS(int X_SS)
@@ -23,7 +26,7 @@ M3LS::M3LS(int X_SS)
     : Usb(), Hub(&Usb), Hid(&Usb), Joy(&JoyEvents)
 #endif
 {
-    // Initialize variables
+    // Initialize a one axis system
     numAxes = 1;
     pins[0] = X_SS;
 }
@@ -34,7 +37,7 @@ M3LS::M3LS(int X_SS, int Y_SS)
     : Usb(), Hub(&Usb), Hid(&Usb), Joy(&JoyEvents)
 #endif
 {
-    // Initialize variables
+    // Initialize a two axis system
     numAxes = 2;
     pins[0] = X_SS;
     pins[1] = Y_SS;
@@ -46,14 +49,14 @@ M3LS::M3LS(int X_SS, int Y_SS, int Z_SS)
     : Usb(), Hub(&Usb), Hid(&Usb), Joy(&JoyEvents)
 #endif
 {
-    // Initialize variables
+    // Initialize a three axis system
     numAxes = 3;
     pins[0] = X_SS;
     pins[1] = Y_SS;
     pins[2] = Z_SS;
 }
 
-// Public functions
+// Initialization and public high level functions
 // Initializes internal parameters and calibrates the motors and USB shield
 void M3LS::begin(){
     // Initialize all pins as unselected outputs
@@ -62,7 +65,7 @@ void M3LS::begin(){
         digitalWrite(pins[pin], HIGH);
     }
 
-    // Set the default internal bounds, radius, and refresh rate
+    // Set the default internal bounds, radius, refresh rate, etc.
     lastMillis = 0;
     radius = 5500;
     recenter(6000, 6000, 6000);
@@ -81,7 +84,6 @@ void M3LS::begin(){
     // Initialize the USB shield
     initUSBShield();
 #endif
-
     // Initialize SPI
     delay(50);
     SPI.begin();
@@ -102,89 +104,87 @@ void M3LS::run(){
     if(curMillis - lastMillis < refreshRate){ return; }
     lastMillis = curMillis;
 
-    #ifndef MOCK
-        // Get input from USB controller
-        Usb.Task();
-        curButtons = Joy.getButtons();
+#ifndef MOCK
+    // Get input from USB controller
+    Usb.Task();
+    curButtons = Joy.getButtons();
 
-        // Default the Z axis to dead zone
-        currentZPosition = 125;
+    // Default the Z axis to dead zone
+    currentZPosition = 125;
 
-        // Handle buttons that can be held down:
-        if(curButtons){
-            // Calculate which button was pressed
-            int status = curButtons;
-            int button = 1;
-            while (status >>=1) { ++button; }
-            // Serial.println(button);
+    // Handle buttons that can be held down:
+    if(curButtons){
+        // Calculate which button was pressed
+        int status = curButtons;
+        int button = 1;
+        while (status >>=1) { ++button; }
 
-            // Retrieve the associated function
-            Commands comm = buttonMap[button];
+        // Retrieve the associated command
+        Commands comm = buttonMap[button];
 
-            // Handle requested function
-            switch(comm){
-                case ZUp: // run at 'full speed' up or down
-                    currentZPosition = 127 + 30;
-                    break;
-                case ZDown:
-                    currentZPosition = 127 - 30;
-                    break;
-            }
+        // Handle requested command
+        switch(comm){
+             // These will run the Z axis at 'full speed' up or down
+            case ZUp:
+                currentZPosition = 127 + 30;
+                break;
+            case ZDown:
+                currentZPosition = 127 - 30;
+                break;
         }
+    }
 
-        // Handle any buttons that have changed
-        if(curButtons && lastButtons == 0){
-            // Calculate which button was pressed
-            int status = curButtons;
-            int button = 1;
-            while (status >>=1) { ++button; }
+    // Handle any buttons that have changed
+    if(curButtons && lastButtons == 0){
+        // Calculate which button was pressed
+        int status = curButtons;
+        int button = 1;
+        while (status >>=1) { ++button; }
 
-            // Retrieve the associated function
-            Commands comm = buttonMap[button];
+        // Retrieve the associated command
+        Commands comm = buttonMap[button];
 
-            // Handle requested function
-            switch(comm){
-                case SetHome:           setHome();
-                                        break;
-                case ReturnHome:        returnHome();
-                                        break;
-                case CenterAxes:        recenter(6000, 6000, 6000);
-                                        moveToTargetPosition(6000, 6000);
-                                        break;
-                case ToggleHold:        if (currentControlMode == hold){
-                                            setControlMode(position);
-                                        } else if (currentControlMode == position){
-                                            setControlMode(hold);
-                                        }
-                                        break;
-                case ToggleVelocity:    if (currentControlMode == velocity){
-                                            setControlMode(position);
-                                        } else {
-                                            setControlMode(velocity);
-                                        }
-                                        break;
-                case InvertX:           invertXAxis(!invertX);
-                                        break;
-                case InvertY:           invertYAxis(!invertY);
-                                        break;
-                case InvertZ:           invertZAxis(!invertZ);
-                                        break;
-                case InvertS:           invertSAxis(!invertS);
-                                        break;
-            }
+        // Handle requested command
+        switch(comm){
+            case SetHome:           setHome();
+                                    break;
+            case ReturnHome:        returnHome();
+                                    break;
+            case CenterAxes:        recenter(6000, 6000, 6000);
+                                    moveToTargetPosition(6000, 6000);
+                                    break;
+            case ToggleHold:        if (currentControlMode == hold){
+                                        setControlMode(position);
+                                    } else if (currentControlMode == position){
+                                        setControlMode(hold);
+                                    }
+                                    break;
+            case ToggleVelocity:    if (currentControlMode == velocity){
+                                        setControlMode(position);
+                                    } else {
+                                        setControlMode(velocity);
+                                    }
+                                    break;
+            case InvertX:           invertXAxis(!invertX);
+                                    break;
+            case InvertY:           invertYAxis(!invertY);
+                                    break;
+            case InvertZ:           invertZAxis(!invertZ);
+                                    break;
+            case InvertS:           invertSAxis(!invertS);
+                                    break;
         }
+    }
 
-        // Save current button status
-        lastButtons = curButtons;
+    // Update the position and bounds based upon the joystick inputs
+    updatePosition(Joy.getX() + invertX * (255 - 2 * Joy.getX()), 
+        Joy.getY() + invertY * (255 - 2 * Joy.getY()), 
+        currentZPosition + invertZ * (255 - 2 * currentZPosition), XY);
+    setBounds(Joy.getZ() + invertS * (255 - 2 * Joy.getZ()));
 
-        // Update the position and bounds based upon the joystick inputs
-        int x = Joy.getX();
-        int y = Joy.getY();
-        int z = Joy.getZ();
-        updatePosition(x + invertX * (255 - 2*x), y + invertY * (255 - 2*y), 
-                currentZPosition + invertZ * (255 - 2*currentZPosition), XY);
-        setBounds(z + invertS * (255 - 2*z));
-    #endif
+    // Save the current button status
+    lastButtons = curButtons;
+#endif
 }
 
 // Binds a given button to a specified command
@@ -199,6 +199,20 @@ void M3LS::setRefreshRate(int newRate){
 
 // Sets the current control mode to the new mode
 void M3LS::setControlMode(ControlMode newMode){
+    /*
+    Send to controller:
+        <20 X>\r
+        7 bytes
+        X = 0: Open loop mode
+        X = 1: Closed loop mode
+        X = R: Report current mode
+    Receive from controller:
+        <20 X IIII>\r
+        12 bytes
+        IIII is the closed loop control interval, units are 3.2us
+        Ignored for our purposes
+    */
+
     if (newMode == open && currentControlMode != open){
         memcpy(sendChars, "<20 0>\r", 7);
         for (int axis = 0; axis < numAxes; axis++){
@@ -211,8 +225,8 @@ void M3LS::setControlMode(ControlMode newMode){
         }
     } else if(newMode == position && currentControlMode != position){
         // This is where re-centering has to occur.
-        // get current position, re-center bounds around that.
-        getCurrentPosition(); // BLOCKING
+        // Re-center bounds around the current position
+        getCurrentPosition();
         recenter(currentPosition[0], currentPosition[1], currentPosition[2]);
     }
     currentControlMode = newMode;
@@ -240,7 +254,7 @@ void M3LS::returnHome(){
     // Raise Z axis
     if (numAxes > 2){
         getCurrentPosition();
-        // TODO: Figure out appropriate offset
+        // TODO: Create ZUp / ZDown functions and use an appropriate Z offset
         moveToTargetPosition(currentPosition[2] + 10, Z);
     }
 
@@ -248,7 +262,7 @@ void M3LS::returnHome(){
     moveToTargetPosition(homePosition[0], homePosition[1], XY);
     recenter(homePosition[0], homePosition[1], homePosition[2]);
 
-    // Restored previous mode
+    // Restore previous mode
     setControlMode(previousMode);
 }
 
@@ -277,12 +291,12 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2){
     updatePosition(inp0, inp1, inp2, XYZ, false);
 }
 
-// Default method for updating the needle's position with a trigger arg
+// Default method for updating the needle's position with a trigger parameter
 void M3LS::updatePosition(int inp0, int inp1, int inp2, bool isActive){
     updatePosition(inp0, inp1, inp2, XYZ, isActive);
 }
 
-// Default method for updating the needle's position with an axis arg
+// Default method for updating the needle's position with an axis parameter
 void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis){
     updatePosition(inp0, inp1, inp2, axis, false);
 }
@@ -292,7 +306,8 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
     // Handle inputs based on the current control mode
     switch(currentControlMode)
     {
-        case hold     : if (isActive){
+        case hold     : // Only execute a move command if the button is held
+                        if (isActive){
                             moveToTargetPosition(inp0, inp1, inp2, axis);
                         }
                         break;
@@ -306,7 +321,7 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                         DPRINTLN(inp1);
                         moveToTargetPosition(inp0, inp1, axis);
 
-                        // Z axis is always treated like velocity mode
+                        // Z axis is always treated as if it is in velocity mode
                         inp2 = scaleToZones(7, inp2);
                         advanceMotor(inp2, 2);
                         break;
@@ -322,7 +337,6 @@ void M3LS::updatePosition(int inp0, int inp1, int inp2, Axes axis, bool isActive
                             int inp = scaleToZones(numZones, inputs[axis]);
                             advanceMotor(inp, axis);
                         }
-
                         break;
     }
 }
@@ -481,9 +495,10 @@ void M3LS::setTargetPosition(int target){
     /*
     Send to controller:
         <08>\r
+        4 bytes
     Receive from controller:
         <10 SSSSSS PPPPPPPP EEEEEEEE>\r
-        length: 30 bytes
+        30 bytes
     */
 
     // Build command and send it to SPI
@@ -508,9 +523,10 @@ int M3LS::getAxisPosition(int pin){
     /*
     Send to controller:
         <10>\r
+        5 bytes
     Receive from controller:
         <10 SSSSSS PPPPPPPP EEEEEEEE>\r
-        length: 30 bytes
+        30 bytes
     */
 
     // Build command and send it to SPI
