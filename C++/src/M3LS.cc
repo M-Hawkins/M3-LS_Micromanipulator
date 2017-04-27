@@ -66,6 +66,8 @@ void M3LS::begin(){
     }
 
     // Set the default internal bounds, radius, refresh rate, etc.
+    soundPin = A5; // TODO figure out the sound pin trigger. **Active Low!**
+    digitalWrite(soundPin, HIGH);
     lastMillis = 0;
     radius = 5500;
     recenter(6000, 6000, 6000);
@@ -105,6 +107,13 @@ void M3LS::run(){
     lastMillis = curMillis;
 
 #ifndef MOCK
+    if(atEndOfTravel()){
+        digitalWrite(soundPin, LOW); // Sound!
+    } else {
+        digitalWrite(soundPin, HIGH); // Do not sound
+    }
+           
+           
     // Get input from USB controller
     Usb.Task();
     curButtons = Joy.getButtons();
