@@ -640,3 +640,12 @@ int M3LS::sendSPICommand(int pin, int length){
 #endif
     return 0;
 }
+
+bool M3LS::atEndOfTravel(){
+    for(int i=0; i<3; i++){
+        if(currentPosition[i] > 11900 || currentPosition[i] < 100){
+            return true;
+        }
+    }
+    return false;
+}
