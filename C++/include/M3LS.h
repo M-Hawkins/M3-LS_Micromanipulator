@@ -58,6 +58,7 @@ class M3LS{
         int currentZPosition;
         int currentPosition[3];
         int homePosition[3];
+        int soundPin;
         bool invertX;
         bool invertY;
         bool invertZ;
@@ -96,6 +97,7 @@ class M3LS{
         int getAxisPosition(int pin);
         void recenter(int newx, int newy, int newz);
         int sendSPICommand(int pin, int length);
+        bool atEndOfTravel();
 };
 
 #endif
